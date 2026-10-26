@@ -1,0 +1,35 @@
+---
+import "../styles/global.css";
+import BottomNav from "../components/BottomNav.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = "AlFallo", description = "Planifica, registra y supera tus entrenamientos de fuerza." } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0b0b0d" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen pb-24 md:pb-0 md:pl-56">
+    <main class="mx-auto px-4 py-6 md:px-8 md:py-10">
+      <slot />
+    </main>
+    <BottomNav />
+  </body>
+</html>
