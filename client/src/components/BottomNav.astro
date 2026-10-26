@@ -1,0 +1,90 @@
+---
+const path = Astro.url.pathname;
+
+const links = [
+  {
+    href: "/",
+    label: "Inicio",
+    icon: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+  },
+  {
+    href: "/rutinas",
+    label: "Rutinas",
+    icon: '<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>',
+  },
+  {
+    href: "/estadisticas",
+    label: "Estadísticas",
+    icon: '<path d="M3 3v18h18"/><path d="M8 17v-5M13 17V8M18 17v-9"/>',
+  },
+  {
+    href: "/perfil",
+    label: "Perfil",
+    icon: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  },
+];
+
+const isActive = (href: string) =>
+  href === "/" ? path === "/" : path.startsWith(href);
+---
+
+<nav
+  aria-label="Navegación principal"
+  class="fixed inset-x-0 bottom-0 z-50 flex border-t border-borde bg-superficie pb-[env(safe-area-inset-bottom)]
+         md:inset-y-0 md:right-auto md:w-56 md:flex-col md:border-t-0 md:border-r md:p-4 md:pb-4"
+>
+  <!-- Logo (solo escritorio) -->
+  <a href="/" class="mb-8 hidden items-center gap-2 px-2 md:flex">
+    <span class="text-xl font-extrabold tracking-tight">AlFall</span>
+    <span class="grid h-6 w-6 place-items-center rounded-full bg-primario">
+      <span class="h-2 w-2 rounded-full bg-fondo"></span>
+    </span>
+  </a>
+
+  <p class="mb-2 hidden px-2 text-[10px] font-semibold uppercase tracking-widest text-suave md:block">
+    Tu espacio
+  </p>
+
+  <!-- Enlaces -->
+  <div class="flex w-full justify-around md:flex-col md:justify-start md:gap-1">
+    {
+      links.map((l) => (
+        <a
+          href={l.href}
+          aria-current={isActive(l.href) ? "page" : undefined}
+          class:list={[
+            "flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors",
+            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario",
+            "md:min-h-0 md:flex-none md:flex-row md:justify-start md:gap-3 md:rounded-lg md:px-3 md:py-2.5 md:text-sm",
+            isActive(l.href)
+              ? "bg-primario/10 text-primario"
+              : "text-suave hover:text-white md:hover:bg-elevada",
+          ]}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            set:html={l.icon}
+          />
+          <span>{l.label}</span>
+        </a>
+      ))
+    }
+  </div>
+
+  <!-- Frase motivacional (solo escritorio) -->
+  <div class="mt-auto hidden rounded-xl border border-borde bg-elevada p-4 md:block">
+    <p class="text-sm font-semibold leading-snug">
+      Una repetición más.<br />Un paso más fuerte.
+    </p>
+    <p class="mt-1 text-xs text-suave">Hazlo por ti.</p>
+  </div>
+</nav>
