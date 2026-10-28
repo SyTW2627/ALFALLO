@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import CabeceraInicio from "../components/CabeceraInicio.jsx";
 
 const ejercicios = [
   { nombre: "Press de banca", series: "4 × 8", peso: "80 kg" },
@@ -9,11 +10,7 @@ const ejercicios = [
 ---
 
 <Layout title="Inicio · AlFallo">
-  <header class="mb-8">
-    <p class="text-xs text-suave">Mi espacio / Resumen</p>
-    <h1 class="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl">Vamos a por más, Iker.</h1>
-    <p class="mt-1 text-sm text-suave">Tu única competencia es quien eras ayer.</p>
-  </header>
+  <CabeceraInicio client:load />
 
   <div class="grid gap-6 lg:grid-cols-[1fr_340px]">
     <!-- Comunidad -->
@@ -97,7 +94,7 @@ const ejercicios = [
           href="/rutinas"
           class="mt-4 block rounded-lg bg-primario py-3 text-center text-sm font-bold text-fondo transition hover:brightness-110"
         >
-          Iniciar sesión
+          Empezar entrenamiento
         </a>
       </div>
 
