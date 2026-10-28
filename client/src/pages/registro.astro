@@ -1,0 +1,20 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AuthForm from "../components/AuthForm.jsx";
+import BackLink from "../components/BackLink.astro";
+---
+
+<Layout title="Crear cuenta · AlFallo" showNav={false}>
+  <BackLink href="/" />
+
+  <div class="relative grid min-h-[75vh] place-items-center overflow-hidden">
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primario/10 blur-3xl"
+    >
+    </div>
+    <div class="relative flex w-full justify-center">
+      <AuthForm client:load modo="registro" />
+    </div>
+  </div>
+</Layout>
