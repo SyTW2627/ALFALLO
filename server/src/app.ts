@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import exerciseRoutes from './routes/exercises';
