@@ -1,10 +1,9 @@
 import { Document, Schema, model } from "mongoose";
 
-enum BodyParts {
-
+export enum BodyParts {
   BACK = "Back",
   DORSAL = "Dorsal",
-  LUMBAAR = "Lumbar",
+  LUMBAR = "Lumbar",
   BICEPS = "Biceps",
   TRICEPS = "Triceps",
   QUADRICEPS = "Quadriceps",
@@ -17,37 +16,41 @@ enum BodyParts {
   LATERAL_SHOULDER = "Lateral Shoulder",
   POSTERIOR_SHOULDER = "Posterior Shoulder",
   FRONT_SHOULDER = "Front Shoulder",
-
 }
 
 export interface IExercise extends Document {
   name: string,
   description: string,
   bodyPart: BodyParts,
-  difficulty: number,
+  difficulty: number, // 1 (fácil) – 5 (muy difícil).
 }
 
-const exerciseSchema = new Schema<IExercise>({
-  name: {
-    type: String, 
-    required: true,
-    trim: true,
+const exerciseSchema = new Schema<IExercise>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    bodyPart: {
+      type: String,
+      enum: Object.values(BodyParts),
+      required: true,
+    },
+    difficulty: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
   },
-  description: {
-    type: String,
-    required: true,
-  },
-  bodyPart: {
-    type: String,
-    enum: Object.values(BodyParts),
-    required: true,
-    trim: true,
-  },
-  difficulty: {
-    type: Number,
-    required: true,
-    trim: true,
-  },
-});
+  { timestamps: true }
+);
 
-export const Exercise = model<IExercise>('Exercise', exerciseSchema);
+export const Exercise = model<IExercise>("Exercise", exerciseSchema);
