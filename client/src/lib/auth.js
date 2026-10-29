@@ -1,10 +1,7 @@
-// Gestión de sesión en el navegador.
-// TODO API ─ Cuando exista el backend, el token será el JWT real devuelto por
-// /auth/login o /auth/registro, y el usuario vendrá de GET /usuarios/me.
-
 const TOKEN_KEY = "token";
 const USUARIO_KEY = "usuario";
 
+/* ---------- Almacenamiento ---------- */
 export function getToken() {
   try {
     return localStorage.getItem(TOKEN_KEY);
@@ -13,10 +10,51 @@ export function getToken() {
   }
 }
 
-// Devuelve el usuario si hay sesión iniciada, o null si no la hay.
+function borrarAlmacenamiento() {
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USUARIO_KEY);
+  } catch {
+    
+  }
+}
+
+
+function leerPayload(token) {
+  try {
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const relleno = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    return JSON.parse(atob(relleno));
+  } catch {
+    return null;
+  }
+}
+
+function tokenVigente(token) {
+  const payload = leerPayload(token);
+  if (!payload || typeof payload.exp !== "number") return false;
+  return payload.exp * 1000 > Date.now();
+}
+
+/* ---------- Usuario ---------- */
+export function normalizarUsuario(u = {}) {
+  return {
+    id: u._id ?? u.id,
+    nombre: u.name ?? "",
+    email: u.email ?? "",
+    rol: u.role ?? "user",
+    creadoEn: u.createdAt ?? null,
+  };
+}
+
 export function getUsuario() {
   try {
-    if (!localStorage.getItem(TOKEN_KEY)) return null;
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return null;
+    if (!tokenVigente(token)) {
+      borrarAlmacenamiento();
+      return null;
+    }
     const raw = localStorage.getItem(USUARIO_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
@@ -33,21 +71,26 @@ export function guardarSesion({ token, usuario }) {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USUARIO_KEY, JSON.stringify(usuario));
   } catch {
-    /* almacenamiento no disponible (modo privado, etc.) */
+    /* almacenamiento no disponible */
+    }
+}
+
+
+export function actualizarUsuario(usuario) {
+  try {
+    if (!localStorage.getItem(TOKEN_KEY)) return;
+    localStorage.setItem(USUARIO_KEY, JSON.stringify(usuario));
+  } catch {
+    /* almacenamiento no disponible */
   }
 }
 
 export function cerrarSesion(destino = "/") {
-  try {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USUARIO_KEY);
-  } catch {
-    /* nada que borrar */
-  }
+  borrarAlmacenamiento();
   window.location.href = destino;
 }
 
-// "Iker Martín" → "IM"
+// ---------- Utilidades ----------
 export function iniciales(nombre = "") {
   const partes = nombre.trim().split(/\s+/).filter(Boolean);
   const texto = (partes[0]?.[0] ?? "?") + (partes[1]?.[0] ?? "");

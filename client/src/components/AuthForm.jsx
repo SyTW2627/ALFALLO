@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { guardarSesion } from "../lib/auth.js";
+import { useEffect, useState } from "react";
+import { estaLogueado, guardarSesion } from "../lib/auth.js";
+import { iniciarSesion, registrarUsuario } from "../lib/api.js";
 
 const MODOS = {
   login: {
@@ -23,16 +24,10 @@ const EMAIL_RE = /^\S+@\S+\.\S+$/;
 function validar(modo, d) {
   const e = {};
   if (modo === "registro" && d.nombre.trim().length < 2) e.nombre = "Introduce tu nombre.";
-  if (!EMAIL_RE.test(d.email)) e.email = "El email no es válido.";
+  if (!EMAIL_RE.test(d.email.trim())) e.email = "El email no es válido.";
   if (d.password.length < 8) e.password = "Mínimo 8 caracteres.";
   if (modo === "registro" && d.confirmar !== d.password) e.confirmar = "Las contraseñas no coinciden.";
   return e;
-}
-
-// Solo para la simulación: "iker.martin@correo.com" → "Iker.martin"
-function nombreDesdeEmail(email) {
-  const local = email.split("@")[0];
-  return local.charAt(0).toUpperCase() + local.slice(1);
 }
 
 /* ---------- Campo de formulario accesible ---------- */
@@ -73,6 +68,19 @@ export default function AuthForm({ modo = "login" }) {
   const [errorGeneral, setErrorGeneral] = useState("");
   const [cargando, setCargando] = useState(false);
   const [verPassword, setVerPassword] = useState(false);
+  const [aviso, setAviso] = useState("");
+
+  useEffect(() => {
+    // Si ya hay sesión válida no tiene sentido mostrar login/registro.
+    if (estaLogueado()) {
+      window.location.replace("/");
+      return;
+    }
+    // Llegamos desde el perfil porque el token había caducado.
+    if (new URLSearchParams(window.location.search).get("sesion") === "caducada") {
+      setAviso("Tu sesión ha caducado. Vuelve a iniciar sesión.");
+    }
+  }, []);
 
   const cambiar = (campo) => (e) => {
     setDatos((d) => ({ ...d, [campo]: e.target.value }));
@@ -88,31 +96,19 @@ export default function AuthForm({ modo = "login" }) {
     if (Object.keys(errs).length > 0) return;
 
     setCargando(true);
+    setAviso("");
     try {
-      // TODO API ─ Aquí va la petición al backend (tarea de integración).
-      //   Login:    POST {API_URL}/auth/login     body: { email, password }
-      //   Registro: POST {API_URL}/auth/registro  body: { nombre, email, password }
-      //   Respuesta OK (200/201): { token, usuario }
-      //     → guardarSesion(respuesta) y redirigir a "/".
-      //   Errores (400/401/409) con { mensaje }
-      //     → lanzar Error(mensaje) para mostrarlo abajo, p. ej.
-      //       401 "Credenciales incorrectas" · 409 "El email ya está registrado"
+      // El backend guarda el email en minúsculas, así que lo normalizamos igual.
+      const email = datos.email.trim().toLowerCase();
+      const sesion = esRegistro
+        ? await registrarUsuario({ nombre: datos.nombre.trim(), email, password: datos.password })
+        : await iniciarSesion({ email, password: datos.password });
 
-      // ── SIMULACIÓN DE SESIÓN ── BORRAR este bloque al conectar la API ──
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      guardarSesion({
-        token: "token-simulado",
-        usuario: {
-          nombre: esRegistro ? datos.nombre.trim() : nombreDesdeEmail(datos.email),
-          email: datos.email,
-          ...(esRegistro && { creadoEn: new Date().toISOString() }),
-        },
-      });
+      guardarSesion(sesion); // { token, usuario }
       window.location.href = "/";
-      // ── FIN DE LA SIMULACIÓN ──────────────────────────────────────────
+      // No se desactiva "cargando": el botón queda bloqueado hasta que la página cambie.
     } catch (err) {
       setErrorGeneral(err.message || "No se ha podido conectar con el servidor.");
-    } finally {
       setCargando(false);
     }
   };
@@ -194,6 +190,15 @@ export default function AuthForm({ modo = "login" }) {
             />
           )}
         </div>
+
+        {aviso && (
+          <p
+            role="status"
+            className="mt-4 rounded-lg border border-primario/30 bg-primario/10 px-3 py-2 text-sm text-primario"
+          >
+            {aviso}
+          </p>
+        )}
 
         {errorGeneral && (
           <p

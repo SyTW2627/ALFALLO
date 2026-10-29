@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { getUsuario, iniciales } from "../lib/auth.js";
 
 export default function CabeceraInicio() {
-  // undefined = comprobando sesión · null = sin sesión · objeto = con sesión
   const [usuario, setUsuario] = useState(undefined);
 
   useEffect(() => {
