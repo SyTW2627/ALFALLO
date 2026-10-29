@@ -7,6 +7,7 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
 
+    // Validación limpia sin espacios invisibles
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
@@ -21,13 +22,13 @@ export const register = async (req: Request, res: Response) => {
 
     const token = generateToken(user._id.toString(), user.role);
 
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Usuario registrado con éxito',
       token,
       user,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error interno del servidor', error });
+    return res.status(500).json({ message: 'Error interno del servidor', error });
   }
 };
 
