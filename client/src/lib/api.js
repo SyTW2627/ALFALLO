@@ -75,3 +75,57 @@ export async function contarEntrenamientos() {
   const r = await peticion("/workouts/history", { auth: true });
   return Array.isArray(r) ? r.length : null;
 }
+
+/* ---------- Entrenamiento ---------- */
+
+// Catálogo de ejercicios.
+export function obtenerEjercicios() {
+  return peticion("/exercises", { auth: true });
+}
+
+// Rutinas del usuario (con los ejercicios ya populados).
+export function obtenerRutinas() {
+  return peticion("/routines", { auth: true });
+}
+
+// Entrenamientos terminados, del más reciente al más antiguo.
+export function obtenerHistorial() {
+  return peticion("/workouts/history", { auth: true });
+}
+
+// Entrenamiento en curso o null si no hay ninguno.
+export function obtenerEntrenamientoActivo() {
+  return peticion("/workouts/active", { auth: true });
+}
+
+export function empezarEntrenamiento({ titulo, objetivo }) {
+  return peticion("/workouts/start", {
+    metodo: "POST",
+    auth: true,
+    cuerpo: { title: titulo, objective: objetivo || undefined },
+  });
+}
+
+// Sustituye la lista completa de ejercicios/series del entrenamiento en curso.
+// `ejercicios` usa la forma del frontend: [{ id, series: [{ reps, kg }] }]
+export function guardarEntrenamiento({ ejercicios, notas }) {
+  return peticion("/workouts/active", {
+    metodo: "PUT",
+    auth: true,
+    cuerpo: {
+      exercises: ejercicios.map((e) => ({
+        exercise: e.id,
+        sets: e.series.map((s) => ({ reps: s.reps, weightKg: s.kg })),
+      })),
+      notes: notas,
+    },
+  });
+}
+
+export function terminarEntrenamiento() {
+  return peticion("/workouts/finish", { metodo: "POST", auth: true });
+}
+
+export function descartarEntrenamiento() {
+  return peticion("/workouts/active", { metodo: "DELETE", auth: true });
+}

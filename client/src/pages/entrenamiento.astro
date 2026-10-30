@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PaginaEntrenamiento from "../components/entrenamiento/PaginaEntrenamiento.jsx";
+---
+
+<Layout title="Entrenar · AlFallo" description="Registra tus series, descansos y marcas en tiempo real.">
+  <PaginaEntrenamiento client:only="react" />
+</Layout>
