@@ -19,6 +19,7 @@ const options: swaggerJsdoc.Options = {
         tags: [
             { name: 'Health', description: 'Estado de la API' },
             { name: 'Auth', description: 'Registro e inicio de sesión' },
+            { name: 'Users', description: 'Perfil del usuario autenticado' },
         ],
         components: {
             securitySchemes: {
