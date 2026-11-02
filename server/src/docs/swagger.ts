@@ -3,6 +3,7 @@ import { Express, Request, Response } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { BodyParts } from '../models/exercises';
+import { Objective } from '../models/routines';
 
 const PORT = process.env.PORT || 3000;
 
@@ -22,6 +23,7 @@ const options: swaggerJsdoc.Options = {
             { name: 'Auth', description: 'Registro e inicio de sesión' },
             { name: 'Users', description: 'Perfil del usuario autenticado' },
             { name: 'Exercises', description: 'Catálogo de ejercicios' },
+            { name: 'Routines', description: 'Rutinas del usuario' },
         ],
         components: {
             securitySchemes: {
@@ -81,6 +83,76 @@ const options: swaggerJsdoc.Options = {
                         description: { type: 'string', example: 'Empuje horizontal con barra' },
                         bodyPart: { type: 'string', enum: Object.values(BodyParts) },
                         difficulty: { type: 'integer', minimum: 1, maximum: 5, example: 3 },
+                    },
+                },
+                RoutineExerciseInput: {
+                    type: 'object',
+                    required: ['exercise'],
+                    description: 'Si se omiten sets, reps o restInSeconds se usan los valores por defecto del objetivo',
+                    properties: {
+                        exercise: { type: 'string', description: 'Id del ejercicio del catálogo' },
+                        sets: { type: 'integer', example: 4 },
+                        reps: { type: 'integer', example: 6 },
+                        restInSeconds: { type: 'integer', example: 240 },
+                    },
+                },
+                RoutineDayInput: {
+                    type: 'object',
+                    required: ['name', 'objective', 'exercises'],
+                    properties: {
+                        name: { type: 'string', example: 'Torso' },
+                        objective: { type: 'string', enum: Object.values(Objective) },
+                        exercises: {
+                            type: 'array',
+                            minItems: 1,
+                            items: { $ref: '#/components/schemas/RoutineExerciseInput' },
+                        },
+                    },
+                },
+                RoutineInput: {
+                    type: 'object',
+                    required: ['name', 'days'],
+                    properties: {
+                        name: { type: 'string', example: 'Torso / Pierna' },
+                        days: {
+                            type: 'array',
+                            minItems: 1,
+                            maxItems: 7,
+                            items: { $ref: '#/components/schemas/RoutineDayInput' },
+                        },
+                    },
+                },
+                Routine: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string' },
+                        user: { type: 'string' },
+                        name: { type: 'string' },
+                        days: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    _id: { type: 'string' },
+                                    name: { type: 'string' },
+                                    objective: { type: 'string', enum: Object.values(Objective) },
+                                    exercises: {
+                                        type: 'array',
+                                        items: {
+                                            type: 'object',
+                                            properties: {
+                                                exercise: { $ref: '#/components/schemas/Exercise' },
+                                                sets: { type: 'integer' },
+                                                reps: { type: 'integer' },
+                                                restInSeconds: { type: 'integer' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
                     },
                 },
             },
