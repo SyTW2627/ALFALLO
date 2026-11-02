@@ -4,6 +4,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { BodyParts } from '../models/exercises';
 import { Objective } from '../models/routines';
+import { WorkoutStatus } from '../models/workout';
 
 const PORT = process.env.PORT || 3000;
 
@@ -24,6 +25,7 @@ const options: swaggerJsdoc.Options = {
             { name: 'Users', description: 'Perfil del usuario autenticado' },
             { name: 'Exercises', description: 'Catálogo de ejercicios' },
             { name: 'Routines', description: 'Rutinas del usuario' },
+            { name: 'Workouts', description: 'Entrenamientos en curso e historial' },
         ],
         components: {
             securitySchemes: {
@@ -153,6 +155,48 @@ const options: swaggerJsdoc.Options = {
                         },
                         createdAt: { type: 'string', format: 'date-time' },
                         updatedAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                Set: {
+                    type: 'object',
+                    required: ['reps', 'weightKg'],
+                    properties: {
+                        reps: { type: 'integer', minimum: 1, example: 8 },
+                        weightKg: { type: 'number', minimum: 0, example: 80 },
+                    },
+                },
+                WorkoutExerciseInput: {
+                    type: 'object',
+                    required: ['exercise'],
+                    properties: {
+                        exercise: { type: 'string', description: 'Id del ejercicio del catálogo' },
+                        sets: { type: 'array', items: { $ref: '#/components/schemas/Set' } },
+                    },
+                },
+                Workout: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string' },
+                        user: { type: 'string' },
+                        title: { type: 'string', example: 'Torso' },
+                        objective: { type: 'string', enum: Object.values(Objective) },
+                        status: { type: 'string', enum: Object.values(WorkoutStatus) },
+                        startedAt: { type: 'string', format: 'date-time' },
+                        finishedAt: { type: 'string', format: 'date-time' },
+                        exercises: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    exercise: { $ref: '#/components/schemas/Exercise' },
+                                    sets: { type: 'array', items: { $ref: '#/components/schemas/Set' } },
+                                },
+                            },
+                        },
+                        notes: { type: 'string' },
+                        durationMinutes: { type: 'integer', nullable: true, example: 64 },
+                        totalSets: { type: 'integer', example: 18 },
+                        totalVolumeKg: { type: 'number', example: 6240 },
                     },
                 },
             },
