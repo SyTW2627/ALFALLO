@@ -2,6 +2,7 @@ import path from 'path';
 import { Express, Request, Response } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import { BodyParts } from '../models/exercises';
 
 const PORT = process.env.PORT || 3000;
 
@@ -20,6 +21,7 @@ const options: swaggerJsdoc.Options = {
             { name: 'Health', description: 'Estado de la API' },
             { name: 'Auth', description: 'Registro e inicio de sesión' },
             { name: 'Users', description: 'Perfil del usuario autenticado' },
+            { name: 'Exercises', description: 'Catálogo de ejercicios' },
         ],
         components: {
             securitySchemes: {
@@ -57,6 +59,28 @@ const options: swaggerJsdoc.Options = {
                         message: { type: 'string' },
                         token: { type: 'string' },
                         user: { $ref: '#/components/schemas/User' },
+                    },
+                },
+                Exercise: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string' },
+                        name: { type: 'string', example: 'Press de banca' },
+                        description: { type: 'string', example: 'Empuje horizontal con barra' },
+                        bodyPart: { type: 'string', enum: Object.values(BodyParts) },
+                        difficulty: { type: 'integer', minimum: 1, maximum: 5, example: 3 },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                ExerciseInput: {
+                    type: 'object',
+                    required: ['name', 'description', 'bodyPart', 'difficulty'],
+                    properties: {
+                        name: { type: 'string', example: 'Press de banca' },
+                        description: { type: 'string', example: 'Empuje horizontal con barra' },
+                        bodyPart: { type: 'string', enum: Object.values(BodyParts) },
+                        difficulty: { type: 'integer', minimum: 1, maximum: 5, example: 3 },
                     },
                 },
             },
