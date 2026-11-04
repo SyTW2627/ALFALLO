@@ -1,0 +1,40 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Página no encontrada · AlFallo" description="La página que buscas no existe.">
+  <div class="grid min-h-[75vh] place-items-center text-center">
+    <div class="flex max-w-md flex-col items-center">
+      <!-- Disco de 20 kg con el 404 -->
+      <div
+        aria-hidden="true"
+        class="grid h-44 w-44 place-items-center rounded-full bg-gradient-to-br from-primario to-orange-700 shadow-2xl shadow-primario/20 ring-8 ring-primario/20 sm:h-52 sm:w-52"
+      >
+        <div class="grid h-32 w-32 place-items-center rounded-full border-4 border-fondo/30 sm:h-40 sm:w-40">
+          <span class="text-5xl font-extrabold tracking-tight text-fondo sm:text-6xl">404</span>
+        </div>
+      </div>
+
+      <p class="mt-8 text-[20px] font-bold uppercase tracking-widest text-primario">Error 404</p>
+      <h1 class="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl">Esta repetición ha ido al fallo.</h1>
+      <p class="mt-3 text-sm text-suave">
+        La página que buscas no existe o se ha movido. Respira, recoloca la barra y vuelve a intentarlo.
+      </p>
+
+      <div class="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
+        <a
+          href="/"
+          class="inline-flex h-12 items-center justify-center rounded-lg bg-primario px-6 text-sm font-bold text-fondo transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
+        >
+          Volver al inicio
+        </a>
+        <a
+          href="/rutinas"
+          class="inline-flex h-12 items-center justify-center rounded-lg border border-borde bg-superficie px-6 text-sm font-semibold text-white transition hover:border-primario/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
+        >
+          Ver mis rutinas
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>
