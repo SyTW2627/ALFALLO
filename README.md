@@ -138,7 +138,6 @@ La web queda en `http://localhost:4321`.
 Toda la API está documentada en **Swagger**, donde se puede probar cada endpoint desde el navegador:
 
 - Local: `http://localhost:3000/api-docs`
-- Producción: `https://TU-API.onrender.com/api-docs`
 
 | Recurso | Endpoints principales |
 |---|---|
