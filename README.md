@@ -16,10 +16,8 @@
 </p>
 
 <p align="center">
-  <img src="docs/img/alfallo.gif" alt="Muñeco en pixel art haciendo press con barra hasta llegar al fallo" width="480">
+  <img src="docs/img/alfallo.gif" alt="" width="600">
 </p>
-
----
 
 ## ¿Qué es AlFallo?
 
@@ -30,7 +28,7 @@ Además, puedes crear **rutinas** (por ejemplo, *Torso / Pierna*) a partir de un
 Proyecto de la asignatura **Sistemas y Tecnologías Web** (Universidad de La Laguna, curso 2026/27).
 
 ## Demo
- 
+
 <p align="center">
   <img src="docs/img/demo.gif" alt="Recorrido por AlFallo: inicio, entrenamiento en curso registrando series, estadísticas, perfil y documentación de la API" width="800">
 </p>
@@ -91,7 +89,7 @@ ALFALLO/
 
 ## Cómo ejecutarlo en local
 
-**Requisitos:** Node.js 22 o superior y MongoDB (local o en Atlas).
+**Requisitos:** Node.js 22 o superior y MongoDB funcionando en local (o una base de datos en MongoDB Atlas).
 
 **1. Clona el repositorio**
 
@@ -100,7 +98,70 @@ git clone https://github.com/SyTW2627/ALFALLO.git
 cd ALFALLO
 ```
 
-**2. Backend**
+**2. Levanta MongoDB**
+
+La API necesita un servidor de MongoDB en marcha antes de arrancar. Elige una de estas opciones:
+
+<details>
+<summary><b>Linux (paquete <code>tgz</code>)</b></summary>
+
+<br>
+
+Descarga **MongoDB Community Server** para tu distribución desde [mongodb.com/try/download/community](https://www.mongodb.com/try/download/community). Elige el paquete `tgz`; por ejemplo, para Ubuntu 24.04:
+
+```bash
+cd ~
+wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2404-8.0.8.tgz
+tar xzvf mongodb-linux-x86_64-ubuntu2404-8.0.8.tgz
+rm mongodb-linux-x86_64-ubuntu2404-8.0.8.tgz
+mv mongodb-linux-x86_64-ubuntu2404-8.0.8 mongodb
+```
+
+Crea la carpeta donde MongoDB guardará los datos:
+
+```bash
+mkdir ~/mongodb-data
+```
+
+Y arranca el servidor (deja esta terminal abierta mientras uses la app):
+
+```bash
+~/mongodb/bin/mongod --dbpath ~/mongodb-data
+```
+
+Si da un error de permisos, ejecútalo con `sudo`.
+
+</details>
+
+<details>
+<summary><b>Windows o macOS</b></summary>
+
+<br>
+
+Descarga el instalador de **MongoDB Community Server** desde [mongodb.com/try/download/community](https://www.mongodb.com/try/download/community) y sigue el asistente. En Windows, marca la opción de instalarlo como servicio: así se arranca solo con el ordenador. En macOS también se puede instalar con Homebrew:
+
+```bash
+brew tap mongodb/brew
+brew install mongodb-community
+brew services start mongodb-community
+```
+
+</details>
+
+<details>
+<summary><b>Con Docker</b></summary>
+
+<br>
+
+```bash
+docker run -d --name alfallo-mongo -p 27017:27017 mongo
+```
+
+</details>
+
+En cualquiera de los casos, MongoDB queda escuchando en `mongodb://127.0.0.1:27017`, que es la dirección que usa la configuración del backend.
+
+**3. Backend**
 
 Arranca la API:
 
@@ -112,7 +173,7 @@ npm run dev
 
 La API queda en `http://localhost:3000` y la documentación en `http://localhost:3000/api-docs`.
 
-**3. Frontend** (en otra terminal)
+**4. Frontend** (en otra terminal)
 
 ```bash
 cd client
@@ -138,6 +199,7 @@ La web queda en `http://localhost:4321`.
 Toda la API está documentada en **Swagger**, donde se puede probar cada endpoint desde el navegador:
 
 - Local: `http://localhost:3000/api-docs`
+
 
 | Recurso | Endpoints principales |
 |---|---|
