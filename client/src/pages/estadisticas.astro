@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PaginaEstadisticas from "../components/estadisticas/PaginaEstadisticas.jsx";
+---
+
+<Layout title="Estadísticas · AlFallo" description="Tu volumen, récords y progresión de peso.">
+  <PaginaEstadisticas client:only="react" />
+</Layout>
