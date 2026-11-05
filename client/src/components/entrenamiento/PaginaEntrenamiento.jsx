@@ -17,7 +17,7 @@ import {
 import ElegirEntrenamiento from "./ElegirEntrenamiento.jsx";
 import SesionActiva from "./SesionActiva.jsx";
 import ResumenEntrenamiento from "./ResumenEntrenamiento.jsx";
-
+import Esqueleto from "../Esqueleto.jsx";
 /*
  * Pantallas:
  *  - cargando
@@ -79,11 +79,7 @@ export default function PaginaEntrenamiento() {
   }, [intento]);
 
   if (pantalla === "cargando") {
-    return (
-      <p role="status" className="text-sm text-suave">
-        Cargando entrenamiento...
-      </p>
-    );
+    return <Esqueleto variante="entrenamiento" />;
   }
 
   if (pantalla === "error") {

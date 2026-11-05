@@ -18,6 +18,7 @@ import {
   numeroCompacto,
 } from "../../lib/estadisticas.js";
 import { GraficoBarras, GraficoLinea } from "./graficos.jsx";
+import Esqueleto from "../Esqueleto.jsx";
 
 const RANGO_GUARDADO = "alfallo:estadisticas:rango";
 
@@ -116,11 +117,7 @@ export default function PaginaEstadisticas() {
   const puntos = useMemo(() => progresion(enRango, idEjercicio), [enRango, idEjercicio]);
 
   if (estado === "cargando") {
-    return (
-      <p role="status" className="text-sm text-suave">
-        Cargando estadísticas...
-      </p>
-    );
+    return <Esqueleto variante="estadisticas" />;
   }
 
   if (estado === "error") {

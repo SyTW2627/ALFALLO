@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getUsuario, actualizarUsuario, cerrarSesion, iniciales } from "../lib/auth.js";
 import { obtenerPerfil, contarEntrenamientos, sesionRechazada } from "../lib/api.js";
+import Esqueleto from "./Esqueleto.jsx";
 
 function formatearFecha(iso) {
   if (!iso) return "—";
@@ -56,11 +57,7 @@ export default function PerfilUsuario() {
   }, []);
 
   if (!usuario) {
-    return (
-      <p role="status" className="text-sm text-suave">
-        Cargando perfil...
-      </p>
-    );
+    return <Esqueleto variante="perfil" />;
   }
 
   const pesoKg = usuario.pesoKg ? `${usuario.pesoKg} kg` : "—";
