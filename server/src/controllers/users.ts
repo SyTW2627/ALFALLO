@@ -24,7 +24,7 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user?.id,
       { name, email },
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     ).select('-password');
 
     if (!updatedUser) {
