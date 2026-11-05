@@ -234,5 +234,72 @@ describe('Pruebas de rutinas (/api/routines)', () => {
     expect(res.body).toHaveProperty('message', 'Rutina eliminada correctamente');
     await expect(Routine.findById(routine._id)).resolves.toBeNull();
   });
-  
+
+  // ---------- Casos de error ----------
+
+  it('GET /api/routines - Sin token devuelve 401', async () => {
+    const res = await request(app).get('/api/routines');
+
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/routines/:id - Un id con formato no válido devuelve 400', async () => {
+    const res = await request(app)
+      .get('/api/routines/no-es-un-id')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/routines/:id - No se puede ver la rutina de otro usuario (404)', async () => {
+    const routine = await createRoutineForUser(`Rutina privada ${fixtureId}`);
+    const otherUser = await new User({
+      name: 'Otro usuario Routine Test',
+      email: `routine_other_${fixtureId}@example.com`,
+      password: 'Password123!',
+    }).save();
+
+    try {
+      const otherToken = generateToken(otherUser._id.toString(), otherUser.role);
+      const res = await request(app)
+        .get(`/api/routines/${routine._id}`)
+        .set('Authorization', `Bearer ${otherToken}`);
+
+      expect(res.status).toBe(404);
+    } finally {
+      await User.findByIdAndDelete(otherUser._id);
+    }
+  });
+
+  it('PUT /api/routines/:id - Rechaza valores fuera del rango del objetivo (400)', async () => {
+    const routine = await createRoutineForUser(`Rutina fuera de rango ${fixtureId}`);
+
+    const res = await request(app)
+      .put(`/api/routines/${routine._id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        days: [
+          {
+            name: 'Día de fuerza',
+            objective: Objective.FORCE,
+            // En fuerza las repeticiones van de 4 a 8: 15 no es válido
+            exercises: [{ exercise: exerciseIds[0], sets: 4, reps: 15, restInSeconds: 240 }],
+          },
+        ],
+      });
+
+    expect(res.status).toBe(400);
+
+    // La rutina guardada no ha cambiado
+    const saved = await Routine.findById(routine._id);
+    expect(saved?.days[0].exercises[0].reps).toBe(6);
+  });
+
+  it('DELETE /api/routines/:id - Borrar una rutina que no existe devuelve 404', async () => {
+    const res = await request(app)
+      .delete(`/api/routines/${new mongoose.Types.ObjectId()}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+  });
 });
