@@ -1,18 +1,20 @@
 <p align="center">
-  <img src="client/public/images/logo.webp" alt="AlFallo" width="220">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/logo/logo-dark.png">
+    <img src="docs/img/logo/logo-light.png" alt="AlFallo" width="320">
+  </picture>
 </p>
-
 <h3 align="center">Registra tus entrenamientos de fuerza. Supera tus marcas. Compártelo.</h3>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Astro-BC52EE?logo=astro&logoColor=white" alt="Astro">
-  <img src="https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB" alt="React">
-  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
-  <img src="https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white" alt="Node.js">
-  <img src="https://img.shields.io/badge/Express-000000?logo=express&logoColor=white" alt="Express">
-  <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
-  <img src="https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white" alt="MongoDB">
-  <img src="https://img.shields.io/badge/Swagger-85EA2D?logo=swagger&logoColor=black" alt="Swagger">
+  <img src="docs/skills/astro.svg" alt="Astro" title="Astro" width="36">
+  <img src="docs/skills/react.svg" alt="React" title="React" width="36">
+  <img src="docs/skills/tailwindcss.svg" alt="Tailwind CSS" title="Tailwind CSS" width="36">
+  <img src="docs/skills/typescript.svg" alt="TypeScript" title="TypeScript" width="36">
+  <img src="docs/skills/nodejs.svg" alt="Node.js" title="Node.js" width="36">
+  <img src="docs/skills/express.svg" alt="Express" title="Express" width="36">
+  <img src="docs/skills/mongodb.svg" alt="MongoDB" title="MongoDB" width="36">
+  <img src="docs/skills/swagger.svg" alt="Swagger" title="Swagger" width="36">
 </p>
 
 <p align="center">
@@ -37,32 +39,55 @@ Proyecto de la asignatura **Sistemas y Tecnologías Web** (Universidad de La Lag
 
 **Disponibles**
 
-- 🔐 Registro e inicio de sesión con JWT
-- 👤 Perfil de usuario: consultar, editar, cambiar contraseña y eliminar la cuenta
-- 📚 Catálogo de ejercicios por grupo muscular y dificultad
-- 🗓️ Rutinas por días, con validación de series, repeticiones y descanso según el objetivo
-- 🏋️ Entrenamiento en curso: empezar, registrar series (repeticiones y peso), terminar o descartar
-- 📈 Historial de entrenamientos con duración, series y volumen calculados automáticamente
-- 📖 Documentación interactiva de la API con Swagger
+- Registro e inicio de sesión con JWT
+- Perfil de usuario: consultar, editar, cambiar contraseña y eliminar la cuenta
+- Catálogo de ejercicios por grupo muscular y dificultad
+- Rutinas por días, con validación de series, repeticiones y descanso según el objetivo
+- Entrenamiento en curso: empezar, registrar series (repeticiones y peso), terminar o descartar
+- Historial de entrenamientos con duración, series y volumen calculados automáticamente
+- Documentación interactiva de la API con Swagger
 
 **Próximamente**
 
-- 👥 Seguir a otros usuarios y feed con sus entrenamientos
-- 💬 Ánimos y comentarios en los entrenamientos
-- 📊 Estadísticas y récords personales
-- ⏱️ Temporizador de descanso entre series
+- Seguir a otros usuarios y feed con sus entrenamientos
+- Ánimos y comentarios en los entrenamientos
+- Estadísticas y récords personales
+- Temporizador de descanso entre series
 
 ## Tecnologías
 
-| Parte | Tecnologías |
-|---|---|
-| Frontend | Astro, React, Tailwind CSS |
-| Backend | Node.js, Express 5, TypeScript |
-| Base de datos | MongoDB con Mongoose |
-| Autenticación | JSON Web Tokens (JWT) y bcrypt |
-| Documentación | Swagger (OpenAPI 3) |
-| Tests | Vitest y Supertest |
-| Despliegue | Render (API) y MongoDB Atlas |
+**Frontend**
+
+<p>
+  <img src="docs/skills/astro.svg" alt="Astro" title="Astro" width="44">
+  <img src="docs/skills/react.svg" alt="React" title="React" width="44">
+  <img src="docs/skills/tailwindcss.svg" alt="Tailwind CSS" title="Tailwind CSS" width="44">
+  <img src="docs/skills/typescript.svg" alt="TypeScript" title="TypeScript" width="44">
+  <img src="docs/skills/vite.svg" alt="Vite" title="Vite" width="44">
+</p>
+
+**Backend y base de datos**
+
+<p>
+  <img src="docs/skills/nodejs.svg" alt="Node.js" title="Node.js" width="44">
+  <img src="docs/skills/express.svg" alt="Express" title="Express" width="44">
+  <img src="docs/skills/typescript.svg" alt="TypeScript" title="TypeScript" width="44">
+  <img src="docs/skills/mongodb.svg" alt="MongoDB" title="MongoDB" width="44">
+  <img src="docs/skills/swagger.svg" alt="Swagger" title="Swagger" width="44">
+  <img src="docs/skills/vitest.svg" alt="Vitest" title="Vitest" width="44">
+  <img src="docs/skills/npm.svg" alt="npm" title="npm" width="44">
+</p>
+
+**Herramientas**
+
+<p>
+  <img src="docs/skills/git.svg" alt="Git" title="Git" width="44">
+  <img src="docs/skills/github.svg" alt="GitHub" title="GitHub" width="44">
+  <img src="docs/skills/vscode.svg" alt="Visual Studio Code" title="Visual Studio Code" width="44">
+  <img src="docs/skills/postman.svg" alt="Postman" title="Postman" width="44">
+</p>
+
+Además: **Mongoose** (modelos de datos), **JWT** y **bcrypt** (autenticación), **OpenAPI 3** (especificación de la API), **Supertest** (tests de la API), **Render** y **MongoDB Atlas** (despliegue), y **Jira** (gestión de los sprints).
 
 ## Estructura del repositorio
 
@@ -200,7 +225,6 @@ Toda la API está documentada en **Swagger**, donde se puede probar cada endpoin
 
 - Local: `http://localhost:3000/api-docs`
 
-
 | Recurso | Endpoints principales |
 |---|---|
 | Autenticación | `POST /api/auth/register` · `POST /api/auth/login` |
@@ -217,8 +241,8 @@ Trabajamos con **Scrum** en sprints semanales, organizados en Jira con épicas, 
 
 ## Equipo
 
-| | Nombre | Rol principal |
-|:---:|---|---|
-| 🛠️ | **Iker Martín Gámez** | Backend y base de datos |
-| 🎨 | **Hugo Martín Gámez** | Frontend y diseño |
-| 🔗 | **Aitor Castro Darias** | Modelo de datos e integración |
+| Nombre | Rol principal |
+|---|---|
+| **Iker Martín Gámez** | Backend y base de datos |
+| **Hugo Martín Gámez** | Frontend y diseño |
+| **Aitor Castro Darias** | Modelo de datos e integración |
