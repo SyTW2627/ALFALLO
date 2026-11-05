@@ -116,10 +116,10 @@ export default function AuthForm({ modo = "login" }) {
   return (
     <div className="w-full max-w-sm">
       {/* Logo */}
-      <a href="/" className="mb-8 flex items-center justify-center gap-2" aria-label="AlFallo, ir al inicio">
+      <a href="/" className="mb-8 flex items-center justify-center gap-0.5" aria-label="AlFallo, ir al inicio">
         <span className="text-3xl font-extrabold tracking-tight">AlFall</span>
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-primario">
-          <span className="h-2.5 w-2.5 rounded-full bg-fondo" />
+        <span className="mt-1 grid h-7 w-7 place-items-center rounded-full bg-primario">
+          <span className="h-2 w-2 rounded-full bg-fondo" />
         </span>
       </a>
 

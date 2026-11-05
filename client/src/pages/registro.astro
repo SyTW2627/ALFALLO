@@ -7,14 +7,15 @@ import BackLink from "../components/BackLink.astro";
 <Layout title="Crear cuenta · AlFallo" showNav={false}>
   <BackLink href="/" />
 
-  <div class="relative grid min-h-[75vh] place-items-center overflow-hidden">
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primario/10 blur-3xl"
-    >
-    </div>
+  <div class="relative grid min-h-[75vh] place-items-center">
     <div class="relative flex w-full justify-center">
-      <AuthForm client:load modo="registro" />
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute -top-20 left-1/2 h-72 w-[40rem] max-w-[100vw] -translate-x-1/2 bg-[radial-gradient(closest-side,rgb(242_106_27/0.14),transparent)]"
+      ></div>
+      <div class="relative flex w-full justify-center">
+        <AuthForm client:load modo="registro" />
+      </div>
     </div>
   </div>
 </Layout>
