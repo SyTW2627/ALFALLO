@@ -1,8 +1,6 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/img/logo/logo-dark.png">
-    <img src="docs/img/logo/logo-light.png" alt="AlFallo" width="320">
-  </picture>
+  <img src="docs/img/logo/logo-light.png#gh-light-mode-only" alt="AlFallo" width="320">
+  <img src="docs/img/logo/logo-dark.png#gh-dark-mode-only" alt="AlFallo" width="320">
 </p>
 <h3 align="center">Registra tus entrenamientos de fuerza. Supera tus marcas. Compártelo.</h3>
 
