@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { getUsuario } from "../../lib/auth.js";
 import { obtenerHistorial } from "../../lib/api.js";
+import Calendario from "./Calendario.jsx";
 import { etiquetaZona, etiquetaObjetivo, formatearKg, salirSiSesionCaducada } from "../../lib/entrenamiento.js";
+
 import {
   RANGOS,
   prepararHistorial,
@@ -199,8 +201,9 @@ export default function PaginaEstadisticas() {
           detalle="seguidas entrenando"
           acento={datos.racha > 0}
         />
-      </div>
-
+      </div>  
+        {/* Calendario: usa todo el historial, no el filtro de periodo */}
+        <Calendario entrenamientos={todos} className="mt-4" />
       <div className="mt-4 grid gap-4 lg:grid-cols-[3fr_2fr]">
         {/* Volumen semanal */}
         <Tarjeta titulo="Volumen por semana">
