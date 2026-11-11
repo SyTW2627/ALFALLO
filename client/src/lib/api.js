@@ -65,6 +65,12 @@ export async function registrarUsuario({ nombre, email, password }) {
   return { token: r.token, usuario: normalizarUsuario(r.user) };
 }
 
+// Sirve para entrar y para registrarse: `credential` es el token que devuelve el botón de Google.
+export async function entrarConGoogle(credential) {
+  const r = await peticion("/auth/google", { metodo: "POST", cuerpo: { credential } });
+  return { token: r.token, usuario: normalizarUsuario(r.user) };
+}
+
 
 export async function obtenerPerfil() {
   const r = await peticion("/users/profile", { auth: true });

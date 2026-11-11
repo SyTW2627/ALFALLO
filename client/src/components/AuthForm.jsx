@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { estaLogueado, guardarSesion } from "../lib/auth.js";
-import { iniciarSesion, registrarUsuario } from "../lib/api.js";
+import { entrarConGoogle, iniciarSesion, registrarUsuario } from "../lib/api.js";
+import BotonGoogle from "./BotonGoogle.jsx";
 
 const MODOS = {
   login: {
@@ -42,9 +43,8 @@ function Campo({ id, label, error, extra, ...props }) {
           id={id}
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error ? `${id}-error` : undefined}
-          className={`h-12 w-full rounded-lg border bg-fondo px-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario ${
-            error ? "border-red-500/60" : "border-borde"
-          } ${extra ? "pr-16" : ""}`}
+          className={`h-12 w-full rounded-lg border bg-fondo px-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario ${error ? "border-red-500/60" : "border-borde"
+            } ${extra ? "pr-16" : ""}`}
           {...props}
         />
         {extra}
@@ -81,6 +81,19 @@ export default function AuthForm({ modo = "login" }) {
       setAviso("Tu sesión ha caducado. Vuelve a iniciar sesión.");
     }
   }, []);
+
+  const conGoogle = async (credential) => {
+    setErrorGeneral("");
+    setAviso("");
+    setCargando(true);
+    try {
+      guardarSesion(await entrarConGoogle(credential));
+      window.location.href = "/";
+    } catch (err) {
+      setErrorGeneral(err.message || "No se ha podido entrar con Google.");
+      setCargando(false);
+    }
+  };
 
   const cambiar = (campo) => (e) => {
     setDatos((d) => ({ ...d, [campo]: e.target.value }));
@@ -212,10 +225,16 @@ export default function AuthForm({ modo = "login" }) {
         <button
           type="submit"
           disabled={cargando}
-          className="mt-6 h-12 w-full rounded-lg bg-primario text-sm font-bold text-fondo transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 h-12 w-full rounded-lg bg-primario ..."
         >
           {cargando ? cfg.cargando : cfg.boton}
         </button>
+
+        <div className="my-5 flex items-center gap-3 text-xs text-suave" aria-hidden="true">
+          <span className="h-px flex-1 bg-borde" />o<span className="h-px flex-1 bg-borde" />
+        </div>
+
+        <BotonGoogle modo={modo} onCredential={conGoogle} />
 
         <p className="mt-5 text-center text-sm text-suave">
           {cfg.alterno.texto}{" "}
