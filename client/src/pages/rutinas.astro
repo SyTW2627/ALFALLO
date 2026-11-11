@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PaginaRutinas from "../components/rutinas/PaginaRutinas.jsx";
+---
+
+<Layout title="Rutinas · AlFallo" description="Crea y edita tus rutinas de entrenamiento por días y objetivos.">
+  <PaginaRutinas client:only="react" />
+</Layout>
