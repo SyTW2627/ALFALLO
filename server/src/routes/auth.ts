@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { register, login } from '../controllers/auth';
-
+import { register, login, googleLogin } from '../controllers/auth';
 const router = Router();
 
 /**
@@ -80,5 +79,51 @@ router.post('/register', register);
  *               $ref: '#/components/schemas/Message'
  */
 router.post('/login', login);
+
+/**
+ * @openapi
+ * /api/auth/google:
+ *   post:
+ *     summary: Inicia sesión o se registra con una cuenta de Google
+ *     description: Recibe el token (credential) del botón de Google, lo verifica y devuelve un token JWT de AlFallo. Si no existe un usuario con ese email, lo crea.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [credential]
+ *             properties:
+ *               credential:
+ *                 type: string
+ *                 description: ID token de Google
+ *     responses:
+ *       200:
+ *         description: Inicio de sesión con Google exitoso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *       201:
+ *         description: Usuario registrado con Google
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *       400:
+ *         description: Falta el token de Google
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       401:
+ *         description: Token de Google no válido o email sin verificar
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ */
+router.post('/google', googleLogin);
 
 export default router;

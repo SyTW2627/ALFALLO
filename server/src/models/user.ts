@@ -5,6 +5,7 @@ export interface IUser extends Document {
   name: String;
   email: String;
   password?: string;
+  googleId?: string;
   role: "user" | "admin";
   createAt: Date;
   updateAt: Date;
@@ -28,8 +29,11 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: [true, "La contraseña es obligatoria"],
+      required: [function (this: IUser) { return !this.googleId; }, "La contraseña es obligatoria"],
       minlength: [6, "La contraseña debe tener al menos 6 caracteres"],
+    },
+    googleId: {
+      type: String,
     },
     role: {
       type: String,
@@ -62,6 +66,7 @@ userSchema.pre('save', async function () {
 
 // Método para comparar contraseñas en el Login
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 
