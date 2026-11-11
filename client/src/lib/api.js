@@ -171,3 +171,51 @@ export async function actualizarPerfil({ nombre, email, sexo, pesoKg } = {}) {
 export function obtenerProgreso() {
   return peticion("/progress", { auth: true });
 }
+
+/* ---------- Feed comunitario (posts) ---------- */
+
+// Posts más recientes, paginados (la API limita `limite` a 50).
+export function obtenerFeed({ pagina = 1, limite = 10 } = {}) {
+  return peticion(`/posts/feed?page=${pagina}&limit=${limite}`, { auth: true });
+}
+
+export function obtenerPost(id) {
+  return peticion(`/posts/${encodeURIComponent(id)}`, { auth: true });
+}
+
+// Publica un entrenamiento TERMINADO. Si ya estaba publicado la API responde 409.
+export function publicarEntrenamiento({ idEntrenamiento, texto }) {
+  return peticion("/posts", {
+    metodo: "POST",
+    auth: true,
+    cuerpo: { workoutId: idEntrenamiento, caption: texto?.trim() || undefined },
+  });
+}
+
+export function eliminarPost(id) {
+  return peticion(`/posts/${encodeURIComponent(id)}`, { metodo: "DELETE", auth: true });
+}
+
+// Devuelven { kudosCount, hasKudo }.
+export function darKudos(id) {
+  return peticion(`/posts/${encodeURIComponent(id)}/kudos`, { metodo: "POST", auth: true });
+}
+
+export function quitarKudos(id) {
+  return peticion(`/posts/${encodeURIComponent(id)}/kudos`, { metodo: "DELETE", auth: true });
+}
+
+export function comentarPost(id, texto) {
+  return peticion(`/posts/${encodeURIComponent(id)}/comments`, {
+    metodo: "POST",
+    auth: true,
+    cuerpo: { text: texto },
+  });
+}
+
+export function eliminarComentario(idPost, idComentario) {
+  return peticion(
+    `/posts/${encodeURIComponent(idPost)}/comments/${encodeURIComponent(idComentario)}`,
+    { metodo: "DELETE", auth: true }
+  );
+}

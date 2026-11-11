@@ -5,7 +5,8 @@ import {
     formatearKg,
     nuevasMarcas,
   } from "../../lib/entrenamiento.js";
-  
+  import PublicarEntrenamiento from "../feed/PublicarEntrenamiento.jsx";
+
   // "4 × 8" si todas las series tienen las mismas reps; si no, "8 · 8 · 6".
   function describirSeries(series) {
     const reps = series.map((s) => s.reps);
@@ -84,7 +85,9 @@ import {
             <p className="mt-4 rounded-lg border border-borde bg-fondo p-3 text-sm text-suave">{entrenamiento.notas}</p>
           )}
         </section>
-  
+
+        {entrenamiento.id && <PublicarEntrenamiento idEntrenamiento={entrenamiento.id} />}
+
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <a
             href="/"
