@@ -26,6 +26,7 @@ const options: swaggerJsdoc.Options = {
             { name: 'Exercises', description: 'Catálogo de ejercicios' },
             { name: 'Routines', description: 'Rutinas del usuario' },
             { name: 'Workouts', description: 'Entrenamientos en curso e historial' },
+            { name: 'Posts', description: 'Feed, kudos y comentarios' },
         ],
         components: {
             securitySchemes: {
@@ -197,6 +198,51 @@ const options: swaggerJsdoc.Options = {
                         durationMinutes: { type: 'integer', nullable: true, example: 64 },
                         totalSets: { type: 'integer', example: 18 },
                         totalVolumeKg: { type: 'number', example: 6240 },
+                    },
+                },
+                PostInput: {
+                    type: 'object',
+                    required: ['workoutId'],
+                    properties: {
+                        workoutId: { type: 'string', example: '665f1c2e8b3e4a0012345678' },
+                        caption: { type: 'string', maxLength: 280, example: 'Por fin 80 kg en press de banca' },
+                    },
+                },
+                Comment: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string' },
+                        user: {
+                            type: 'object',
+                            properties: { _id: { type: 'string' }, name: { type: 'string', example: 'Hugo' } },
+                        },
+                        text: { type: 'string', example: '¡Bestia! Ese press de banca 💪' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                Post: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string' },
+                        user: {
+                            type: 'object',
+                            properties: { _id: { type: 'string' }, name: { type: 'string', example: 'Iker' } },
+                        },
+                        workout: { $ref: '#/components/schemas/Workout' },
+                        caption: { type: 'string', example: 'Por fin 80 kg en press de banca' },
+                        kudos: { type: 'array', items: { type: 'string' } },
+                        kudosCount: { type: 'integer', example: 3 },
+                        hasKudo: { type: 'boolean', description: 'Si el usuario que hace la petición ya dio kudos' },
+                        comments: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
+                        commentsCount: { type: 'integer', example: 1 },
+                        createdAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                KudosResponse: {
+                    type: 'object',
+                    properties: {
+                        kudosCount: { type: 'integer', example: 4 },
+                        hasKudo: { type: 'boolean', example: true },
                     },
                 },
             },
