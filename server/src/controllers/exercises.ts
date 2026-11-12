@@ -12,14 +12,14 @@ export const getExercises = async (req: Request, res: Response) => {
 
 export const createExercise = async (req: Request, res: Response) => {
   try {
-    const { name, description, bodyPart, difficulty } = req.body;
+    const { name, description, bodyPart, difficulty, rankingKey } = req.body;
 
     const existingExercise = await Exercise.findOne({ name });
     if (existingExercise) {
       return res.status(400).json({ message: 'Ya existe un ejercicio con ese nombre' });
     }
 
-    const exercise = new Exercise({ name, description, bodyPart, difficulty });
+    const exercise = new Exercise({ name, description, bodyPart, difficulty, rankingKey });
     await exercise.save();
 
     return res.status(201).json(exercise);
