@@ -142,7 +142,9 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
       clearTimeout(temporizadorNotas.current);
       await sincronizar();
       await enviar(); // reintenta si el último guardado había fallado
-      const w = normalizarEntrenamiento(await terminarEntrenamiento());
+      const respuesta = await terminarEntrenamiento();
+      // `novedades` (rangos, hitos y retos conseguidos) la calcula el servidor al terminar.
+      const w = { ...normalizarEntrenamiento(respuesta), novedades: respuesta.novedades ?? null };
       borrarPlan(inicial.id);
       onTerminado(w);
     } catch (err) {

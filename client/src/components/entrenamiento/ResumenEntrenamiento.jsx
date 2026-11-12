@@ -6,6 +6,7 @@ import {
     nuevasMarcas,
   } from "../../lib/entrenamiento.js";
   import PublicarEntrenamiento from "../feed/PublicarEntrenamiento.jsx";
+  import Novedades from "../progreso/Novedades.jsx";
 
   // "4 × 8" si todas las series tienen las mismas reps; si no, "8 · 8 · 6".
   function describirSeries(series) {
@@ -85,6 +86,8 @@ import {
             <p className="mt-4 rounded-lg border border-borde bg-fondo p-3 text-sm text-suave">{entrenamiento.notas}</p>
           )}
         </section>
+        
+        <Novedades novedades={entrenamiento.novedades} />
 
         {entrenamiento.id && <PublicarEntrenamiento idEntrenamiento={entrenamiento.id} />}
 
