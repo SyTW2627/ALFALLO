@@ -219,3 +219,20 @@ export function eliminarComentario(idPost, idComentario) {
     { metodo: "DELETE", auth: true }
   );
 }
+
+/* ---------- Perfil y progreso ---------- */
+
+// Actualiza solo los campos que se pasan. `pesoKg` se guarda en el historial de peso.
+export async function actualizarPerfil({ nombre, email, sexo, pesoKg } = {}) {
+  const r = await peticion("/users/profile", {
+    metodo: "PUT",
+    auth: true,
+    cuerpo: { name: nombre, email, sex: sexo, bodyWeightKg: pesoKg },
+  });
+  return normalizarUsuario(r.user);
+}
+
+// Rangos de fuerza, hitos y retos semanales.
+export function obtenerProgreso() {
+  return peticion("/progress", { auth: true });
+}
