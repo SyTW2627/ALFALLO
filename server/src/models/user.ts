@@ -7,6 +7,8 @@ export interface IUser extends Document {
   password?: string;
   googleId?: string;
   role: "user" | "admin";
+  sex: "male" | "female" | "unspecified";
+  bodyWeights: { kg: number; date: Date }[];
   createAt: Date;
   updateAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -40,6 +42,18 @@ const userSchema = new Schema<IUser>(
       enum: ["user", "admin"],
       default: "user",
     },
+    sex: {
+      type: String,
+      enum: ["male", "female", "unspecified"],
+      default: "unspecified",
+    },
+    bodyWeights: [
+      {
+        _id: false,
+        kg: { type: Number, required: true, min: [25, "El peso mínimo es 25 kg"], max: [350, "El peso máximo es 350 kg"] },
+        date: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,
@@ -51,6 +65,7 @@ const userSchema = new Schema<IUser>(
 userSchema.methods.toJSON = function () {
   const userObject = this.toObject();
   delete userObject.password;
+  userObject.bodyWeightKg = userObject.bodyWeights?.at(-1)?.kg ?? null;
   return userObject;
 };
 
