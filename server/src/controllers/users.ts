@@ -16,26 +16,48 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// PUT /api/users/profile - Actualizar datos básicos (nombre, email)
+// PUT /api/users/profile - Actualizar nombre, email, sexo y peso corporal
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, sex, bodyWeightKg } = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user?.id,
-      { name, email },
-      { returnDocument: 'after', runValidators: true }
-    ).select('-password');
-
-    if (!updatedUser) {
+    const user = await User.findById(req.user?.id);
+    if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
+    if (sex !== undefined) user.sex = sex;
+
+    // El peso se guarda como historial. Si ya hay un registro de hoy, se sustituye.
+    if (bodyWeightKg !== undefined && bodyWeightKg !== null && bodyWeightKg !== '') {
+      const kg = Number(bodyWeightKg);
+      if (!Number.isFinite(kg)) {
+        return res.status(400).json({ message: 'El peso corporal debe ser un número' });
+      }
+      const hoy = new Date().toISOString().slice(0, 10);
+      const ultimo = user.bodyWeights.at(-1);
+      if (ultimo && new Date(ultimo.date).toISOString().slice(0, 10) === hoy) {
+        ultimo.kg = kg;
+      } else {
+        user.bodyWeights.push({ kg, date: new Date() });
+      }
+    }
+
+    await user.save();
+
     res.json({
       message: 'Perfil actualizado con éxito',
-      user: updatedUser,
+      user,
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.name === 'ValidationError') {
+      return res.status(400).json({ message: Object.values(error.errors).map((e: any) => e.message).join('. ') });
+    }
+    if (error?.code === 11000) {
+      return res.status(400).json({ message: 'Ese email ya está en uso' });
+    }
     res.status(500).json({ message: 'Error al actualizar el perfil', error });
   }
 };
