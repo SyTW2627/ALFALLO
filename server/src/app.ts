@@ -7,6 +7,7 @@ import routineRoutes from './routes/routines';
 import workoutRoutes from './routes/workouts';
 import { setupSwagger } from './docs/swagger';
 import postRoutes from './routes/posts';
+import progressRoutes from './routes/progress';
 const app = express();
 
 app.use(cors()); // Habilita peticiones desde cualquier origen
@@ -21,6 +22,7 @@ app.use('/api/exercises', exerciseRoutes);
 app.use('/api/routines', routineRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/progress', progressRoutes);
 
 /**
  * @openapi
