@@ -3,11 +3,27 @@ import { AuthRequest } from '../middlewares/auth';
 import { Workout, WorkoutStatus } from '../models/workout';
 import { progressNews } from './progress';
 
+// Hora enviada por el cliente: los entrenamientos hechos sin conexión se suben más tarde,
+// así que el móvil envía cuándo empezaron y terminaron de verdad. Se aceptan solo valores razonables.
+const MARGEN_RELOJ_MS = 2 * 60 * 1000; // relojes de móvil algo adelantados
+const MAX_ANTIGUEDAD_MS = 30 * 24 * 60 * 60 * 1000;
+
+function horaDelCliente(valor: unknown, desde?: Date): Date | null {
+  if (valor === undefined || valor === null || valor === '') return null;
+  const fecha = new Date(valor as string);
+  const ahora = Date.now();
+  if (Number.isNaN(fecha.getTime())) throw new Error('La fecha enviada no es válida');
+  if (fecha.getTime() > ahora + MARGEN_RELOJ_MS) throw new Error('La fecha no puede estar en el futuro');
+  if (fecha.getTime() < ahora - MAX_ANTIGUEDAD_MS) throw new Error('La fecha es demasiado antigua');
+  if (desde && fecha.getTime() < desde.getTime()) throw new Error('El entrenamiento no puede terminar antes de empezar');
+  return new Date(Math.min(fecha.getTime(), ahora));
+}
+
 // 1. Iniciar un nuevo entrenamiento
 export const startWorkout = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
-    const { title, objective } = req.body;
+    const { title, objective, startedAt } = req.body;
 
     // Comprobar si ya hay un entrenamiento en curso
     const activeWorkout = await Workout.findOne({ user: userId, status: WorkoutStatus.IN_PROGRESS });
@@ -20,7 +36,7 @@ export const startWorkout = async (req: AuthRequest, res: Response) => {
       title,
       objective,
       status: WorkoutStatus.IN_PROGRESS,
-      startedAt: new Date(),
+      startedAt: horaDelCliente(startedAt) ?? new Date(),
     });
 
     await workout.save();
@@ -64,7 +80,7 @@ export const finishWorkout = async (req: AuthRequest, res: Response) => {
     }
 
     workout.status = WorkoutStatus.FINISHED;
-    workout.finishedAt = new Date();
+    workout.finishedAt = horaDelCliente(req.body?.finishedAt, workout.startedAt) ?? new Date();
 
     await workout.save();
     await workout.populate('exercises.exercise');

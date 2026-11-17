@@ -1,51 +1,20 @@
 import { useState } from "react";
-import {
-  ApiError,
-  empezarEntrenamiento,
-  guardarEntrenamiento,
-  obtenerEntrenamientoActivo,
-} from "../../lib/api.js";
-import {
-  OBJETIVOS,
-  etiquetaObjetivo,
-  normalizarEntrenamiento,
-  guardarPlan,
-  conPlan,
-  salirSiSesionCaducada,
-} from "../../lib/entrenamiento.js";
+import { OBJETIVOS, etiquetaObjetivo } from "../../lib/entrenamiento.js";
+import { empezarLocal, sincronizar } from "../../lib/sinConexion.js";
 
-export default function ElegirEntrenamiento({ dias, onEmpezado }) {
-  const [cargando, setCargando] = useState(null); // clave del día o "libre"
+export default function ElegirEntrenamiento({ dias, sinConexion = false, onEmpezado }) {
+  const [cargando] = useState(null);
   const [error, setError] = useState("");
   const [titulo, setTitulo] = useState("");
   const [objetivo, setObjetivo] = useState("");
 
-  const empezar = async (clave, { titulo, objetivo, ejercicios = [] }) => {
-    setCargando(clave);
+  // El entrenamiento se crea en el móvil al instante y se sube a la API en segundo plano,
+  // así que también se puede empezar sin conexión.
+  const empezar = (_clave, { titulo, objetivo, ejercicios = [] }) => {
     setError("");
-    try {
-      const creado = normalizarEntrenamiento(await empezarEntrenamiento({ titulo, objetivo }));
-
-      // Si viene de una rutina, cargamos ya sus ejercicios (sin series) en el entrenamiento.
-      if (ejercicios.length) {
-        await guardarEntrenamiento({ ejercicios: ejercicios.map((e) => ({ id: e.id, series: [] })) });
-        guardarPlan(creado.id, ejercicios);
-      }
-      onEmpezado({ ...creado, ejercicios: ejercicios.map((e) => ({ ...e, series: [] })) });
-    } catch (err) {
-      if (salirSiSesionCaducada(err)) return;
-      // Ya había uno en curso (p. ej. empezado desde otro dispositivo): lo retomamos.
-      if (err instanceof ApiError && err.status === 409) {
-        try {
-          const activo = conPlan(normalizarEntrenamiento(await obtenerEntrenamientoActivo()));
-          if (activo) return onEmpezado(activo);
-        } catch {
-          /* se muestra el error de abajo */
-        }
-      }
-      setError(err.message || "No se ha podido empezar el entrenamiento.");
-      setCargando(null);
-    }
+    const entreno = empezarLocal({ titulo, objetivo, ejercicios: ejercicios.map((e) => ({ ...e, series: [] })) });
+    sincronizar();
+    onEmpezado(entreno);
   };
 
   const empezarLibre = (e) => {
@@ -65,6 +34,12 @@ export default function ElegirEntrenamiento({ dias, onEmpezado }) {
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl">¿Qué toca hoy?</h1>
         <p className="mt-1 text-sm text-suave">Elige un día de tu rutina o empieza un entrenamiento libre.</p>
       </header>
+
+      {sinConexion && (
+        <p role="status" className="mb-4 rounded-lg border border-primario/30 bg-primario/10 px-3 py-2 text-sm text-primario">
+          Estás sin conexión. Puedes entrenar igual: todo se guarda en el móvil y se subirá cuando vuelvas a tener red.
+        </p>
+      )}
 
       {error && (
         <p

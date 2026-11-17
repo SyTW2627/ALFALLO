@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { getUsuario } from "../../lib/auth.js";
 import {
+  esErrorDeRed,
   obtenerEntrenamientoActivo,
   obtenerRutinas,
   obtenerHistorial,
   obtenerEjercicios,
 } from "../../lib/api.js";
+import { entrenoActual, hayPendientes, adoptarDelServidor, sincronizar } from "../../lib/sinConexion.js";
 import {
   normalizarEntrenamiento,
   normalizarEjercicio,
@@ -34,6 +36,7 @@ export default function PaginaEntrenamiento() {
   const [catalogo, setCatalogo] = useState([]);
   const [historial, setHistorial] = useState({ ultima: {}, maximo: {} });
   const [intento, setIntento] = useState(0);
+  const [sinConexion, setSinConexion] = useState(false);
 
   useEffect(() => {
     if (!getUsuario()) {
@@ -45,32 +48,61 @@ export default function PaginaEntrenamiento() {
     setPantalla("cargando");
     setError("");
 
+    // 1. Si hay un entrenamiento guardado en el móvil, se muestra al instante (aunque no haya red).
+    const local = entrenoActual();
+    if (local) {
+      setEntrenamiento(local);
+      setPantalla("activo");
+    }
+
     (async () => {
-      const [activo, rutinas, hist, ejercicios] = await Promise.allSettled([
-        obtenerEntrenamientoActivo(),
+      // Rutinas, historial y catálogo: si no hay conexión, se usa la última copia guardada.
+      const [rutinas, hist, ejercicios] = await Promise.allSettled([
         obtenerRutinas(),
         obtenerHistorial(),
         obtenerEjercicios(),
       ]);
       if (cancelado) return;
 
-      const fallo = [activo, rutinas, hist, ejercicios].find((r) => r.status === "rejected");
+      const fallo = [rutinas, hist, ejercicios].find((r) => r.status === "rejected");
       if (fallo && salirSiSesionCaducada(fallo.reason)) return;
-
-      // Sin saber si hay un entrenamiento en curso no podemos mostrar nada fiable.
-      if (activo.status === "rejected") {
-        setError(activo.reason?.message || "No se ha podido cargar tu entrenamiento.");
-        setPantalla("error");
-        return;
-      }
 
       if (rutinas.status === "fulfilled") setDias(diasDeRutinas(rutinas.value));
       if (hist.status === "fulfilled") setHistorial(resumenHistorial(hist.value));
       if (ejercicios.status === "fulfilled") setCatalogo(ejercicios.value.map(normalizarEjercicio));
+      if (local) return;
 
-      const actual = conPlan(normalizarEntrenamiento(activo.value));
-      setEntrenamiento(actual);
-      setPantalla(actual ? "activo" : "elegir");
+      // 2. Antes de preguntar al servidor, se suben los entrenamientos terminados sin conexión
+      //    (si no, el servidor seguiría teniendo el último "en curso").
+      if (hayPendientes()) await sincronizar();
+      if (cancelado) return;
+      if (hayPendientes()) {
+        setSinConexion(true);
+        setPantalla("elegir");
+        return;
+      }
+
+      // 3. ¿Hay uno en curso en el servidor (p. ej. empezado en otro dispositivo)?
+      try {
+        const activo = conPlan(normalizarEntrenamiento(await obtenerEntrenamientoActivo()));
+        if (cancelado) return;
+        if (activo) {
+          setEntrenamiento(adoptarDelServidor(activo));
+          setPantalla("activo");
+        } else {
+          setPantalla("elegir");
+        }
+      } catch (err) {
+        if (cancelado || salirSiSesionCaducada(err)) return;
+        if (esErrorDeRed(err)) {
+          // Sin conexión se puede empezar igualmente: se subirá al volver la red.
+          setSinConexion(true);
+          setPantalla("elegir");
+          return;
+        }
+        setError(err.message || "No se ha podido cargar tu entrenamiento.");
+        setPantalla("error");
+      }
     })();
 
     return () => {
@@ -131,6 +163,7 @@ export default function PaginaEntrenamiento() {
   return (
     <ElegirEntrenamiento
       dias={dias}
+      sinConexion={sinConexion}
       onEmpezado={(w) => {
         setEntrenamiento(w);
         setPantalla("activo");

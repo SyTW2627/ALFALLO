@@ -14,6 +14,11 @@ function borrarAlmacenamiento() {
   try {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USUARIO_KEY);
+    // Copias locales de las lecturas (ver lib/api.js). Los entrenamientos pendientes
+    // de subir NO se borran: se envían cuando ese usuario vuelva a iniciar sesión.
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith("alfallo:copia:"))
+      .forEach((k) => localStorage.removeItem(k));
   } catch {
     
   }

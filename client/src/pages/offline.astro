@@ -1,0 +1,26 @@
+---
+// Página de respaldo del service worker: se muestra si no hay conexión
+// y la página pedida todavía no se había guardado en el dispositivo.
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Sin conexión · AlFallo" description="No hay conexión a internet.">
+  <div class="mx-auto max-w-md py-12 text-center">
+    <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-primario/10 text-primario" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2.3-1.6M2 8.8a15 15 0 0 1 4.2-2.7M22 8.8A15 15 0 0 0 10.7 5M12 20h.01" />
+      </svg>
+    </div>
+    <h1 class="mt-5 text-2xl font-extrabold">Sin conexión</h1>
+    <p class="mt-2 text-sm text-suave">
+      Esta página aún no está guardada en tu dispositivo. Puedes seguir entrenando: lo que registres se guarda en el
+      móvil y se sube cuando vuelvas a tener red.
+    </p>
+    <a
+      href="/entrenamiento/"
+      class="mt-6 inline-flex h-12 items-center rounded-lg bg-primario px-6 text-sm font-bold text-fondo transition hover:brightness-110"
+    >
+      Ir a Entrenar
+    </a>
+  </div>
+</Layout>
