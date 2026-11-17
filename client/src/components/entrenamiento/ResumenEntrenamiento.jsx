@@ -32,6 +32,16 @@ import {
           <p className="mt-5 text-[11px] font-bold uppercase tracking-widest text-acento">Entrenamiento completado</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl">Buen trabajo. Hoy has sumado.</h1>
         </header>
+
+        {entrenamiento.pendiente && (
+          <p role="status" className="mb-4 rounded-lg border border-primario/30 bg-primario/10 px-3 py-2 text-sm text-primario">
+            {entrenamiento.motivo
+              ? `No se ha podido subir todavía: ${entrenamiento.motivo}`
+              : "Estás sin conexión."}{" "}
+            El entrenamiento está guardado en este móvil y se añadirá a tu historial automáticamente cuando vuelvas a
+            tener red.
+          </p>
+        )}
   
         <section className="rounded-2xl border border-borde bg-superficie p-5">
           <div className="flex items-center justify-between gap-3">
@@ -89,7 +99,7 @@ import {
         
         <Novedades novedades={entrenamiento.novedades} />
 
-        {entrenamiento.id && <PublicarEntrenamiento idEntrenamiento={entrenamiento.id} />}
+        {entrenamiento.id && !entrenamiento.pendiente && <PublicarEntrenamiento idEntrenamiento={entrenamiento.id} />}
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <a

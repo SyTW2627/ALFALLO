@@ -1,10 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  guardarEntrenamiento,
-  terminarEntrenamiento,
-  descartarEntrenamiento,
-} from "../../lib/api.js";
-import {
   etiquetaObjetivo,
   totalSeries,
   volumenTotal,
@@ -13,17 +8,29 @@ import {
   descansoPara,
   borrarPlan,
   normalizarEntrenamiento,
-  salirSiSesionCaducada,
 } from "../../lib/entrenamiento.js";
+import {
+  cambiarActual,
+  terminarActual,
+  descartarActual,
+  sincronizar,
+  sincronizarEnUnMomento,
+  suscribir,
+  aEntrenamiento,
+} from "../../lib/sinConexion.js";
 import TarjetaEjercicio from "./TarjetaEjercicio.jsx";
 import BuscadorEjercicios from "./BuscadorEjercicios.jsx";
 import TemporizadorDescanso from "./TemporizadorDescanso.jsx";
 
-const ESTADOS_GUARDADO = {
-  guardado: { texto: "Guardado", clase: "text-acento" },
-  guardando: { texto: "Guardando...", clase: "text-suave" },
-  error: { texto: "Sin guardar", clase: "text-red-400" },
-};
+// Texto del indicador de guardado a partir del estado de la sincronización.
+function estadoGuardado(r) {
+  if (r.enviando) return { texto: "Guardando...", clase: "text-suave" };
+  if (r.estado === "sin-conexion") return { texto: "Sin conexión · guardado en el móvil", clase: "text-primario" };
+  if (r.estado === "sin-sesion") return { texto: "Guardado en el móvil · inicia sesión para subirlo", clase: "text-primario" };
+  if (r.estado === "error" || r.estado === "conflicto") return { texto: "Sin subir", clase: "text-red-400", reintentar: true };
+  if (r.sinEnviar > 0) return { texto: "Guardado en el móvil", clase: "text-suave" };
+  return { texto: "Guardado", clase: "text-acento" };
+}
 
 function Cronometro({ inicio }) {
   const [ahora, setAhora] = useState(() => Date.now());
@@ -50,62 +57,29 @@ function Metrica({ etiqueta, valor }) {
 export default function SesionActiva({ inicial, catalogo, historial, onTerminado, onDescartado }) {
   const [ejercicios, setEjercicios] = useState(inicial.ejercicios);
   const [notas, setNotas] = useState(inicial.notas);
-  const [estadoGuardado, setEstadoGuardado] = useState("guardado");
+  const [sync, setSync] = useState({ estado: "ok", sinEnviar: 0 });
   const [buscador, setBuscador] = useState(false);
   const [descanso, setDescanso] = useState(null); // { fin, total, ejercicio }
   const [confirmar, setConfirmar] = useState(null); // "terminar" | "descartar"
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState("");
 
-  /* ---------- Sincronización con la API ----------
-   * Cada cambio sube la versión y se encola un PUT /workouts/active con el estado más reciente.
-   * Si llegan varios cambios seguidos solo se envía el último, y nunca hay dos peticiones a la vez.
+  /* ---------- Guardado ----------
+   * Cada cambio se escribe al instante en el móvil (lib/sinConexion.js) y se envía a la API
+   * poco después. Sin conexión no se pierde nada: se sube solo cuando vuelve la red.
    */
   const datos = useRef({ ejercicios: inicial.ejercicios, notas: inicial.notas });
-  const version = useRef(0);
-  const versionGuardada = useRef(0);
-  const cola = useRef(Promise.resolve());
-  const temporizadorNotas = useRef(null);
 
-  const enviar = useCallback(async () => {
-    if (versionGuardada.current >= version.current) return;
-    const v = version.current;
-    setEstadoGuardado("guardando");
-    await guardarEntrenamiento(datos.current);
-    versionGuardada.current = Math.max(versionGuardada.current, v);
-    if (versionGuardada.current >= version.current) setEstadoGuardado("guardado");
+  useEffect(() => suscribir(setSync), []);
+  useEffect(() => {
+    sincronizar(); // por si quedó algo sin subir de antes
   }, []);
 
-  const sincronizar = useCallback(() => {
-    cola.current = cola.current.then(enviar).catch((err) => {
-      if (salirSiSesionCaducada(err)) return;
-      setEstadoGuardado("error");
-    });
-    return cola.current;
-  }, [enviar]);
-
-  const cambiar = useCallback(
-    (cambios, { esperar = 0 } = {}) => {
-      datos.current = { ...datos.current, ...cambios };
-      if (cambios.ejercicios) setEjercicios(cambios.ejercicios);
-      version.current += 1;
-      clearTimeout(temporizadorNotas.current);
-      if (esperar) temporizadorNotas.current = setTimeout(sincronizar, esperar);
-      else sincronizar();
-    },
-    [sincronizar]
-  );
-
-  // Aviso del navegador si se intenta cerrar la pestaña con cambios sin guardar.
-  useEffect(() => {
-    const aviso = (e) => {
-      if (versionGuardada.current < version.current) e.preventDefault();
-    };
-    window.addEventListener("beforeunload", aviso);
-    return () => {
-      window.removeEventListener("beforeunload", aviso);
-      clearTimeout(temporizadorNotas.current);
-    };
+  const cambiar = useCallback((cambios, { esperar = 400 } = {}) => {
+    datos.current = { ...datos.current, ...cambios };
+    if (cambios.ejercicios) setEjercicios(cambios.ejercicios);
+    cambiarActual(cambios);
+    sincronizarEnUnMomento(esperar);
   }, []);
 
   /* ---------- Acciones sobre ejercicios ---------- */
@@ -138,42 +112,30 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
   const terminar = async () => {
     setOcupado(true);
     setError("");
-    try {
-      clearTimeout(temporizadorNotas.current);
-      await sincronizar();
-      await enviar(); // reintenta si el último guardado había fallado
-      const respuesta = await terminarEntrenamiento();
+    const terminado = terminarActual(); // queda guardado en el móvil con su hora de fin
+    const r = await sincronizar();
+    const respuesta = r.terminados?.[terminado.localId];
+    if (terminado.idServidor) borrarPlan(terminado.idServidor);
+
+    if (respuesta) {
       // `novedades` (rangos, hitos y retos conseguidos) la calcula el servidor al terminar.
-      const w = { ...normalizarEntrenamiento(respuesta), novedades: respuesta.novedades ?? null };
-      borrarPlan(inicial.id);
-      onTerminado(w);
-    } catch (err) {
-      if (salirSiSesionCaducada(err)) return;
-      setError(err.message || "No se ha podido terminar el entrenamiento.");
-      setOcupado(false);
+      onTerminado({ ...normalizarEntrenamiento(respuesta), novedades: respuesta.novedades ?? null });
+    } else {
+      // Sin conexión (o error): se enseña el resumen con los datos del móvil y se subirá más tarde.
+      onTerminado({ ...aEntrenamiento(terminado), pendiente: true, motivo: r.mensaje ?? null });
     }
   };
 
-  const descartar = async () => {
-    setOcupado(true);
-    setError("");
-    try {
-      clearTimeout(temporizadorNotas.current);
-      await cola.current;
-      await descartarEntrenamiento();
-      version.current = versionGuardada.current; // nada pendiente: no avisar al salir
-      borrarPlan(inicial.id);
-      onDescartado();
-    } catch (err) {
-      if (salirSiSesionCaducada(err)) return;
-      setError(err.message || "No se ha podido descartar el entrenamiento.");
-      setOcupado(false);
-    }
+  const descartar = () => {
+    descartarActual();
+    sincronizarEnUnMomento(0);
+    if (inicial.idServidor) borrarPlan(inicial.idServidor);
+    onDescartado();
   };
 
   const series = totalSeries(ejercicios);
   const volumen = volumenTotal(ejercicios);
-  const guardado = ESTADOS_GUARDADO[estadoGuardado];
+  const guardado = estadoGuardado(sync);
 
   return (
     <div>
@@ -194,8 +156,8 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
             <span role="status" className={`font-semibold ${guardado.clase}`}>
               {guardado.texto}
             </span>
-            {estadoGuardado === "error" && (
-              <button type="button" onClick={sincronizar} className="font-semibold text-primario hover:underline">
+            {guardado.reintentar && (
+              <button type="button" onClick={() => sincronizar()} className="font-semibold text-primario hover:underline">
                 Reintentar
               </button>
             )}
@@ -267,6 +229,12 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
               className="mt-1 w-full resize-y rounded-lg border border-borde bg-fondo p-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario"
             />
           </div>
+
+          {guardado.reintentar && sync.mensaje && (
+            <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+              {sync.mensaje} Tus series siguen guardadas en este móvil.
+            </p>
+          )}
 
           {error && (
             <p
