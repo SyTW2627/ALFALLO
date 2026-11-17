@@ -44,6 +44,8 @@ export function normalizarUsuario(u = {}) {
     email: u.email ?? "",
     rol: u.role ?? "user",
     creadoEn: u.createdAt ?? null,
+    pesoKg: u.bodyWeightKg ?? null,
+    sexo: u.sex ?? "unspecified",
   };
 }
 

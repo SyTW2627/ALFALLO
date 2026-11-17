@@ -219,3 +219,4 @@ export function eliminarComentario(idPost, idComentario) {
     { metodo: "DELETE", auth: true }
   );
 }
+

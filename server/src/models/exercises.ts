@@ -23,6 +23,7 @@ export interface IExercise extends Document {
   description: string,
   bodyPart: BodyParts,
   difficulty: number, // 1 (fácil) – 5 (muy difícil).
+  rankingKey?: string | null, 
 }
 
 const exerciseSchema = new Schema<IExercise>(
@@ -48,6 +49,11 @@ const exerciseSchema = new Schema<IExercise>(
       required: true,
       min: 1,
       max: 5,
+    },
+    rankingKey: {
+      type: String,
+      enum: ["bench", "squat", "deadlift", "ohp", "row"],
+      default: null,
     },
   },
   { timestamps: true }

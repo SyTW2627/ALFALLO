@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth';
 import { Workout, WorkoutStatus } from '../models/workout';
+import { progressNews } from './progress';
 
 // 1. Iniciar un nuevo entrenamiento
 export const startWorkout = async (req: AuthRequest, res: Response) => {
@@ -67,7 +68,16 @@ export const finishWorkout = async (req: AuthRequest, res: Response) => {
 
     await workout.save();
     await workout.populate('exercises.exercise');
-    return res.status(200).json(workout);
+    // Rangos subidos, hitos y retos conseguidos con este entrenamiento.
+    // Si falla el cálculo, el entrenamiento ya está guardado igualmente.
+    let novedades = null;
+    try {
+      novedades = await progressNews(userId!, String(workout._id));
+    } catch (error) {
+      console.error('Error al calcular las novedades de progreso', error);
+    }
+
+    return res.status(200).json({ ...workout.toJSON(), novedades });
   } catch (error: any) {
     return res.status(400).json({ message: error.message || 'Error al finalizar el entrenamiento' });
   }
