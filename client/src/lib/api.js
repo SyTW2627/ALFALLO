@@ -1,6 +1,10 @@
 // Cliente de la API de AlFallo.
 
-import { getToken, normalizarUsuario } from "./auth.js";
+import { getToken, getUsuario, normalizarUsuario } from "./auth.js";
+
+// Si el servidor no responde en este tiempo, se trata como "sin conexión"
+// (en el gimnasio es habitual tener cobertura que no llega a cargar nada).
+const TIEMPO_MAXIMO_MS = 15000;
 
 const API_URL = (import.meta.env?.PUBLIC_API_URL ?? "http://localhost:3000/api").replace(/\/+$/, "");
 
@@ -17,7 +21,32 @@ export function sesionRechazada(err) {
   return err instanceof ApiError && [401, 403, 404].includes(err.status);
 }
 
-async function peticion(ruta, { metodo = "GET", cuerpo, auth = false } = {}) {
+/* ---------- Copia local de las lecturas (para usar la app sin conexión) ----------
+ * Las peticiones GET marcadas con `copiaLocal: true` guardan su última respuesta.
+ * Si después no hay conexión, se devuelve esa copia en lugar de fallar.
+ */
+const PREFIJO_COPIA = "alfallo:copia:";
+
+const claveCopia = (ruta) => `${PREFIJO_COPIA}${getUsuario()?.id ?? "anonimo"}:${ruta}`;
+
+function guardarCopia(ruta, datos) {
+  try {
+    localStorage.setItem(claveCopia(ruta), JSON.stringify(datos));
+  } catch {
+    /* almacenamiento lleno o no disponible: se sigue sin copia */
+  }
+}
+
+function leerCopia(ruta) {
+  try {
+    const raw = localStorage.getItem(claveCopia(ruta));
+    return raw === null ? undefined : JSON.parse(raw);
+  } catch {
+    return undefined;
+  }
+}
+
+async function peticion(ruta, { metodo = "GET", cuerpo, auth = false, copiaLocal = false } = {}) {
   const headers = { Accept: "application/json" };
   if (cuerpo !== undefined) headers["Content-Type"] = "application/json";
   if (auth) {
@@ -26,14 +55,23 @@ async function peticion(ruta, { metodo = "GET", cuerpo, auth = false } = {}) {
   }
 
   let res;
+  const control = new AbortController();
+  const limite = setTimeout(() => control.abort(), TIEMPO_MAXIMO_MS);
   try {
     res = await fetch(`${API_URL}${ruta}`, {
       method: metodo,
       headers,
       body: cuerpo !== undefined ? JSON.stringify(cuerpo) : undefined,
+      signal: control.signal,
     });
   } catch {
+    if (copiaLocal) {
+      const copia = leerCopia(ruta);
+      if (copia !== undefined) return copia;
+    }
     throw new ApiError("No se ha podido conectar con el servidor.", { red: true });
+  } finally {
+    clearTimeout(limite);
   }
 
   let datos = null;
@@ -48,8 +86,12 @@ async function peticion(ruta, { metodo = "GET", cuerpo, auth = false } = {}) {
       status: res.status,
     });
   }
+  if (copiaLocal) guardarCopia(ruta, datos);
   return datos;
 }
+
+// Indica si un error es por falta de conexión (y no un error del servidor).
+export const esErrorDeRed = (err) => err instanceof ApiError && err.red;
 
 
 export async function iniciarSesion({ email, password }) {
@@ -73,12 +115,12 @@ export async function entrarConGoogle(credential) {
 
 
 export async function obtenerPerfil() {
-  const r = await peticion("/users/profile", { auth: true });
+  const r = await peticion("/users/profile", { auth: true, copiaLocal: true });
   return normalizarUsuario(r.user);
 }
 
 export async function contarEntrenamientos() {
-  const r = await peticion("/workouts/history", { auth: true });
+  const r = await peticion("/workouts/history", { auth: true, copiaLocal: true });
   return Array.isArray(r) ? r.length : null;
 }
 
@@ -86,17 +128,17 @@ export async function contarEntrenamientos() {
 
 // Catálogo de ejercicios.
 export function obtenerEjercicios() {
-  return peticion("/exercises", { auth: true });
+  return peticion("/exercises", { auth: true, copiaLocal: true });
 }
 
 // Rutinas del usuario (con los ejercicios ya populados).
 export function obtenerRutinas() {
-  return peticion("/routines", { auth: true });
+  return peticion("/routines", { auth: true, copiaLocal: true });
 }
 
 // Entrenamientos terminados, del más reciente al más antiguo.
 export function obtenerHistorial() {
-  return peticion("/workouts/history", { auth: true });
+  return peticion("/workouts/history", { auth: true, copiaLocal: true });
 }
 
 // Entrenamiento en curso o null si no hay ninguno.
@@ -104,11 +146,12 @@ export function obtenerEntrenamientoActivo() {
   return peticion("/workouts/active", { auth: true });
 }
 
-export function empezarEntrenamiento({ titulo, objetivo }) {
+// `inicio`: hora real de inicio (si se empezó sin conexión, se envía más tarde).
+export function empezarEntrenamiento({ titulo, objetivo, inicio }) {
   return peticion("/workouts/start", {
     metodo: "POST",
     auth: true,
-    cuerpo: { title: titulo, objective: objetivo || undefined },
+    cuerpo: { title: titulo, objective: objetivo || undefined, startedAt: inicio },
   });
 }
 
@@ -128,8 +171,9 @@ export function guardarEntrenamiento({ ejercicios, notas }) {
   });
 }
 
-export function terminarEntrenamiento() {
-  return peticion("/workouts/finish", { metodo: "POST", auth: true });
+// `fin`: hora real de fin (si se terminó sin conexión, se envía más tarde).
+export function terminarEntrenamiento({ fin } = {}) {
+  return peticion("/workouts/finish", { metodo: "POST", auth: true, cuerpo: { finishedAt: fin } });
 }
 
 export function descartarEntrenamiento() {
@@ -139,7 +183,7 @@ export function descartarEntrenamiento() {
 /* ---------- Rutinas ---------- */
 
 export function obtenerRutina(id) {
-  return peticion(`/routines/${encodeURIComponent(id)}`, { auth: true });
+  return peticion(`/routines/${encodeURIComponent(id)}`, { auth: true, copiaLocal: true });
 }
 
 // `rutina` ya viene en el formato de la API: { name, days: [...] } (ver aPayload en lib/rutinas.js)
@@ -169,14 +213,14 @@ export async function actualizarPerfil({ nombre, email, sexo, pesoKg } = {}) {
 
 // Rangos de fuerza, hitos y retos semanales.
 export function obtenerProgreso() {
-  return peticion("/progress", { auth: true });
+  return peticion("/progress", { auth: true, copiaLocal: true });
 }
 
 /* ---------- Feed comunitario (posts) ---------- */
 
 // Posts más recientes, paginados (la API limita `limite` a 50).
 export function obtenerFeed({ pagina = 1, limite = 10 } = {}) {
-  return peticion(`/posts/feed?page=${pagina}&limit=${limite}`, { auth: true });
+  return peticion(`/posts/feed?page=${pagina}&limit=${limite}`, { auth: true, copiaLocal: true });
 }
 
 export function obtenerPost(id) {
