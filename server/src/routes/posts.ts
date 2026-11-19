@@ -64,6 +64,10 @@ router.post('/', createPost);
  *       - in: query
  *         name: limit
  *         schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+ *       - in: query
+ *         name: scope
+ *         description: "following = solo los posts de la gente que sigues y los tuyos. Sin indicar = todos"
+ *         schema: { type: string, enum: [following] }
  *     responses:
  *       200:
  *         description: Lista de posts, del más reciente al más antiguo
