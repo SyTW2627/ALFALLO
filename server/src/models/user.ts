@@ -1,4 +1,4 @@
-import { Document, Schema, model } from "mongoose";
+import { Document, Schema, model, Types } from "mongoose";
 import bcrypt from 'bcrypt';
 
 export interface IUser extends Document {
@@ -9,6 +9,7 @@ export interface IUser extends Document {
   role: "user" | "admin";
   sex: "male" | "female" | "unspecified";
   bodyWeights: { kg: number; date: Date }[];
+  following: Types.ObjectId[]; // usuarios a los que sigue
   createAt: Date;
   updateAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -47,6 +48,7 @@ const userSchema = new Schema<IUser>(
       enum: ["male", "female", "unspecified"],
       default: "unspecified",
     },
+    following: { type: [{ type: Schema.Types.ObjectId, ref: "User" }], default: [] },
     bodyWeights: [
       {
         _id: false,
@@ -60,6 +62,8 @@ const userSchema = new Schema<IUser>(
   }
 );
 
+// Para contar y listar seguidores: usuarios cuyo "following" incluye a alguien
+userSchema.index({ following: 1 });
 
 // Ocultar la contraseña al convertir a JSON
 userSchema.methods.toJSON = function () {
