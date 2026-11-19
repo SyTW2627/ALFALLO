@@ -1,6 +1,8 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth';
+import { Types } from 'mongoose';
 import { Workout, WorkoutStatus } from '../models/workout';
+import { Post } from '../models/post';
 import { progressNews } from './progress';
 
 // Hora enviada por el cliente: los entrenamientos hechos sin conexión se suben más tarde,
@@ -126,6 +128,99 @@ export const getActiveWorkout = async (req: AuthRequest, res: Response) => {
     return res.status(200).json(workout);
   } catch (error) {
     return res.status(500).json({ message: 'Error al obtener el entrenamiento en curso', error });
+  }
+};
+
+/* ---------- Historial: ver, editar y eliminar entrenamientos terminados ---------- */
+
+// Fecha editada a mano desde el historial: puede ser antigua, pero no futura.
+function fechaEditada(valor: unknown, campo: string): Date | undefined {
+  if (valor === undefined) return undefined;
+  const fecha = new Date(valor as string);
+  if (valor === null || valor === '' || Number.isNaN(fecha.getTime())) {
+    throw new Error(`La fecha de ${campo} no es válida`);
+  }
+  if (fecha.getTime() > Date.now() + MARGEN_RELOJ_MS) {
+    throw new Error(`La fecha de ${campo} no puede estar en el futuro`);
+  }
+  return new Date(Math.min(fecha.getTime(), Date.now()));
+}
+
+const MAX_DURACION_MS = 24 * 60 * 60 * 1000;
+
+async function buscarTerminado(req: AuthRequest, res: Response) {
+  const { id } = req.params;
+  if (!Types.ObjectId.isValid(String(id))) {
+    res.status(400).json({ message: 'Id de entrenamiento no válido' });
+    return null;
+  }
+  const workout = await Workout.findOne({ _id: id, user: req.user?.id, status: WorkoutStatus.FINISHED });
+  if (!workout) {
+    res.status(404).json({ message: 'Entrenamiento no encontrado' });
+    return null;
+  }
+  return workout;
+}
+
+// 7. Obtener un entrenamiento terminado del historial
+export const getWorkoutById = async (req: AuthRequest, res: Response) => {
+  try {
+    const workout = await buscarTerminado(req, res);
+    if (!workout) return;
+    await workout.populate('exercises.exercise');
+    return res.status(200).json(workout);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al obtener el entrenamiento', error });
+  }
+};
+
+// 8. Editar un entrenamiento terminado (título, objetivo, notas, fechas, ejercicios y series)
+export const updateFinishedWorkout = async (req: AuthRequest, res: Response) => {
+  try {
+    const workout = await buscarTerminado(req, res);
+    if (!workout) return;
+
+    const { title, objective, notes, exercises, startedAt, finishedAt } = req.body ?? {};
+
+    if (title !== undefined) workout.title = title;
+    // null o "" quitan el objetivo
+    if (objective !== undefined) workout.objective = objective || undefined;
+    if (notes !== undefined) workout.notes = notes;
+    if (exercises !== undefined) {
+      if (!Array.isArray(exercises)) throw new Error('Los ejercicios deben ser una lista');
+      workout.exercises = exercises;
+    }
+
+    const inicio = fechaEditada(startedAt, 'inicio');
+    const fin = fechaEditada(finishedAt, 'fin');
+    if (inicio) workout.startedAt = inicio;
+    if (fin) workout.finishedAt = fin;
+    const duracion = workout.finishedAt!.getTime() - workout.startedAt.getTime();
+    if (duracion < 0) throw new Error('El entrenamiento no puede terminar antes de empezar');
+    if (duracion > MAX_DURACION_MS) throw new Error('Un entrenamiento no puede durar más de 24 horas');
+
+    // save() ejecuta las validaciones (p. ej. no dejarlo sin ninguna serie).
+    await workout.save();
+    await workout.populate('exercises.exercise');
+    return res.status(200).json(workout);
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message || 'Error al editar el entrenamiento' });
+  }
+};
+
+// 9. Eliminar un entrenamiento terminado (y su publicación en el feed, si la tenía).
+// Los hitos ya conseguidos se conservan: se guardan aparte (ver models/achievement.ts).
+export const deleteFinishedWorkout = async (req: AuthRequest, res: Response) => {
+  try {
+    const workout = await buscarTerminado(req, res);
+    if (!workout) return;
+
+    await Post.deleteOne({ workout: workout._id });
+    await workout.deleteOne();
+
+    return res.status(200).json({ message: 'Entrenamiento eliminado' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al eliminar el entrenamiento', error });
   }
 };
 
