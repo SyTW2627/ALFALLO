@@ -5,7 +5,10 @@ import {
   finishWorkout,
   getWorkoutHistory,
   discardActiveWorkout,
-  getActiveWorkout
+  getActiveWorkout,
+  getWorkoutById,
+  updateFinishedWorkout,
+  deleteFinishedWorkout
 } from '../controllers/workouts';
 import { authenticateJWT } from '../middlewares/auth';
 
@@ -190,5 +193,106 @@ router.delete('/active', discardActiveWorkout);
  *         $ref: '#/components/responses/Forbidden'
  */
 router.get('/history', getWorkoutHistory);
+
+/**
+ * @openapi
+ * /api/workouts/{id}:
+ *   parameters:
+ *     - in: path
+ *       name: id
+ *       required: true
+ *       schema:
+ *         type: string
+ *   get:
+ *     summary: Obtiene un entrenamiento terminado del historial
+ *     tags: [Workouts]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Entrenamiento
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Workout'
+ *       400:
+ *         description: Id no válido
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         description: No existe, no es tuyo o todavía está en curso
+ *   put:
+ *     summary: Edita un entrenamiento terminado
+ *     description: Solo se cambian los campos enviados. El array exercises reemplaza por completo al anterior.
+ *     tags: [Workouts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               objective:
+ *                 type: string
+ *                 nullable: true
+ *                 enum: [hypertrophy, force, resistance]
+ *               notes:
+ *                 type: string
+ *               startedAt:
+ *                 type: string
+ *                 format: date-time
+ *               finishedAt:
+ *                 type: string
+ *                 format: date-time
+ *               exercises:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/WorkoutExerciseInput'
+ *     responses:
+ *       200:
+ *         description: Entrenamiento actualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Workout'
+ *       400:
+ *         description: Datos inválidos (p. ej. sin ninguna serie o fechas incoherentes)
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         description: No existe, no es tuyo o todavía está en curso
+ *   delete:
+ *     summary: Elimina un entrenamiento terminado (y su publicación en el feed)
+ *     tags: [Workouts]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Entrenamiento eliminado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       400:
+ *         description: Id no válido
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         description: No existe, no es tuyo o todavía está en curso
+ */
+// Van al final para que /active y /history no se interpreten como un id.
+router.get('/:id', getWorkoutById);
+router.put('/:id', updateFinishedWorkout);
+router.delete('/:id', deleteFinishedWorkout);
 
 export default router;
