@@ -10,6 +10,7 @@ import {
 } from "../../lib/entrenamiento.js";
 import { normalizarComentario, haceCuanto, MAX_COMENTARIO } from "../../lib/feed.js";
 import { urlPerfil } from "../../lib/seguimiento.js";
+import BotonSeguir from "../seguimiento/BotonSeguir.jsx";
 
 // "4 × 8" si todas las series tienen las mismas reps; si no, "8 · 8 · 6".
 function describirSeries(series) {
@@ -91,7 +92,8 @@ function NombreAutor({ autor, esMio }) {
   );
 }
 
-export default function TarjetaPost({ post, idUsuario, onEliminado }) {
+// `seguidos` (Set de ids, opcional): si llega, se muestra el botón de seguir al autor.
+export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, onCambioSeguimiento }) {
   const [kudos, setKudos] = useState({ total: post.kudos, mio: post.tengoKudos });
   const [comentarios, setComentarios] = useState(post.comentarios);
   const [verComentarios, setVerComentarios] = useState(false);
@@ -174,6 +176,14 @@ export default function TarjetaPost({ post, idUsuario, onEliminado }) {
             <time dateTime={post.fecha}>{haceCuanto(post.fecha)}</time>
           </p>
         </div>
+        {seguidos && !esMio && post.autor.id && (
+          <BotonSeguir
+            idUsuario={post.autor.id}
+            loSigo={seguidos.has(post.autor.id)}
+            onCambio={({ loSigo }) => onCambioSeguimiento?.(post.autor.id, loSigo)}
+            pequeno
+          />
+        )}
         {esMio && (
           <button
             type="button"

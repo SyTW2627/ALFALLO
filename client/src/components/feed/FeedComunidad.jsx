@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { getUsuario } from "../../lib/auth.js";
-import { obtenerFeed } from "../../lib/api.js";
+import { obtenerFeed, obtenerSeguidos } from "../../lib/api.js";
 import { salirSiSesionCaducada } from "../../lib/entrenamiento.js";
 import { normalizarPost, POSTS_POR_PAGINA } from "../../lib/feed.js";
+import { normalizarUsuarioBasico } from "../../lib/seguimiento.js";
 import TarjetaPost from "./TarjetaPost.jsx";
 
 function Cargando() {
@@ -25,7 +26,9 @@ function Aviso({ titulo, texto, children }) {
   );
 }
 
-export default function FeedComunidad() {
+// `soloSeguidos`: en el inicio solo se ven los entrenamientos de la gente que sigues (y los tuyos).
+// Sin él (página Descubrir) se ven todos y cada autor lleva su botón de seguir.
+export default function FeedComunidad({ soloSeguidos = false }) {
   // undefined = aún no se ha comprobado la sesión (evita parpadeos en el primer render)
   const [usuario, setUsuario] = useState(undefined);
   const [posts, setPosts] = useState([]);
@@ -34,6 +37,8 @@ export default function FeedComunidad() {
   const [estado, setEstado] = useState("cargando"); // cargando | listo | error | mas
   const [error, setError] = useState("");
   const [intento, setIntento] = useState(0);
+  // Ids de la gente que sigues (solo hace falta para mostrar los botones de seguir).
+  const [seguidos, setSeguidos] = useState(null);
 
   useEffect(() => {
     setUsuario(getUsuario());
@@ -45,7 +50,7 @@ export default function FeedComunidad() {
     setEstado(pagina === 1 ? "cargando" : "mas");
     setError("");
 
-    obtenerFeed({ pagina, limite: POSTS_POR_PAGINA })
+    obtenerFeed({ pagina, limite: POSTS_POR_PAGINA, soloSeguidos })
       .then((datos) => {
         if (cancelado) return;
         const nuevos = datos.map(normalizarPost);
@@ -68,7 +73,23 @@ export default function FeedComunidad() {
     return () => {
       cancelado = true;
     };
-  }, [usuario, pagina, intento]);
+  }, [usuario, pagina, intento, soloSeguidos]);
+
+  useEffect(() => {
+    if (!usuario || soloSeguidos) return;
+    obtenerSeguidos(usuario.id)
+      .then((lista) => setSeguidos(new Set(lista.map((u) => normalizarUsuarioBasico(u).id))))
+      .catch(() => setSeguidos(new Set())); // sin la lista, todos aparecen como "Seguir"
+  }, [usuario, soloSeguidos]);
+
+  // Mantiene el Set al día para que todos los posts del mismo autor muestren lo mismo.
+  function alCambiarSeguimiento(idAutor, loSigo) {
+    setSeguidos((prev) => {
+      const nuevo = new Set(prev);
+      loSigo ? nuevo.add(idAutor) : nuevo.delete(idAutor);
+      return nuevo;
+    });
+  }
 
   if (usuario === undefined) return <Cargando />;
 
@@ -104,6 +125,22 @@ export default function FeedComunidad() {
     );
   }
 
+  if (posts.length === 0 && soloSeguidos) {
+    return (
+      <Aviso
+        titulo="Tu feed está vacío"
+        texto="Aquí verás los entrenamientos de la gente que sigues. Encuentra a alguien con quien motivarte."
+      >
+        <a
+          href="/descubrir"
+          className="inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-fondo transition hover:brightness-110"
+        >
+          Descubrir gente
+        </a>
+      </Aviso>
+    );
+  }
+
   if (posts.length === 0) {
     return (
       <Aviso
@@ -127,6 +164,8 @@ export default function FeedComunidad() {
           key={p.id}
           post={p}
           idUsuario={usuario.id}
+          seguidos={seguidos}
+          onCambioSeguimiento={alCambiarSeguimiento}
           onEliminado={(id) => setPosts((ps) => ps.filter((x) => x.id !== id))}
         />
       ))}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { seguirUsuario, dejarDeSeguir } from "../../lib/api.js";
 import { salirSiSesionCaducada } from "../../lib/entrenamiento.js";
 
@@ -9,6 +9,9 @@ export default function BotonSeguir({ idUsuario, loSigo: inicial = false, onCamb
   const [loSigo, setLoSigo] = useState(inicial);
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState("");
+
+  // Si el padre cambia el estado (p. ej. seguiste al mismo autor en otro post), se sincroniza.
+  useEffect(() => setLoSigo(inicial), [inicial]);
 
   async function alternar() {
     if (ocupado) return;
