@@ -248,8 +248,10 @@ export function obtenerProgreso() {
 /* ---------- Feed comunitario (posts) ---------- */
 
 // Posts más recientes, paginados (la API limita `limite` a 50).
-export function obtenerFeed({ pagina = 1, limite = 10 } = {}) {
-  return peticion(`/posts/feed?page=${pagina}&limit=${limite}`, { auth: true, copiaLocal: true });
+// `soloSeguidos`: solo los posts de la gente que sigues (y los tuyos).
+export function obtenerFeed({ pagina = 1, limite = 10, soloSeguidos = false } = {}) {
+  const alcance = soloSeguidos ? "&scope=following" : "";
+  return peticion(`/posts/feed?page=${pagina}&limit=${limite}${alcance}`, { auth: true, copiaLocal: true });
 }
 
 export function obtenerPost(id) {
@@ -293,3 +295,28 @@ export function eliminarComentario(idPost, idComentario) {
   );
 }
 
+
+/* ---------- Seguimiento de usuarios ---------- */
+
+// Perfil público de otro usuario: datos básicos, estadísticas, si le sigues y sus posts.
+export function obtenerPerfilPublico(id) {
+  return peticion(`/users/${encodeURIComponent(id)}`, { auth: true });
+}
+
+// Devuelven { following, followersCount }.
+export function seguirUsuario(id) {
+  return peticion(`/users/${encodeURIComponent(id)}/follow`, { metodo: "POST", auth: true });
+}
+
+export function dejarDeSeguir(id) {
+  return peticion(`/users/${encodeURIComponent(id)}/follow`, { metodo: "DELETE", auth: true });
+}
+
+// Listas de usuarios [{ _id, name }].
+export function obtenerSeguidos(id) {
+  return peticion(`/users/${encodeURIComponent(id)}/following`, { auth: true, copiaLocal: true });
+}
+
+export function obtenerSeguidores(id) {
+  return peticion(`/users/${encodeURIComponent(id)}/followers`, { auth: true, copiaLocal: true });
+}
