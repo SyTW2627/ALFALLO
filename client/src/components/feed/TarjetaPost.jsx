@@ -9,6 +9,8 @@ import {
   salirSiSesionCaducada,
 } from "../../lib/entrenamiento.js";
 import { normalizarComentario, haceCuanto, MAX_COMENTARIO } from "../../lib/feed.js";
+import { urlPerfil } from "../../lib/seguimiento.js";
+import BotonSeguir from "../seguimiento/BotonSeguir.jsx";
 
 // "4 × 8" si todas las series tienen las mismas reps; si no, "8 · 8 · 6".
 function describirSeries(series) {
@@ -80,7 +82,18 @@ function DatosEntrenamiento({ entrenamiento }) {
   );
 }
 
-export default function TarjetaPost({ post, idUsuario, onEliminado }) {
+// El nombre del autor enlaza a su perfil (al tuyo si es tuyo; sin enlace si se borró la cuenta).
+function NombreAutor({ autor, esMio }) {
+  if (!autor.id) return autor.nombre;
+  return (
+    <a href={esMio ? "/perfil-usuario" : urlPerfil(autor.id)} className="transition hover:text-primario">
+      {autor.nombre}
+    </a>
+  );
+}
+
+// `seguidos` (Set de ids, opcional): si llega, se muestra el botón de seguir al autor.
+export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, onCambioSeguimiento }) {
   const [kudos, setKudos] = useState({ total: post.kudos, mio: post.tengoKudos });
   const [comentarios, setComentarios] = useState(post.comentarios);
   const [verComentarios, setVerComentarios] = useState(false);
@@ -156,13 +169,21 @@ export default function TarjetaPost({ post, idUsuario, onEliminado }) {
         <Avatar nombre={post.autor.nombre} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">
-            {post.autor.nombre}
+            <NombreAutor autor={post.autor} esMio={esMio} />
             {esMio && <span className="ml-2 text-xs font-normal text-suave">(tú)</span>}
           </p>
           <p className="text-xs text-suave">
             <time dateTime={post.fecha}>{haceCuanto(post.fecha)}</time>
           </p>
         </div>
+        {seguidos && !esMio && post.autor.id && (
+          <BotonSeguir
+            idUsuario={post.autor.id}
+            loSigo={seguidos.has(post.autor.id)}
+            onCambio={({ loSigo }) => onCambioSeguimiento?.(post.autor.id, loSigo)}
+            pequeno
+          />
+        )}
         {esMio && (
           <button
             type="button"
@@ -220,7 +241,7 @@ export default function TarjetaPost({ post, idUsuario, onEliminado }) {
               <div className="min-w-0 flex-1 rounded-xl bg-elevada px-3 py-2">
                 <div className="flex items-baseline justify-between gap-2">
                   <p className="truncate text-xs font-semibold">
-                    {c.autor.nombre} <span className="font-normal text-suave">· {haceCuanto(c.fecha)}</span>
+                    <NombreAutor autor={c.autor} esMio={c.autor.id === idUsuario} /> <span className="font-normal text-suave">· {haceCuanto(c.fecha)}</span>
                   </p>
                   {/* Puede borrarlo su autor o el dueño del post (igual que en la API) */}
                   {(c.autor.id === idUsuario || esMio) && (

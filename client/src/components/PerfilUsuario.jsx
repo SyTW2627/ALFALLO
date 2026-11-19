@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getUsuario, actualizarUsuario, cerrarSesion, iniciales } from "../lib/auth.js";
 import { obtenerPerfil, contarEntrenamientos, sesionRechazada } from "../lib/api.js";
 import Esqueleto from "./Esqueleto.jsx";
+import ListaSeguidos from "./seguimiento/ListaSeguidos.jsx";
 
 function formatearFecha(iso) {
   if (!iso) return "—";
@@ -108,6 +109,9 @@ export default function PerfilUsuario() {
         <Dato etiqueta="Altura" valor={alturaCm} />
         <Dato etiqueta="Entrenamientos" valor={entrenamientos ?? "—"} acento href="/historial" />
       </div>
+
+      {/* Gente a la que sigues */}
+      <ListaSeguidos idUsuario={usuario.id} />
 
       {/* Datos de la cuenta */}
       <section className="mt-4 rounded-2xl border border-borde bg-superficie p-5">

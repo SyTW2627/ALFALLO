@@ -1,0 +1,16 @@
+---
+import Layout from "../layouts/Layout.astro";
+import FeedComunidad from "../components/feed/FeedComunidad.jsx";
+---
+
+<Layout title="Descubrir · AlFallo" description="Entrenamientos recientes de toda la comunidad para encontrar gente a la que seguir.">
+  <header class="mb-8">
+    <p class="text-xs text-suave">Comunidad / Descubrir</p>
+    <h1 class="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl">Descubre gente</h1>
+    <p class="mt-1 text-sm text-suave">
+      Entrenamientos recientes de toda la comunidad. Sigue a quien te motive y aparecerá en tu inicio.
+    </p>
+  </header>
+
+  <FeedComunidad client:only="react" />
+</Layout>

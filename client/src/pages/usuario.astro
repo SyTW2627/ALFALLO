@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PerfilPublico from "../components/seguimiento/PerfilPublico.jsx";
+---
+
+<Layout title="Perfil · AlFallo" description="Entrenamientos publicados y seguidores de un miembro de AlFallo.">
+  <PerfilPublico client:only="react" />
+</Layout>
