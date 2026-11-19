@@ -9,6 +9,7 @@ import {
   salirSiSesionCaducada,
 } from "../../lib/entrenamiento.js";
 import { normalizarComentario, haceCuanto, MAX_COMENTARIO } from "../../lib/feed.js";
+import { urlPerfil } from "../../lib/seguimiento.js";
 
 // "4 × 8" si todas las series tienen las mismas reps; si no, "8 · 8 · 6".
 function describirSeries(series) {
@@ -77,6 +78,16 @@ function DatosEntrenamiento({ entrenamiento }) {
         </table>
       )}
     </div>
+  );
+}
+
+// El nombre del autor enlaza a su perfil (al tuyo si es tuyo; sin enlace si se borró la cuenta).
+function NombreAutor({ autor, esMio }) {
+  if (!autor.id) return autor.nombre;
+  return (
+    <a href={esMio ? "/perfil-usuario" : urlPerfil(autor.id)} className="transition hover:text-primario">
+      {autor.nombre}
+    </a>
   );
 }
 
@@ -156,7 +167,7 @@ export default function TarjetaPost({ post, idUsuario, onEliminado }) {
         <Avatar nombre={post.autor.nombre} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">
-            {post.autor.nombre}
+            <NombreAutor autor={post.autor} esMio={esMio} />
             {esMio && <span className="ml-2 text-xs font-normal text-suave">(tú)</span>}
           </p>
           <p className="text-xs text-suave">
@@ -220,7 +231,7 @@ export default function TarjetaPost({ post, idUsuario, onEliminado }) {
               <div className="min-w-0 flex-1 rounded-xl bg-elevada px-3 py-2">
                 <div className="flex items-baseline justify-between gap-2">
                   <p className="truncate text-xs font-semibold">
-                    {c.autor.nombre} <span className="font-normal text-suave">· {haceCuanto(c.fecha)}</span>
+                    <NombreAutor autor={c.autor} esMio={c.autor.id === idUsuario} /> <span className="font-normal text-suave">· {haceCuanto(c.fecha)}</span>
                   </p>
                   {/* Puede borrarlo su autor o el dueño del post (igual que en la API) */}
                   {(c.autor.id === idUsuario || esMio) && (
