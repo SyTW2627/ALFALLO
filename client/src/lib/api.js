@@ -180,6 +180,35 @@ export function descartarEntrenamiento() {
   return peticion("/workouts/active", { metodo: "DELETE", auth: true });
 }
 
+/* ---------- Historial (entrenamientos terminados) ---------- */
+
+export function obtenerEntrenamiento(id) {
+  return peticion(`/workouts/${encodeURIComponent(id)}`, { auth: true });
+}
+
+// `cambios` usa la forma del frontend: { titulo, objetivo, notas, inicio, fin, ejercicios: [{ id, series: [{ reps, kg }] }] }
+export function editarEntrenamiento(id, { titulo, objetivo, notas, inicio, fin, ejercicios }) {
+  return peticion(`/workouts/${encodeURIComponent(id)}`, {
+    metodo: "PUT",
+    auth: true,
+    cuerpo: {
+      title: titulo,
+      objective: objetivo || null,
+      notes: notas,
+      startedAt: inicio,
+      finishedAt: fin,
+      exercises: ejercicios?.map((e) => ({
+        exercise: e.id,
+        sets: e.series.map((s) => ({ reps: s.reps, weightKg: s.kg })),
+      })),
+    },
+  });
+}
+
+export function eliminarEntrenamiento(id) {
+  return peticion(`/workouts/${encodeURIComponent(id)}`, { metodo: "DELETE", auth: true });
+}
+
 /* ---------- Rutinas ---------- */
 
 export function obtenerRutina(id) {

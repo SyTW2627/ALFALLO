@@ -10,13 +10,25 @@ function formatearFecha(iso) {
   return fecha.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
 }
 
-function Dato({ etiqueta, valor, acento = false }) {
-  return (
-    <div className="rounded-2xl border border-borde bg-superficie p-5">
+function Dato({ etiqueta, valor, acento = false, href }) {
+  const contenido = (
+    <>
       <p className="text-xs text-suave">{etiqueta}</p>
       <p className={`mt-2 text-xl font-bold ${acento ? "text-acento" : ""}`}>{valor}</p>
-    </div>
+    </>
   );
+  if (href) {
+    return (
+      <a
+        href={href}
+        className="block rounded-2xl border border-borde bg-superficie p-5 transition hover:border-primario/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
+      >
+        {contenido}
+        <span className="mt-1 block text-xs font-semibold text-primario">Ver historial →</span>
+      </a>
+    );
+  }
+  return <div className="rounded-2xl border border-borde bg-superficie p-5">{contenido}</div>;
 }
 
 export default function PerfilUsuario() {
@@ -94,7 +106,7 @@ export default function PerfilUsuario() {
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <Dato etiqueta="Peso corporal" valor={pesoKg} />
         <Dato etiqueta="Altura" valor={alturaCm} />
-        <Dato etiqueta="Entrenamientos" valor={entrenamientos ?? "—"} acento />
+        <Dato etiqueta="Entrenamientos" valor={entrenamientos ?? "—"} acento href="/historial" />
       </div>
 
       {/* Datos de la cuenta */}
