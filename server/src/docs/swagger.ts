@@ -22,7 +22,7 @@ const options: swaggerJsdoc.Options = {
         tags: [
             { name: 'Health', description: 'Estado de la API' },
             { name: 'Auth', description: 'Registro e inicio de sesión' },
-            { name: 'Users', description: 'Perfil del usuario autenticado' },
+            { name: 'Users', description: 'Perfil del usuario, perfiles públicos y seguidores' },
             { name: 'Exercises', description: 'Catálogo de ejercicios' },
             { name: 'Routines', description: 'Rutinas del usuario' },
             { name: 'Workouts', description: 'Entrenamientos en curso e historial' },
@@ -236,6 +236,45 @@ const options: swaggerJsdoc.Options = {
                         comments: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
                         commentsCount: { type: 'integer', example: 1 },
                         createdAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                UserSummary: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string' },
+                        name: { type: 'string', example: 'Hugo' },
+                    },
+                },
+                FollowResponse: {
+                    type: 'object',
+                    properties: {
+                        following: { type: 'boolean', example: true },
+                        followersCount: { type: 'integer', example: 5 },
+                    },
+                },
+                PublicProfile: {
+                    type: 'object',
+                    properties: {
+                        user: {
+                            type: 'object',
+                            properties: {
+                                _id: { type: 'string' },
+                                name: { type: 'string', example: 'Hugo' },
+                                createdAt: { type: 'string', format: 'date-time' },
+                            },
+                        },
+                        stats: {
+                            type: 'object',
+                            properties: {
+                                workouts: { type: 'integer', example: 12 },
+                                posts: { type: 'integer', example: 4 },
+                                followers: { type: 'integer', example: 5 },
+                                following: { type: 'integer', example: 3 },
+                            },
+                        },
+                        isMe: { type: 'boolean', example: false },
+                        isFollowing: { type: 'boolean', example: true },
+                        posts: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
                     },
                 },
                 KudosResponse: {

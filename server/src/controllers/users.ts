@@ -100,6 +100,9 @@ export const deleteAccount = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
+    // Quitar al usuario borrado de la lista de seguidos de los demás
+    await User.updateMany({ following: deletedUser._id }, { $pull: { following: deletedUser._id } });
+
     res.json({ message: 'Cuenta eliminada con éxito' });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar la cuenta', error });

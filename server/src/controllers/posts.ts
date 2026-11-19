@@ -3,16 +3,17 @@ import { Types } from 'mongoose';
 import { AuthRequest } from '../middlewares/auth';
 import { Post } from '../models/post';
 import { Workout, WorkoutStatus } from '../models/workout';
+import { User } from '../models/user';
 
 // Datos que se rellenan al devolver un post: autor, entrenamiento con sus ejercicios y autores de comentarios
-const POPULATE = [
+export const POPULATE = [
   { path: 'user', select: 'name' },
   { path: 'workout', populate: { path: 'exercises.exercise', select: 'name bodyPart' } },
   { path: 'comments.user', select: 'name' },
 ];
 
 // Añade si el usuario que pide el post ya le ha dado kudos
-const conMiKudo = (post: any, userId?: string) => ({
+export const conMiKudo = (post: any, userId?: string) => ({
   ...post.toJSON(),
   hasKudo: post.kudos.some((id: Types.ObjectId) => id.equals(userId)),
 });
@@ -56,7 +57,14 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 10));
 
-    const posts = await Post.find()
+    // ?scope=following: solo los posts de la gente que sigues y los tuyos
+    let filtro = {};
+    if (req.query.scope === 'following') {
+      const yo = await User.findById(userId).select('following');
+      filtro = { user: { $in: [...(yo?.following ?? []), userId] } };
+    }
+
+    const posts = await Post.find(filtro)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
