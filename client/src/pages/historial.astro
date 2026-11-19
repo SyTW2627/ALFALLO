@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PaginaHistorial from "../components/historial/PaginaHistorial.jsx";
+---
+
+<Layout title="Historial · AlFallo" description="Consulta, edita o elimina tus entrenamientos terminados.">
+  <PaginaHistorial client:only="react" />
+</Layout>

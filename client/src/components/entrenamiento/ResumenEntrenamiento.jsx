@@ -108,6 +108,14 @@ import {
           >
             Volver al inicio
           </a>
+          {!entrenamiento.pendiente && (
+            <a
+              href="/historial"
+              className="inline-flex h-12 items-center justify-center rounded-lg border border-borde bg-superficie px-6 text-sm font-semibold transition hover:border-primario/50"
+            >
+              Ver historial
+            </a>
+          )}
           <button
             type="button"
             onClick={onOtro}

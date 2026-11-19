@@ -36,7 +36,9 @@ const links = [
 ];
 
 const isActive = (href: string) =>
-  href === "/" ? path === "/" : path.startsWith(href);
+  href === "/"
+    ? path === "/"
+    : path.startsWith(href) || (href === "/entrenamiento" && path.startsWith("/historial"));
 ---
 
 <nav
