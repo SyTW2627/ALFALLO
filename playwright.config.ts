@@ -1,22 +1,29 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const ahora = new Date();
-const dosDigitos = (valor: number) => String(valor).padStart(2, "0");
-process.env.E2E_USER_EMAIL ||= `${dosDigitos(ahora.getHours())}${dosDigitos(ahora.getMinutes())}${dosDigitos(ahora.getSeconds())}@${dosDigitos(ahora.getDate())}${dosDigitos(ahora.getMonth() + 1)}.com`;
+// Usuario compartido por los tests: lo crea el proyecto "setup" y lo usan los demás.
+// Se genera uno nuevo en cada ejecución para no chocar con datos de ejecuciones anteriores.
+process.env.E2E_USER_EMAIL ||= `e2e_${Date.now()}@example.com`;
+
+// API contra la que se preparan datos desde los tests (registro rápido, borrado de cuentas).
+// Tiene que ser la misma a la que apunta PUBLIC_API_URL en client/.env.
+process.env.E2E_API_URL ||= "http://localhost:3000/api";
 
 const testCreacionUsuario = /createUser\.spec\.ts/;
 const testEntrenamientoInicial = /newWorkout\.spec\.ts/;
 
 export default defineConfig({
   testDir: "./e2e",
-  fullyParallel: true,
+  // Varios tests usan el mismo usuario: se ejecutan uno detrás de otro
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  // "list" muestra el resultado en la consola; el informe HTML se genera pero no se abre solo
+  reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "http://127.0.0.1:4321",
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
   },
   projects: [
     {
@@ -37,6 +44,7 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
+  // Playwright arranca el frontend. La API (npm run dev en server) y MongoDB tienen que estar en marcha.
   webServer: {
     command: "npm run dev -- --host 127.0.0.1",
     cwd: "./client",
