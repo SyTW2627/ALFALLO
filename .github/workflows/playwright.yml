@@ -5,6 +5,8 @@ name: Playwright Tests
 # (se hará en la iteración de integración continua).
 on:
   workflow_dispatch:
+  push:
+    branches: [ test-e2e ]
 
 jobs:
   test:
