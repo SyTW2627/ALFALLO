@@ -1,58 +1,41 @@
-import { test, expect } from '@playwright/test';
-import { getTestUserEmail } from './testUser';
+import { test, expect } from "@playwright/test";
+import {
+  anadirEjercicio,
+  empezarEntrenamiento,
+  getTestUserEmail,
+  iniciarSesion,
+  publicarEntrenamiento,
+  registrarSeries,
+  tarjetaPost,
+  terminarEntrenamiento,
+} from "./helpers";
 
-test('Creación y uso de un nuevo entrenamiento recién creado', async ({ page }) => {
-  await page.goto('http://127.0.0.1:4321/');
-  await page.locator('header').getByRole('link', { name: 'Iniciar sesión' }).click();
-  await page.getByRole('textbox', { name: 'Email' }).click();
-  await page.getByRole('textbox', { name: 'Email' }).fill(getTestUserEmail());
-  await page.getByRole('textbox', { name: 'Email' }).press('Tab');
-  await page.getByRole('textbox', { name: 'Contraseña' }).fill('12345678');
-  await page.getByRole('button', { name: 'Entrar' }).click();
-  await page.getByRole('complementary').getByRole('link', { name: 'Empezar entrenamiento' }).click();
-  await page.getByRole('button', { name: 'Fuerza' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).fill('Fuerza1');
-  await page.getByRole('button', { name: 'Empezar entrenamiento' }).click();
-  await page.getByRole('button', { name: 'Añadir ejercicio' }).click();
-  await page.getByRole('button', { name: 'Espalda', exact: true }).click();
-  await page.getByRole('button', { name: 'Encogimiento de hombros con barra Espalda · Dificultad 1/5 Añadir' }).click();
-  await page.getByRole('textbox', { name: 'Peso (kg)' }).click();
-  await page.getByRole('textbox', { name: 'Peso (kg)' }).fill('20');
-  await page.getByRole('textbox', { name: 'Reps' }).click();
-  await page.getByRole('textbox', { name: 'Reps' }).fill('15');
-  await page.locator('div').filter({ hasText: 'Encogimiento de hombros con' }).nth(2).click();
-  await page.getByRole('button', { name: 'Añadir ejercicio' }).click();
-  await page.getByRole('button', { name: 'Dorsal', exact: true }).click();
-  await page.getByRole('button', { name: 'Elevaciones en barra fija Dorsal · Dificultad 4/5 Añadir' }).click();
-  await page.getByRole('article').filter({ hasText: 'Elevaciones en barra' }).getByLabel('Peso (kg)').click();
-  await page.getByRole('article').filter({ hasText: 'Elevaciones en barra' }).getByLabel('Peso (kg)').fill('10');
-  await page.getByRole('article').filter({ hasText: 'Elevaciones en barra' }).getByLabel('Reps').click();
-  await page.getByRole('article').filter({ hasText: 'Elevaciones en barra' }).getByLabel('Reps').fill('10');
-  await page.getByRole('button', { name: 'Añadir ejercicio' }).click();
-  await page.getByRole('button', { name: 'Lumbar', exact: true }).click();
-  await page.getByRole('button', { name: 'Ejercicio “buenos días” con' }).click();
-  await page.getByRole('article').filter({ hasText: 'Ejercicio “buenos días” con' }).getByLabel('Peso (kg)').click();
-  await page.getByRole('article').filter({ hasText: 'Ejercicio “buenos días” con' }).getByLabel('Peso (kg)').fill('50');
-  await page.getByRole('article').filter({ hasText: 'Ejercicio “buenos días” con' }).getByLabel('Reps').click();
-  await page.getByRole('article').filter({ hasText: 'Ejercicio “buenos días” con' }).getByLabel('Reps').fill('10');
-  await page.getByRole('button', { name: 'Subir Elevaciones en barra' }).click();
-  await page.getByRole('button', { name: '+ Serie' }).first().click();
-  await page.getByRole('button', { name: '+ Serie' }).nth(1).click();
-  await page.getByRole('button', { name: '+ Serie' }).nth(2).click();
-  await page.getByRole('button', { name: 'Saltar' }).click();
-  await page.getByRole('button', { name: '+ Serie' }).first().click();
-  await page.getByRole('button', { name: '+ Serie' }).nth(1).click();
-  await page.getByRole('button', { name: '+ Serie' }).nth(2).click();
-  await page.getByText('Elevaciones en barra fijaDorsalSeriePesoRepsAcciones110 kg10210 kg10Peso (kg)').click();
-  await page.getByText('Encogimiento de hombros con barraEspaldaSeriePesoRepsAcciones120 kg15220').click();
-  await page.getByText('Ejercicio “buenos días” con barraLumbarSeriePesoRepsAcciones150 kg10250').click();
-  await page.getByRole('button', { name: 'Terminar entrenamiento' }).click();
-  await page.getByRole('button', { name: 'Terminar' }).click();
-  await page.getByText('Entrenamiento completadoBuen trabajo. Hoy has sumado.Fuerza1 ·').click();
-  await page.getByRole('textbox', { name: 'Compártelo con la comunidad' }).click();
-  await page.getByRole('textbox', { name: 'Compártelo con la comunidad' }).fill('Esto es falsísimo');
-  await page.getByRole('button', { name: 'Publicar' }).click();
-  await page.getByRole('link', { name: 'Ver el feed' }).click();
-  await page.getByRole('main').click();
+// Proyecto "seed-workout": deja al usuario compartido con un entrenamiento terminado y publicado
+test("Creación y uso de un nuevo entrenamiento recién creado", async ({ page }) => {
+  await iniciarSesion(page, getTestUserEmail());
+  await empezarEntrenamiento(page, "Fuerza1", "Fuerza");
+
+  const ejercicio1 = await anadirEjercicio(page, "Espalda");
+  await registrarSeries(page, ejercicio1, "20", "15", 2);
+
+  const ejercicio2 = await anadirEjercicio(page, "Dorsal");
+  await registrarSeries(page, ejercicio2, "10", "10", 2);
+
+  // Mover un ejercicio cambia el orden de las tarjetas
+  const ejercicios = page.getByRole("region", { name: "Ejercicios" }).getByRole("article");
+  await expect(ejercicios).toHaveCount(2);
+  await page.getByRole("button", { name: `Subir ${ejercicio2}`, exact: true }).click();
+  await expect(ejercicios.first()).toContainText(ejercicio2);
+
+  await terminarEntrenamiento(page);
+  await expect(page.getByText("Fuerza1").first()).toBeVisible();
+
+  const texto = `Primer entrenamiento ${Date.now()}`;
+  await publicarEntrenamiento(page, texto);
+
+  // El post aparece en el feed como propio
+  await page.getByRole("link", { name: "Ver el feed" }).click();
+  const post = tarjetaPost(page, texto);
+  await expect(post).toBeVisible();
+  await expect(post).toContainText("(tú)");
 });
