@@ -112,7 +112,7 @@ ALFALLO/
 
 ## Cómo ejecutarlo en local
 
-**Requisitos:** Node.js 22 o superior y MongoDB funcionando en local (o una base de datos en MongoDB Atlas).
+**Requisitos:** Node.js 22.23.4 o superior y MongoDB funcionando en local (o una base de datos en MongoDB Atlas).
 
 **1. Clona el repositorio**
 
@@ -210,6 +210,7 @@ La web queda en `http://localhost:4321`.
 
 | Carpeta | Comando | Qué hace |
 |---|---|---|
+| raíz    | `npm run test:e2e` | Ejecuta los tests E2E de Playwright y levanta el frontend automáticamente |
 | `server` | `npm run dev` | Arranca la API y la reinicia al guardar cambios |
 | `server` | `npm run build` | Compila TypeScript a `dist/` |
 | `server` | `npm start` | Arranca la versión compilada |
