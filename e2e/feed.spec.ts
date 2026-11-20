@@ -1,79 +1,71 @@
-import { test, expect } from '@playwright/test';
-import { getTestUserEmail } from './testUser';
+import { test, expect, type APIRequestContext, type Page } from "@playwright/test";
+import {
+  anadirEjercicio,
+  borrarCuenta,
+  empezarEntrenamiento,
+  getTestUserEmail,
+  iniciarSesion,
+  olvidarSesion,
+  publicarEntrenamiento,
+  registrarPorApi,
+  registrarSeries,
+  tarjetaPost,
+  terminarEntrenamiento,
+} from "./helpers";
 
-test('Creación de dos usuarios que publican su entrenamiento y un tercero lo ve desde su feed', async ({ page }) => {
-  const idEjecucion = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const correo1 = `feed-${idEjecucion}-1@example.com`;
-  const correo2 = `feed-${idEjecucion}-2@example.com`;
+const tokens: string[] = [];
 
-  await page.goto('http://127.0.0.1:4321/');
-  await page.getByRole('link', { name: 'Crear cuenta' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).fill('correo1');
-  await page.getByRole('textbox', { name: 'Email' }).click();
-  await page.getByRole('textbox', { name: 'Email' }).fill(correo1);
-  await page.getByRole('textbox', { name: 'Contraseña', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Contraseña', exact: true }).fill('12345678');
-  await page.getByRole('textbox', { name: 'Repite la contraseña' }).click();
-  await page.getByRole('textbox', { name: 'Repite la contraseña' }).fill('12345678');
-  await page.getByRole('button', { name: 'Crear cuenta' }).click();
-  await page.getByRole('link', { name: 'Empezar entrenamiento' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).fill('1');
-  await page.getByRole('button', { name: 'Empezar entrenamiento' }).click();
-  await page.getByRole('button', { name: 'Añadir ejercicio' }).click();
-  await page.getByRole('button', { name: 'Espalda', exact: true }).click();
-  await page.getByRole('button', { name: 'Encogimiento de hombros con barra Espalda · Dificultad 1/5 Añadir' }).click();
-  await page.getByRole('textbox', { name: 'Peso (kg)' }).click();
-  await page.getByRole('textbox', { name: 'Peso (kg)' }).fill('10');
-  await page.getByRole('textbox', { name: 'Reps' }).click();
-  await page.getByRole('textbox', { name: 'Reps' }).fill('15');
-  await page.getByRole('button', { name: '+ Serie' }).click();
-  await page.getByRole('button', { name: 'Terminar entrenamiento' }).click();
-  await page.getByRole('button', { name: 'Terminar' }).click();
-  await page.getByRole('textbox', { name: 'Compártelo con la comunidad' }).click();
-  await page.getByRole('textbox', { name: 'Compártelo con la comunidad' }).fill('Publicado 1');
-  await page.getByRole('link', { name: 'Inicio', exact: true }).click();
-  await page.getByRole('link', { name: 'Ir a mi perfil' }).click();
-  await page.getByRole('button', { name: 'Cerrar sesión' }).click();
-  await page.getByRole('link', { name: 'Crear cuenta' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).fill('correo2');
-  await page.getByRole('textbox', { name: 'Email' }).click();
-  await page.getByRole('textbox', { name: 'Email' }).fill(correo2);
-  await page.getByRole('textbox', { name: 'Contraseña', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Contraseña', exact: true }).fill('12345678');
-  await page.getByRole('textbox', { name: 'Contraseña', exact: true }).press('Tab');
-  await page.getByRole('button', { name: 'Ver' }).press('Tab');
-  await page.getByRole('textbox', { name: 'Repite la contraseña' }).fill('12345678');
-  await page.getByRole('textbox', { name: 'Repite la contraseña' }).press('Tab');
-  await page.getByRole('button', { name: 'Crear cuenta' }).press('Enter');
-  await page.getByRole('link', { name: 'Empezar entrenamiento' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).click();
-  await page.getByRole('textbox', { name: 'Nombre' }).fill('2');
-  await page.getByRole('button', { name: 'Empezar entrenamiento' }).click();
-  await page.getByRole('button', { name: 'Añadir ejercicio' }).click();
-  await page.getByRole('button', { name: 'Espalda', exact: true }).click();
-  await page.getByRole('button', { name: 'Encogimiento de hombros con barra Espalda · Dificultad 1/5 Añadir' }).click();
-  await page.getByRole('textbox', { name: 'Peso (kg)' }).click();
-  await page.getByRole('textbox', { name: 'Peso (kg)' }).fill('15');
-  await page.getByRole('textbox', { name: 'Peso (kg)' }).press('Tab');
-  await page.getByRole('textbox', { name: 'Reps' }).fill('20');
-  await page.getByText('Encogimiento de hombros con barraEspaldaPeso (kg)Reps+ SerieQuitar ejercicio').click();
-  await page.getByRole('button', { name: '+ Serie' }).click();
-  await page.getByRole('button', { name: 'Terminar entrenamiento' }).click();
-  await page.getByRole('button', { name: 'Terminar' }).click();
-  await page.getByRole('textbox', { name: 'Compártelo con la comunidad' }).click();
-  await page.getByRole('textbox', { name: 'Compártelo con la comunidad' }).fill('Publicado 2');
-  await page.getByRole('button', { name: 'Publicar' }).click();
-  await page.getByRole('link', { name: 'Ver el feed' }).click();
-  await page.getByRole('link', { name: 'Ir a mi perfil' }).click();
-  await page.getByRole('button', { name: 'Cerrar sesión' }).click();
-  await page.locator('header').getByRole('link', { name: 'Iniciar sesión' }).click();
-  await page.getByRole('textbox', { name: 'Email' }).click();
-  await page.getByRole('textbox', { name: 'Email' }).fill(getTestUserEmail());
-  await page.getByRole('textbox', { name: 'Contraseña' }).click();
-  await page.getByRole('textbox', { name: 'Contraseña' }).fill('12345678');
-  await page.getByRole('button', { name: 'Entrar' }).click();
-  await page.getByRole('button', { name: 'Dar ánimos ·' }).first().click();
+test.afterAll(async ({ playwright }) => {
+  const api = await playwright.request.newContext();
+  for (const token of tokens) await borrarCuenta(api, token);
+  await api.dispose();
+});
+
+// Un usuario nuevo hace un entrenamiento corto y lo publica con el texto indicado
+async function publicarComoNuevoUsuario(page: Page, request: APIRequestContext, nombre: string, texto: string) {
+  const usuario = await registrarPorApi(request, nombre);
+  tokens.push(usuario.token);
+
+  await iniciarSesion(page, usuario.email);
+  await empezarEntrenamiento(page, `Entreno de ${nombre}`);
+  const ejercicio = await anadirEjercicio(page, "Espalda");
+  await registrarSeries(page, ejercicio, "15", "20");
+  await terminarEntrenamiento(page);
+  await publicarEntrenamiento(page, texto);
+  await olvidarSesion(page);
+}
+
+test("Dos usuarios publican su entrenamiento y un tercero los ve en el feed y da ánimos", async ({ page, request }) => {
+  test.setTimeout(120_000); // dos entrenamientos completos por la interfaz
+
+  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  const texto1 = `Publicado 1 ${id}`;
+  const texto2 = `Publicado 2 ${id}`;
+
+  await publicarComoNuevoUsuario(page, request, "Usuaria Uno", texto1);
+  await publicarComoNuevoUsuario(page, request, "Usuario Dos", texto2);
+
+  // El usuario compartido ve los dos posts, con su autor y sin marcarlos como propios
+  await iniciarSesion(page, getTestUserEmail());
+  const post1 = tarjetaPost(page, texto1);
+  const post2 = tarjetaPost(page, texto2);
+  await expect(post1).toBeVisible();
+  await expect(post2).toBeVisible();
+  await expect(post1).toContainText("Usuaria Uno");
+  await expect(post2).toContainText("Usuario Dos");
+  await expect(post1).not.toContainText("(tú)");
+
+  // El más reciente aparece antes
+  const textos = await page.getByRole("article").allTextContents();
+  const pos1 = textos.findIndex((t) => t.includes(texto1));
+  const pos2 = textos.findIndex((t) => t.includes(texto2));
+  expect(pos2).toBeLessThan(pos1);
+
+  // Dar ánimos cambia el botón y suma uno
+  await post2.getByRole("button", { name: "Dar ánimos · 0" }).click();
+  await expect(post2.getByRole("button", { name: "Ánimos dados · 1" })).toBeVisible();
+
+  // Se ha guardado en la API: sigue igual tras recargar
+  await page.reload();
+  await expect(tarjetaPost(page, texto2).getByRole("button", { name: "Ánimos dados · 1" })).toBeVisible();
 });
