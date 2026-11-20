@@ -1,9 +1,11 @@
 name: Playwright Tests
+
+# De momento solo se lanza a mano desde la pestaña "Actions" de GitHub.
+# Para ejecutarse en cada push necesita MongoDB, el backend arrancado y el catálogo de ejercicios
+# (se hará en la iteración de integración continua).
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_dispatch:
+
 jobs:
   test:
     timeout-minutes: 60
