@@ -10,6 +10,7 @@ import postRoutes from './routes/posts';
 import progressRoutes from './routes/progress';
 import adminRoutes from './routes/admin';
 import notificationRoutes from './routes/notifications';
+import leaderboardRoutes from './routes/leaderboard';
 const app = express();
 
 app.use(cors()); // Habilita peticiones desde cualquier origen
@@ -27,6 +28,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 /**
  * @openapi

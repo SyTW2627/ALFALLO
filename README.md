@@ -44,6 +44,7 @@ Proyecto de la asignatura **Sistemas y Tecnologías Web** (Universidad de La Lag
 - Entrenamiento en curso: empezar, registrar series (repeticiones y peso), terminar o descartar
 - Historial de entrenamientos con duración, series y volumen calculados automáticamente
 - Estadísticas y récords personales por ejercicio (peso máximo, 1RM estimado, más repeticiones y mejor sesión), con aviso al momento si superas una marca mientras entrenas
+- Clasificaciones con la gente que sigues: ranking semanal de volumen y de entrenamientos, y quién completó antes cada reto especial
 - Documentación interactiva de la API con Swagger
 
 **Próximamente**

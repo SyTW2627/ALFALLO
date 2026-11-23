@@ -414,3 +414,10 @@ export function obtenerEstadisticasAdmin() {
 export function editarNotificacion(id, datos) {
   return editarAdmin("notifications", id, datos);
 }
+
+/* ---------- Clasificaciones ---------- */
+
+// Ranking semanal (volumen y entrenamientos) y de retos especiales entre tú y la gente que sigues.
+export function obtenerClasificacion() {
+  return peticion("/leaderboard", { auth: true, copiaLocal: true });
+}
