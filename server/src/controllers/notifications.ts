@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth';
 import { User } from '../models/user';
-import { Notification } from '../models/notification';
+import { Notification, fechaPublicacion, publicadas, publicadasDesde } from '../models/notification';
 
 const MAXIMO = 30;
 
@@ -11,20 +11,21 @@ export const getNotifications = async (req: AuthRequest, res: Response) => {
     const user = await User.findById(req.user!.id).select('notificationsSeenAt').lean();
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
+    const ahora = new Date();
     const vistasHasta = user.notificationsSeenAt ? new Date(user.notificationsSeenAt) : null;
-    const filtroNuevas = vistasHasta ? { createdAt: { $gt: vistasHasta } } : {};
 
     const [lista, noLeidas] = await Promise.all([
-      Notification.find().sort({ createdAt: -1 }).limit(MAXIMO).select('-createdBy -__v').lean(),
-      Notification.countDocuments(filtroNuevas),
+      // Solo las ya publicadas: las programadas aparecen solas cuando llega su hora.
+      Notification.find(publicadas(ahora)).sort({ publicarEn: -1, createdAt: -1 }).limit(MAXIMO).select('-createdBy -__v').lean(),
+      Notification.countDocuments(vistasHasta ? publicadasDesde(vistasHasta, ahora) : publicadas(ahora)),
     ]);
 
     return res.status(200).json({
       noLeidas,
-      notificaciones: lista.map((n) => ({
-        ...n,
-        leida: vistasHasta ? new Date(n.createdAt) <= vistasHasta : false,
-      })),
+      notificaciones: lista.map((n) => {
+        const fecha = fechaPublicacion(n);
+        return { ...n, fecha, leida: vistasHasta ? fecha <= vistasHasta : false };
+      }),
     });
   } catch (error) {
     return res.status(500).json({ message: 'Error al obtener las notificaciones', error });

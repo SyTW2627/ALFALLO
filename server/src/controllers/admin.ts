@@ -6,7 +6,7 @@ import { User } from '../models/user';
 import { Achievement } from '../models/achievement';
 import { CustomAchievement } from '../models/customAchievement';
 import { CustomChallenge } from '../models/customChallenge';
-import { Notification } from '../models/notification';
+import { Notification, fechaPublicacion } from '../models/notification';
 import { Post } from '../models/post';
 import { Report, REPORT_REASONS } from '../models/report';
 import { BodyParts, Exercise } from '../models/exercises';
@@ -268,11 +268,13 @@ export const createChallenge = async (req: AuthRequest, res: Response) => {
     const reto = await CustomChallenge.create({ ...datos, createdBy: req.user!.id });
 
     if (quiereNotificar(req.body) && reto.activo && reto.fin > new Date()) {
+      // Si el reto empieza más adelante, el aviso se programa para el día que empieza.
       await Notification.create({
         titulo: `Nuevo reto: ${reto.titulo}`,
         mensaje: reto.descripcion || '¡Hay un reto especial esperándote!',
         enlace: '/progreso?tab=retos',
         tipo: 'reto',
+        publicarEn: new Date(Math.max(Date.now(), reto.inicio.getTime())),
         createdBy: req.user!.id,
       });
     }
@@ -310,25 +312,72 @@ export const deleteChallenge = async (req: AuthRequest, res: Response) => {
 
 /* ---------- Notificaciones ---------- */
 
-// GET /api/admin/notifications
+// Añade la fecha de publicación efectiva y si ya se ve o está programada.
+function conEstado(n: any, ahora = new Date()) {
+  const fecha = fechaPublicacion(n);
+  return { ...n, fecha, estado: fecha > ahora ? 'programada' : 'publicada' };
+}
+
+// `publicarEn`: vacío = ahora; una fecha pasada también cuenta como "ahora".
+function leerPublicarEn(valor: unknown): Date | null | 'invalida' {
+  if (valor === undefined || valor === null || valor === '') return null;
+  const fecha = new Date(valor as string);
+  if (Number.isNaN(fecha.getTime())) return 'invalida';
+  return fecha < new Date() ? new Date() : fecha;
+}
+
+// GET /api/admin/notifications - Todas, también las programadas (primero las que se publicarán más tarde)
 export const listNotifications = async (_req: AuthRequest, res: Response) => {
   try {
-    const lista = await Notification.find().sort({ createdAt: -1 }).limit(100).lean();
-    return res.status(200).json(lista);
+    const lista = await Notification.find().sort({ publicarEn: -1, createdAt: -1 }).limit(100).lean();
+    const ahora = new Date();
+    return res.status(200).json(lista.map((n) => conEstado(n, ahora)));
   } catch (error) {
     return responderError(res, error, 'Error al obtener las notificaciones');
   }
 };
 
-// POST /api/admin/notifications - Se envía a todos los usuarios
+// POST /api/admin/notifications - Se envía a todos los usuarios, ahora o en la fecha `publicarEn`
 export const createNotification = async (req: AuthRequest, res: Response) => {
   try {
     const datos = pick(req.body, ['titulo', 'mensaje', 'enlace'] as const);
     if (typeof datos.enlace === 'string' && !datos.enlace.trim()) delete datos.enlace;
-    const notificacion = await Notification.create({ ...datos, tipo: 'aviso', createdBy: req.user!.id });
-    return res.status(201).json(notificacion);
+    const publicarEn = leerPublicarEn(req.body?.publicarEn);
+    if (publicarEn === 'invalida') return res.status(400).json({ message: 'La fecha de publicación no es válida' });
+
+    const notificacion = await Notification.create({
+      ...datos,
+      tipo: 'aviso',
+      publicarEn: publicarEn ?? new Date(),
+      createdBy: req.user!.id,
+    });
+    return res.status(201).json(conEstado(notificacion.toObject()));
   } catch (error) {
     return responderError(res, error, 'Error al enviar la notificación');
+  }
+};
+
+// PUT /api/admin/notifications/:id - Editar o reprogramar (publicarEn vacío o pasado = publicar ya)
+export const updateNotification = async (req: AuthRequest, res: Response) => {
+  try {
+    const notificacion = await Notification.findById(req.params.id);
+    if (!notificacion) return res.status(404).json({ message: 'Notificación no encontrada' });
+
+    const datos = pick(req.body, ['titulo', 'mensaje', 'enlace'] as const);
+    if (typeof datos.enlace === 'string' && !datos.enlace.trim()) {
+      delete datos.enlace;
+      notificacion.set('enlace', undefined);
+    }
+    notificacion.set(datos);
+    if ('publicarEn' in (req.body ?? {})) {
+      const publicarEn = leerPublicarEn(req.body.publicarEn);
+      if (publicarEn === 'invalida') return res.status(400).json({ message: 'La fecha de publicación no es válida' });
+      notificacion.publicarEn = publicarEn ?? new Date();
+    }
+    await notificacion.save();
+    return res.status(200).json(conEstado(notificacion.toObject()));
+  } catch (error) {
+    return responderError(res, error, 'Error al actualizar la notificación');
   }
 };
 

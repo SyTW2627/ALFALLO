@@ -15,6 +15,7 @@ import {
   listNotifications,
   createNotification,
   deleteNotification,
+  updateNotification,
   listExercises,
   listReports,
   resolveReport,
@@ -265,7 +266,7 @@ router.delete('/challenges/:id', deleteChallenge);
  * @openapi
  * /api/admin/notifications:
  *   get:
- *     summary: Lista las notificaciones enviadas
+ *     summary: Lista las notificaciones (publicadas y programadas)
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
@@ -273,7 +274,7 @@ router.delete('/challenges/:id', deleteChallenge);
  *       200:
  *         description: Lista de notificaciones
  *   post:
- *     summary: Envía una notificación a todos los usuarios
+ *     summary: Envía una notificación a todos los usuarios (ahora o programada)
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
@@ -294,12 +295,47 @@ router.delete('/challenges/:id', deleteChallenge);
  *               enlace:
  *                 type: string
  *                 example: /progreso?tab=retos
+ *               publicarEn:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Cuándo se publica. Vacío o en el pasado = ahora.
  *     responses:
  *       201:
- *         description: Notificación enviada
+ *         description: Notificación enviada o programada
  *       400:
  *         description: Datos no válidos
  * /api/admin/notifications/{id}:
+ *   put:
+ *     summary: Edita o reprograma una notificación (publicarEn vacío = publicar ahora)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               titulo:
+ *                 type: string
+ *               mensaje:
+ *                 type: string
+ *               enlace:
+ *                 type: string
+ *               publicarEn:
+ *                 type: string
+ *                 format: date-time
+ *     responses:
+ *       200:
+ *         description: Notificación actualizada
+ *       404:
+ *         description: Notificación no encontrada
  *   delete:
  *     summary: Elimina una notificación
  *     tags: [Admin]
@@ -319,6 +355,7 @@ router.delete('/challenges/:id', deleteChallenge);
  */
 router.get('/notifications', listNotifications);
 router.post('/notifications', createNotification);
+router.put('/notifications/:id', updateNotification);
 router.delete('/notifications/:id', deleteNotification);
 
 /**

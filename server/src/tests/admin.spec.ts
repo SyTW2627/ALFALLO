@@ -138,6 +138,34 @@ describe('Zona de administración (/api/admin) y notificaciones (/api/notificati
     expect(res.body.noLeidas).toBe(0);
   });
 
+  it('Notificación programada: no se ve hasta su fecha y "publicar ahora" la muestra', async () => {
+    const manana = new Date(Date.now() + 86400000).toISOString();
+    const creada = await request(app)
+      .post('/api/admin/notifications')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ titulo: 'Programada', mensaje: 'Para mañana', publicarEn: manana });
+    expect(creada.status).toBe(201);
+    expect(creada.body.estado).toBe('programada');
+    const id = creada.body._id;
+
+    const antes = await request(app).get('/api/notifications').set('Authorization', `Bearer ${tokenOtro}`);
+    expect(antes.body.notificaciones.some((n: any) => n._id === id)).toBe(false);
+    expect(antes.body.noLeidas).toBe(0);
+
+    const admin = await request(app).get('/api/admin/notifications').set('Authorization', `Bearer ${token}`);
+    expect(admin.body.some((n: any) => n._id === id && n.estado === 'programada')).toBe(true);
+
+    const ahora = await request(app)
+      .put(`/api/admin/notifications/${id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ publicarEn: null });
+    expect(ahora.body.estado).toBe('publicada');
+
+    const despues = await request(app).get('/api/notifications').set('Authorization', `Bearer ${tokenOtro}`);
+    expect(despues.body.notificaciones.some((n: any) => n._id === id && n.leida === false)).toBe(true);
+    expect(despues.body.noLeidas).toBe(1);
+  });
+
   it('DELETE - Elimina el hito, el reto y la notificación', async () => {
     const auth = { Authorization: `Bearer ${token}` };
     await request(app).delete(`/api/admin/achievements/${hitoId}`).set(auth).expect(200);

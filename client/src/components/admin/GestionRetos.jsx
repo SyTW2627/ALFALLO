@@ -160,7 +160,16 @@ function FormularioReto({ opciones, inicial, onGuardado, onCancelar, alPerderAdm
       <div className="flex flex-wrap gap-x-6 gap-y-2">
         <Casilla id="reto-activo" label="Visible para los usuarios" checked={form.activo} onChange={cambiar("activo")} />
         {!editando && (
-          <Casilla id="reto-notificar" label="Avisar a todos con una notificación" checked={form.notificar} onChange={cambiar("notificar")} />
+          <Casilla
+            id="reto-notificar"
+            label={
+              form.inicio > aFechaInput(new Date())
+                ? "Avisar a todos con una notificación el día que empiece"
+                : "Avisar a todos con una notificación"
+            }
+            checked={form.notificar}
+            onChange={cambiar("notificar")}
+          />
         )}
       </div>
       <Mensaje>{error}</Mensaje>
