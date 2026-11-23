@@ -344,7 +344,14 @@ export default function PaginaEstadisticas() {
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {/* Récords */}
-        <Tarjeta titulo="Récords personales">
+        <Tarjeta
+          titulo="Récords personales"
+          accion={
+            <a href="/progreso?tab=records" className="text-xs font-semibold text-primario hover:underline">
+              Ver todos
+            </a>
+          }
+        >
           {datos.records.length === 0 ? (
             <Vacio>Todavía no hay récords con peso.</Vacio>
           ) : (

@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PaginaAdmin from "../components/admin/PaginaAdmin.jsx";
+---
+
+<Layout title="Administración · AlFallo" description="Gestión de hitos, retos y notificaciones de AlFallo.">
+  <PaginaAdmin client:only="react" />
+</Layout>

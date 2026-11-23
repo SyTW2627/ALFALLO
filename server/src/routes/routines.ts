@@ -1,5 +1,13 @@
 import { Router } from 'express';
-import { getUserRoutines, createRoutine, deleteRoutine, getRoutineById, updateRoutine } from '../controllers/routines';
+import {
+  getUserRoutines,
+  createRoutine,
+  deleteRoutine,
+  getRoutineById,
+  updateRoutine,
+  getRoutineTemplates,
+  copyRoutineTemplate,
+} from '../controllers/routines';
 import { authenticateJWT } from '../middlewares/auth';
 
 const router = Router();
@@ -162,6 +170,43 @@ router.post('/', createRoutine);
  *       404:
  *         description: Rutina no encontrada o no pertenece al usuario
  */
+/**
+ * @openapi
+ * /api/routines/templates:
+ *   get:
+ *     summary: Rutinas por defecto (Heavy Duty, Push Pull Legs y Upper Lower)
+ *     description: Con los ejercicios del catálogo ya incluidos. `faltan` lista los ejercicios que no están en el catálogo.
+ *     tags: [Routines]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de rutinas por defecto
+ * /api/routines/templates/{clave}:
+ *   post:
+ *     summary: Copia una rutina por defecto a tus rutinas (después se puede editar)
+ *     tags: [Routines]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: clave
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [heavy-duty, push-pull-legs, upper-lower]
+ *     responses:
+ *       201:
+ *         description: Rutina creada
+ *       404:
+ *         description: No existe esa rutina por defecto
+ *       409:
+ *         description: Sus ejercicios no están en el catálogo
+ */
+// Antes de '/:id' para que "templates" no se tome como un id.
+router.get('/templates', getRoutineTemplates);
+router.post('/templates/:clave', copyRoutineTemplate);
+
 router.get('/:id', getRoutineById);
 router.put('/:id', updateRoutine);
 router.delete('/:id', deleteRoutine);

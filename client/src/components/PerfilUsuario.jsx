@@ -132,6 +132,27 @@ export default function PerfilUsuario() {
         </dl>
       </section>
 
+      {/* Zona de administración */}
+      {usuario.rol === "admin" ? (
+        <a
+          href="/admin"
+          className="mt-4 flex items-center justify-between gap-4 rounded-2xl border border-primario/40 bg-primario/10 p-5 transition hover:border-primario focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
+        >
+          <div>
+            <p className="font-bold">Panel de administración</p>
+            <p className="text-sm text-suave">Crea hitos, retos y notificaciones para todos los usuarios.</p>
+          </div>
+          <span className="text-sm font-semibold text-primario">Abrir →</span>
+        </a>
+      ) : (
+        <p className="mt-4 text-xs text-suave">
+          ¿Formas parte del equipo de administración?{" "}
+          <a href="/admin" className="font-semibold text-primario hover:underline">
+            Accede con tu contraseña
+          </a>
+        </p>
+      )}
+
       <button
         type="button"
         onClick={() => cerrarSesion("/")}

@@ -6,11 +6,15 @@ import TarjetaRango from "./TarjetaRango.jsx";
 import ListaHitos from "./ListaHitos.jsx";
 import ListaRetos from "./ListaRetos.jsx";
 import DatosCorporales from "./DatosCorporales.jsx";
+import ListaRecords from "./ListaRecords.jsx";
+import Clasificacion from "./Clasificacion.jsx";
 
 const PESTANAS = [
   { valor: "rangos", etiqueta: "Rangos" },
   { valor: "hitos", etiqueta: "Hitos" },
   { valor: "retos", etiqueta: "Retos" },
+  { valor: "records", etiqueta: "Récords" },
+  { valor: "clasificacion", etiqueta: "Clasificación" },
 ];
 
 // La pestaña se guarda en la URL (/progreso?tab=hitos) para poder enlazarla y recargar.
@@ -79,12 +83,14 @@ export default function PaginaProgreso() {
   }
 
   const { perfil, rangos, hitos, retos } = datos;
+  const records = datos.records ?? []; // una copia guardada antigua puede no traerlos
   const sinPeso = perfil.pesoCorporalKg == null;
   const conRango = rangos.filter((r) => r.actual?.rango).length;
   const contador = {
     rangos: `${conRango}/${rangos.length}`,
     hitos: `${hitos.filter((h) => h.conseguido).length}/${hitos.length}`,
     retos: `${retos.filter((r) => r.completado).length}/${retos.length}`,
+    records: records.length,
   };
 
   return (
@@ -92,7 +98,7 @@ export default function PaginaProgreso() {
       <header className="mb-6">
         <p className="text-xs text-suave">Mi espacio / Logros</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl">Tus logros</h1>
-        <p className="mt-1 text-sm text-suave">Rangos de fuerza, hitos y retos de la semana.</p>
+        <p className="mt-1 text-sm text-suave">Rangos de fuerza, hitos, retos, récords y clasificación con tu gente.</p>
       </header>
 
       <div role="tablist" aria-label="Secciones" className="mb-6 flex gap-2 overflow-x-auto pb-1">
@@ -109,7 +115,8 @@ export default function PaginaProgreso() {
               pestana === p.valor ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-white"
             }`}
           >
-            {p.etiqueta} <span className="ml-1 text-xs opacity-70">{contador[p.valor]}</span>
+            {p.etiqueta}
+            {contador[p.valor] !== undefined && <span className="ml-1 text-xs opacity-70">{contador[p.valor]}</span>}
           </button>
         ))}
       </div>
@@ -137,6 +144,8 @@ export default function PaginaProgreso() {
 
         {pestana === "hitos" && <ListaHitos hitos={hitos} />}
         {pestana === "retos" && <ListaRetos retos={retos} />}
+        {pestana === "records" && <ListaRecords records={records} />}
+        {pestana === "clasificacion" && <Clasificacion />}
       </div>
     </div>
   );

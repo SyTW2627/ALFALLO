@@ -8,6 +8,8 @@ import {
   removeKudo,
   addComment,
   deleteComment,
+  reportPost,
+  reportComment,
 } from '../controllers/posts';
 import { authenticateJWT } from '../middlewares/auth';
 
@@ -109,7 +111,7 @@ router.get('/feed', getFeed);
  *       404:
  *         description: Post no encontrado
  *   delete:
- *     summary: Elimina un post propio (el entrenamiento se mantiene)
+ *     summary: Elimina un post propio, o cualquiera si eres administrador (el entrenamiento se mantiene)
  *     tags: [Posts]
  *     security:
  *       - bearerAuth: []
@@ -217,7 +219,7 @@ router.post('/:id/comments', addComment);
  * @openapi
  * /api/posts/{id}/comments/{commentId}:
  *   delete:
- *     summary: Borra un comentario (su autor o el dueño del post)
+ *     summary: Borra un comentario (su autor, el dueño del post o un administrador)
  *     tags: [Posts]
  *     security:
  *       - bearerAuth: []
@@ -239,5 +241,70 @@ router.post('/:id/comments', addComment);
  *         description: Post o comentario no encontrado
  */
 router.delete('/:id/comments/:commentId', deleteComment);
+
+/**
+ * @openapi
+ * /api/posts/{id}/report:
+ *   post:
+ *     summary: Reporta una publicación inapropiada (la revisa un administrador)
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ReportInput'
+ *     responses:
+ *       201:
+ *         description: Reporte enviado
+ *       400:
+ *         description: Motivo no válido o contenido propio
+ *       404:
+ *         description: Post no encontrado
+ *       409:
+ *         description: Ya lo habías reportado
+ * /api/posts/{id}/comments/{commentId}/report:
+ *   post:
+ *     summary: Reporta un comentario inapropiado
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ReportInput'
+ *     responses:
+ *       201:
+ *         description: Reporte enviado
+ *       400:
+ *         description: Motivo no válido o contenido propio
+ *       404:
+ *         description: Comentario no encontrado
+ *       409:
+ *         description: Ya lo habías reportado
+ */
+router.post('/:id/report', reportPost);
+router.post('/:id/comments/:commentId/report', reportComment);
 
 export default router;

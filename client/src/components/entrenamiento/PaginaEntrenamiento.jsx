@@ -34,7 +34,7 @@ export default function PaginaEntrenamiento() {
   const [terminado, setTerminado] = useState(null);
   const [dias, setDias] = useState([]);
   const [catalogo, setCatalogo] = useState([]);
-  const [historial, setHistorial] = useState({ ultima: {}, maximo: {} });
+  const [historial, setHistorial] = useState({ ultima: {}, maximo: {}, mejor1rm: {} });
   const [intento, setIntento] = useState(0);
   const [sinConexion, setSinConexion] = useState(false);
 

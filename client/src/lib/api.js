@@ -320,3 +320,116 @@ export function obtenerSeguidos(id) {
 export function obtenerSeguidores(id) {
   return peticion(`/users/${encodeURIComponent(id)}/followers`, { auth: true, copiaLocal: true });
 }
+
+/* ---------- Notificaciones (campanita) ---------- */
+
+// Devuelve { noLeidas, notificaciones: [{ _id, titulo, mensaje, enlace, tipo, leida, createdAt }] }
+export function obtenerNotificaciones() {
+  return peticion("/notifications", { auth: true, copiaLocal: true });
+}
+
+export function marcarNotificacionesLeidas() {
+  return peticion("/notifications/read", { metodo: "POST", auth: true });
+}
+
+/* ---------- Administración ---------- */
+
+// Entra como administrador con la contraseña de administración. Devuelve una sesión nueva.
+export async function accederComoAdmin(password) {
+  const r = await peticion("/admin/access", { metodo: "POST", auth: true, cuerpo: { password } });
+  return { token: r.token, usuario: normalizarUsuario(r.user) };
+}
+
+export async function salirDeAdmin() {
+  const r = await peticion("/admin/leave", { metodo: "POST", auth: true });
+  return { token: r.token, usuario: normalizarUsuario(r.user) };
+}
+
+// Métricas, categorías, rangos y zonas musculares para los formularios.
+export function obtenerOpcionesAdmin() {
+  return peticion("/admin/options", { auth: true });
+}
+
+// `tipo`: "achievements" (hitos), "challenges" (retos) o "notifications".
+export function listarAdmin(tipo) {
+  return peticion(`/admin/${tipo}`, { auth: true });
+}
+
+export function crearAdmin(tipo, datos) {
+  return peticion(`/admin/${tipo}`, { metodo: "POST", auth: true, cuerpo: datos });
+}
+
+export function editarAdmin(tipo, id, datos) {
+  return peticion(`/admin/${tipo}/${encodeURIComponent(id)}`, { metodo: "PUT", auth: true, cuerpo: datos });
+}
+
+export function eliminarAdmin(tipo, id) {
+  return peticion(`/admin/${tipo}/${encodeURIComponent(id)}`, { metodo: "DELETE", auth: true });
+}
+
+// Catálogo de ejercicios (solo administradores). El listado con su uso es listarAdmin("exercises").
+// `datos` usa la forma de la API: { name, description, bodyPart, difficulty, rankingKey }
+export function crearEjercicio(datos) {
+  return peticion("/exercises", { metodo: "POST", auth: true, cuerpo: datos });
+}
+
+export function editarEjercicio(id, datos) {
+  return peticion(`/exercises/${encodeURIComponent(id)}`, { metodo: "PUT", auth: true, cuerpo: datos });
+}
+
+export function eliminarEjercicio(id) {
+  return peticion(`/exercises/${encodeURIComponent(id)}`, { metodo: "DELETE", auth: true });
+}
+
+/* ---------- Reportes y moderación ---------- */
+
+// `motivo`: "spam" | "ofensivo" | "inapropiado" | "acoso" | "otro"
+export function reportarPost(id, { motivo, detalle }) {
+  return peticion(`/posts/${encodeURIComponent(id)}/report`, { metodo: "POST", auth: true, cuerpo: { motivo, detalle } });
+}
+
+export function reportarComentario(idPost, idComentario, { motivo, detalle }) {
+  return peticion(
+    `/posts/${encodeURIComponent(idPost)}/comments/${encodeURIComponent(idComentario)}/report`,
+    { metodo: "POST", auth: true, cuerpo: { motivo, detalle } }
+  );
+}
+
+// `estado`: "pendiente" o "resuelto".
+export function listarReportes(estado = "pendiente") {
+  return peticion(`/admin/reports?estado=${estado}`, { auth: true });
+}
+
+// `accion`: "eliminar" (borra el contenido) o "descartar" (lo deja).
+export function resolverReporte({ post, comment, accion }) {
+  return peticion("/admin/reports/resolve", { metodo: "POST", auth: true, cuerpo: { post, comment, accion } });
+}
+
+// Resumen de actividad para el panel de administración.
+export function obtenerEstadisticasAdmin() {
+  return peticion("/admin/stats", { auth: true });
+}
+
+// Edita o reprograma una notificación. `publicarEn: null` = publicarla ya.
+export function editarNotificacion(id, datos) {
+  return editarAdmin("notifications", id, datos);
+}
+
+/* ---------- Clasificaciones ---------- */
+
+// Ranking semanal (volumen y entrenamientos) y de retos especiales entre tú y la gente que sigues.
+export function obtenerClasificacion() {
+  return peticion("/leaderboard", { auth: true, copiaLocal: true });
+}
+
+/* ---------- Rutinas por defecto ---------- */
+
+// Heavy Duty, Push Pull Legs y Upper Lower, en el mismo formato que las rutinas (más clave, descripción...).
+export function obtenerPlantillasRutina() {
+  return peticion("/routines/templates", { auth: true, copiaLocal: true });
+}
+
+// Copia una rutina por defecto a las rutinas del usuario. Devuelve la rutina creada.
+export function usarPlantillaRutina(clave) {
+  return peticion(`/routines/templates/${encodeURIComponent(clave)}`, { metodo: "POST", auth: true });
+}

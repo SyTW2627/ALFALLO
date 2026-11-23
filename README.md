@@ -41,15 +41,18 @@ Proyecto de la asignatura **Sistemas y Tecnologías Web** (Universidad de La Lag
 - Perfil de usuario: consultar, editar, cambiar contraseña y eliminar la cuenta
 - Catálogo de ejercicios por grupo muscular y dificultad
 - Rutinas por días, con validación de series, repeticiones y descanso según el objetivo
+- Rutinas por defecto listas para copiar y editar: Heavy Duty, Push Pull Legs y Upper Lower
 - Entrenamiento en curso: empezar, registrar series (repeticiones y peso), terminar o descartar
 - Historial de entrenamientos con duración, series y volumen calculados automáticamente
+- Estadísticas y récords personales por ejercicio (peso máximo, 1RM estimado, más repeticiones y mejor sesión), con aviso al momento si superas una marca mientras entrenas
+- Clasificaciones con la gente que sigues: ranking semanal de volumen y de entrenamientos, y quién completó antes cada reto especial
+- Notificaciones en la campanita: avisos para todos y personales ("Ana te ha dado ánimos", "Pablo te sigue", "Te has quedado a 2 series del reto")
 - Documentación interactiva de la API con Swagger
 
 **Próximamente**
 
 - Seguir a otros usuarios y feed con sus entrenamientos
 - Ánimos y comentarios en los entrenamientos
-- Estadísticas y récords personales
 - Temporizador de descanso entre series
 
 ## Tecnologías
@@ -217,6 +220,21 @@ La web queda en `http://localhost:4321`.
 | `server` | `npm test` | Ejecuta los tests (usa `config/test.env`) |
 | `client` | `npm run dev` | Arranca la web en modo desarrollo |
 | `client` | `npm run build` | Genera la versión de producción |
+
+## Zona de administración
+
+Los administradores tienen un panel en **`/admin`** desde el que pueden:
+
+- **Ver un resumen de la actividad**: usuarios registrados y activos, entrenamientos de esta semana frente a la anterior, gráficos de las últimas 8 semanas, cuánta gente completa cada reto y cuántos usuarios tienen cada hito.
+- **Crear hitos** que aparecen a todos los usuarios en *Logros → Hitos* (por entrenamientos, volumen, racha, peso máximo, fuerza relativa o rango en cada levantamiento).
+- **Crear retos especiales** con fecha de inicio y fin, que aparecen en *Logros → Retos* mientras están en curso (entrenamientos, series de unas zonas musculares, volumen o minutos).
+- **Enviar notificaciones** que todos los usuarios ven en la campanita de la parte superior, al momento o **programadas** para una fecha y hora (por ejemplo, el lunes a las 8:00). Las programadas no se ven hasta que llega su hora y se pueden publicar antes o cancelar. El aviso de un reto que empieza más adelante se programa solo para el día que empieza.
+- **Gestionar el catálogo de ejercicios**: añadir, editar (nombre, zona, dificultad y a qué levantamiento cuenta para los rangos) y borrar los que no se usen en ningún entrenamiento ni rutina. Crear, editar y borrar ejercicios en la API (`/api/exercises`) es solo para administradores.
+- **Moderar el feed**: los usuarios pueden *reportar* publicaciones y comentarios (spam, lenguaje ofensivo, acoso…). En la pestaña *Moderación* el administrador ve lo reportado, agrupado y ordenado por número de reportes, y decide si lo elimina o descarta los reportes. Los administradores también pueden borrar cualquier publicación o comentario directamente desde el feed.
+
+Para entrar, un usuario con sesión iniciada abre `/admin` (o el enlace al final de su perfil) e introduce la **contraseña de administración**, que se configura en el servidor con la variable de entorno `ADMIN_PASSWORD` (en `server/config/dev.env`). Si es correcta, su cuenta pasa a tener el rol `admin`. Se permiten 5 intentos fallidos cada 15 minutos. Desde el panel se puede volver a ser un usuario normal con *Salir del modo administrador*.
+
+> Cambia `ADMIN_PASSWORD` por una contraseña larga en producción. Si la variable no está definida, el acceso de administrador queda desactivado.
 
 ## API
 

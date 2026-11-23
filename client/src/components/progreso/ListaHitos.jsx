@@ -5,6 +5,8 @@ const CATEGORIAS = [
   { key: "volumen", titulo: "Volumen", icono: <path d="M6 7h12l2 13H4L6 7Zm3 0a3 3 0 0 1 6 0" /> },
   { key: "fuerza", titulo: "Fuerza", icono: <path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11" /> },
   { key: "rango", titulo: "Rangos", icono: <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" /> },
+  // Hitos creados por los administradores sin una categoría concreta.
+  { key: "especial", titulo: "Especiales", icono: <path d="M12 2 15 8.5l7 .9-5.1 4.8 1.3 7L12 17.8 5.8 21.2l1.3-7L2 9.4l7-.9L12 2Z" /> },
 ];
 
 function Hito({ hito, icono }) {

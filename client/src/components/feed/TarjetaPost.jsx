@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { iniciales } from "../../lib/auth.js";
+import { iniciales, getUsuario } from "../../lib/auth.js";
 import { darKudos, quitarKudos, comentarPost, eliminarComentario, eliminarPost } from "../../lib/api.js";
 import {
   etiquetaObjetivo,
@@ -11,6 +11,7 @@ import {
 import { normalizarComentario, haceCuanto, MAX_COMENTARIO } from "../../lib/feed.js";
 import { urlPerfil } from "../../lib/seguimiento.js";
 import BotonSeguir from "../seguimiento/BotonSeguir.jsx";
+import FormReporte from "./FormReporte.jsx";
 
 // "4 × 8" si todas las series tienen las mismas reps; si no, "8 · 8 · 6".
 function describirSeries(series) {
@@ -101,6 +102,10 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
   const [enviando, setEnviando] = useState(false);
   const [borrando, setBorrando] = useState(false);
   const [error, setError] = useState("");
+  // Qué se está reportando: "post", el id de un comentario o null.
+  const [reportando, setReportando] = useState(null);
+  // Los administradores pueden borrar cualquier publicación o comentario (moderación).
+  const [soyAdmin] = useState(() => getUsuario()?.rol === "admin");
 
   const esMio = post.autor.id === idUsuario;
 
@@ -151,7 +156,10 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
   }
 
   async function borrarPost() {
-    if (!window.confirm("¿Quitar esta publicación del feed? Tu entrenamiento no se borra.")) return;
+    const pregunta = esMio
+      ? "¿Quitar esta publicación del feed? Tu entrenamiento no se borra."
+      : `¿Eliminar la publicación de ${post.autor.nombre}? (moderación)`;
+    if (!window.confirm(pregunta)) return;
     setBorrando(true);
     setError("");
     try {
@@ -184,17 +192,30 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
             pequeno
           />
         )}
-        {esMio && (
+        {!esMio && (
+          <button
+            type="button"
+            onClick={() => setReportando((r) => (r === "post" ? null : "post"))}
+            aria-expanded={reportando === "post"}
+            className="rounded-lg px-2 py-1 text-xs font-semibold text-suave transition hover:bg-elevada hover:text-white"
+          >
+            Reportar
+          </button>
+        )}
+        {(esMio || soyAdmin) && (
           <button
             type="button"
             onClick={borrarPost}
             disabled={borrando}
+            title={esMio ? undefined : "Eliminar como administrador"}
             className="rounded-lg px-2 py-1 text-xs font-semibold text-suave transition hover:bg-elevada hover:text-red-300 disabled:opacity-50"
           >
             {borrando ? "Eliminando…" : "Eliminar"}
           </button>
         )}
       </header>
+
+      {reportando === "post" && <FormReporte idPost={post.id} onCerrar={() => setReportando(null)} />}
 
       {post.texto && <p className="mt-4 whitespace-pre-line break-words text-sm">{post.texto}</p>}
 
@@ -243,18 +264,33 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
                   <p className="truncate text-xs font-semibold">
                     <NombreAutor autor={c.autor} esMio={c.autor.id === idUsuario} /> <span className="font-normal text-suave">· {haceCuanto(c.fecha)}</span>
                   </p>
-                  {/* Puede borrarlo su autor o el dueño del post (igual que en la API) */}
-                  {(c.autor.id === idUsuario || esMio) && (
-                    <button
-                      type="button"
-                      onClick={() => borrarComentario(c.id)}
-                      className="text-[11px] text-suave transition hover:text-red-300"
-                    >
-                      Borrar
-                    </button>
-                  )}
+                  <span className="flex shrink-0 gap-3">
+                    {c.autor.id !== idUsuario && (
+                      <button
+                        type="button"
+                        onClick={() => setReportando((r) => (r === c.id ? null : c.id))}
+                        aria-expanded={reportando === c.id}
+                        className="text-[11px] text-suave transition hover:text-white"
+                      >
+                        Reportar
+                      </button>
+                    )}
+                    {/* Puede borrarlo su autor, el dueño del post o un administrador (igual que en la API) */}
+                    {(c.autor.id === idUsuario || esMio || soyAdmin) && (
+                      <button
+                        type="button"
+                        onClick={() => borrarComentario(c.id)}
+                        className="text-[11px] text-suave transition hover:text-red-300"
+                      >
+                        Borrar
+                      </button>
+                    )}
+                  </span>
                 </div>
                 <p className="mt-1 whitespace-pre-line break-words text-sm">{c.texto}</p>
+                {reportando === c.id && (
+                  <FormReporte idPost={post.id} idComentario={c.id} onCerrar={() => setReportando(null)} />
+                )}
               </div>
             </div>
           ))}

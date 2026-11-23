@@ -13,6 +13,12 @@ import {
     CURRENT_WINDOW_DAYS,
     MAX_JUMP,
   } from "./standards";
+  import {
+    CustomAchievementDef,
+    CustomChallengeDef,
+    computeCustomAchievements,
+    computeCustomChallenges,
+  } from "./custom";
   
   const DAY = 24 * 60 * 60 * 1000;
   const WEEK = 7 * DAY;
@@ -45,6 +51,8 @@ import {
     bodyWeights: BodyWeightIn[];
     sex: Sex;
     now?: Date;
+    // Hitos y retos creados por los administradores (ver custom.ts).
+    custom?: { hitos?: CustomAchievementDef[]; retos?: CustomChallengeDef[] };
   }
   
   /* ---------- Utilidades ---------- */
@@ -223,7 +231,7 @@ import {
   
   /* ---------- Hitos ---------- */
   
-  interface Stats {
+  export interface Stats {
     entrenos: number;
     volumen: number;
     racha: number;
@@ -310,6 +318,66 @@ import {
     return retos.map((r) => ({ ...r, tipo: "semanal", completado: r.actual >= r.objetivo, terminaEn: fin }));
   }
   
+  /* ---------- Récords personales ---------- */
+
+  interface Marca {
+    kg: number;
+    reps: number;
+    fecha: Date;
+  }
+
+  // Mejores marcas de cada ejercicio: peso máximo, mejor 1RM estimado, más repeticiones en una serie
+  // y la sesión con más volumen. `workouts` debe venir ordenado del más antiguo al más reciente.
+  export function computeRecords(workouts: WorkoutIn[]) {
+    const porEjercicio = new Map<
+      string,
+      {
+        id: string;
+        nombre: string;
+        zona: string;
+        sesiones: number;
+        ultimaVez: Date;
+        pesoMaximo: Marca | null;
+        mejor1RM: (Marca & { e1rm: number }) | null;
+        masReps: Marca | null;
+        mejorSesion: { volumen: number; fecha: Date } | null;
+      }
+    >();
+
+    for (const w of workouts) {
+      for (const e of w.exercises) {
+        if (!e.sets.length) continue;
+        let r = porEjercicio.get(e.id);
+        if (!r) {
+          r = { id: e.id, nombre: e.name, zona: e.bodyPart, sesiones: 0, ultimaVez: w.finishedAt, pesoMaximo: null, mejor1RM: null, masReps: null, mejorSesion: null };
+          porEjercicio.set(e.id, r);
+        }
+        r.sesiones++;
+        r.ultimaVez = w.finishedAt;
+        const fecha = w.finishedAt;
+        // Con ">" (y no ">=") se queda la primera vez que se consiguió cada marca.
+        for (const s of e.sets) {
+          if (s.weightKg > 0 && (!r.pesoMaximo || s.weightKg > r.pesoMaximo.kg || (s.weightKg === r.pesoMaximo.kg && s.reps > r.pesoMaximo.reps))) {
+            r.pesoMaximo = { kg: s.weightKg, reps: s.reps, fecha };
+          }
+          if (s.weightKg > 0 && s.reps >= 1 && s.reps <= MAX_REPS_FOR_1RM) {
+            const e1rm = estimate1RM(s.weightKg, s.reps);
+            if (!r.mejor1RM || e1rm > r.mejor1RM.e1rm + 1e-9) r.mejor1RM = { kg: s.weightKg, reps: s.reps, fecha, e1rm };
+          }
+          if (!r.masReps || s.reps > r.masReps.reps || (s.reps === r.masReps.reps && s.weightKg > r.masReps.kg)) {
+            r.masReps = { kg: s.weightKg, reps: s.reps, fecha };
+          }
+        }
+        const volumen = e.sets.reduce((a, s) => a + s.reps * s.weightKg, 0);
+        if (volumen > 0 && (!r.mejorSesion || volumen > r.mejorSesion.volumen)) r.mejorSesion = { volumen, fecha };
+      }
+    }
+
+    return [...porEjercicio.values()]
+      .map((r) => ({ ...r, mejor1RM: r.mejor1RM && { ...r.mejor1RM, e1rm: round1(r.mejor1RM.e1rm) } }))
+      .sort((a, b) => b.ultimaVez.getTime() - a.ultimaVez.getTime());
+  }
+
   /* ---------- Todo junto ---------- */
   
   export function computeProgress(input: ProgressInput) {
@@ -328,8 +396,9 @@ import {
   
     return {
       rangos: ranks.map(({ _maxKg, _maxKgRatio, _idxMejor, _idxActual, ...r }) => r),
-      hitos: computeAchievements(stats),
-      retos: computeChallenges(workouts, now),
+      hitos: [...computeAchievements(stats), ...computeCustomAchievements(input.custom?.hitos ?? [], stats)],
+      retos: [...computeChallenges(workouts, now), ...computeCustomChallenges(input.custom?.retos ?? [], workouts, now)],
+      records: computeRecords(workouts),
       _idxActual: Object.fromEntries(ranks.map((r) => [r.key, r._idxActual])) as Record<LiftKey, number>,
     };
   }

@@ -8,6 +8,7 @@ import {
   descansoPara,
   borrarPlan,
   normalizarEntrenamiento,
+  detectarRecord,
 } from "../../lib/entrenamiento.js";
 import {
   cambiarActual,
@@ -45,6 +46,39 @@ function Cronometro({ inicio }) {
   );
 }
 
+// Aviso de récord personal: aparece arriba unos segundos al registrar la serie.
+function AvisoRecord({ record, onCerrar }) {
+  useEffect(() => {
+    const t = setTimeout(onCerrar, 6000);
+    return () => clearTimeout(t);
+  }, [record, onCerrar]);
+
+  const detalle =
+    record.tipo === "peso"
+      ? `${formatearKg(record.kg)} × ${record.reps} · +${formatearKg(record.mejora)} sobre tu mejor marca`
+      : `1RM estimado: ${formatearKg(Math.round(record.e1rm * 10) / 10)} (+${formatearKg(Math.round(record.mejora * 10) / 10)}) con ${formatearKg(record.kg)} × ${record.reps}`;
+
+  return (
+    <div
+      role="status"
+      className="fixed inset-x-4 top-4 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-acento/40 bg-elevada p-4 shadow-2xl shadow-black/60 md:left-60"
+    >
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-acento/15 text-acento" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" />
+        </svg>
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-bold">¡Nuevo récord en {record.nombre.toLowerCase()}!</p>
+        <p className="text-xs text-suave">{detalle}</p>
+      </div>
+      <button type="button" onClick={onCerrar} aria-label="Cerrar aviso" className="shrink-0 px-1 text-suave hover:text-white">
+        ✕
+      </button>
+    </div>
+  );
+}
+
 function Metrica({ etiqueta, valor }) {
   return (
     <div>
@@ -63,6 +97,8 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
   const [confirmar, setConfirmar] = useState(null); // "terminar" | "descartar"
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState("");
+  const [record, setRecord] = useState(null); // último récord conseguido en esta sesión
+  const cerrarRecord = useCallback(() => setRecord(null), []);
 
   /* ---------- Guardado ----------
    * Cada cambio se escribe al instante en el móvil (lib/sinConexion.js) y se envía a la API
@@ -87,6 +123,13 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
     cambiar({ ejercicios: datos.current.ejercicios.map((e) => (e.id === id ? fn(e) : e)) });
 
   const anadirSerie = (ejercicio, serie) => {
+    // Se compara con lo que había ANTES de añadir la serie.
+    const antes = datos.current.ejercicios.find((e) => e.id === ejercicio.id) ?? ejercicio;
+    const nuevo = detectarRecord(antes, serie, historial);
+    if (nuevo) {
+      setRecord({ ...nuevo, nombre: ejercicio.nombre, cuando: Date.now() });
+      navigator.vibrate?.([80, 60, 120]);
+    }
     actualizarEjercicio(ejercicio.id, (e) => ({ ...e, series: [...e.series, serie] }));
     const segundos = descansoPara(ejercicio, inicial.objetivo);
     setDescanso({ fin: Date.now() + segundos * 1000, total: segundos, ejercicio: ejercicio.nombre });
@@ -139,6 +182,7 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
 
   return (
     <div>
+      {record && <AvisoRecord key={record.cuando} record={record} onCerrar={cerrarRecord} />}
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <p className="text-xs text-suave">Mi espacio / Entrenar</p>

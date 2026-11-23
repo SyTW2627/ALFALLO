@@ -10,6 +10,7 @@ export interface IUser extends Document {
   sex: "male" | "female" | "unspecified";
   bodyWeights: { kg: number; date: Date }[];
   following: Types.ObjectId[]; // usuarios a los que sigue
+  notificationsSeenAt?: Date; // última vez que abrió la campanita
   createAt: Date;
   updateAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -49,6 +50,7 @@ const userSchema = new Schema<IUser>(
       default: "unspecified",
     },
     following: { type: [{ type: Schema.Types.ObjectId, ref: "User" }], default: [] },
+    notificationsSeenAt: { type: Date },
     bodyWeights: [
       {
         _id: false,
