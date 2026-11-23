@@ -153,5 +153,6 @@ export function adminOptions() {
     metricasHito: Object.entries(CUSTOM_ACHIEVEMENT_METRICS).map(([key, m]) => ({ key, label: m.label, unidad: m.unidad })),
     metricasReto: Object.entries(CUSTOM_CHALLENGE_METRICS).map(([key, m]) => ({ key, label: m.label, unidad: m.unidad })),
     rangos: RANKS.map((r, i) => ({ valor: i + 1, label: r.label })),
+    levantamientos: LIFT_KEYS.map((k) => ({ key: k, label: LIFTS[k].label })),
   };
 }

@@ -7,7 +7,8 @@ import { Achievement } from '../models/achievement';
 import { CustomAchievement } from '../models/customAchievement';
 import { CustomChallenge } from '../models/customChallenge';
 import { Notification } from '../models/notification';
-import { BodyParts } from '../models/exercises';
+import { BodyParts, Exercise } from '../models/exercises';
+import { exerciseUsage } from './exercises';
 import { generateToken } from '../utils/jwt';
 import { adminOptions, CUSTOM_ACHIEVEMENT_METRICS, customAchievementKey } from '../progress/custom';
 
@@ -337,5 +338,17 @@ export const deleteNotification = async (req: AuthRequest, res: Response) => {
     return res.status(200).json({ message: 'Notificación eliminada' });
   } catch (error) {
     return responderError(res, error, 'Error al eliminar la notificación');
+  }
+};
+
+/* ---------- Ejercicios ---------- */
+
+// GET /api/admin/exercises - Catálogo con cuántos entrenamientos y rutinas usan cada ejercicio
+export const listExercises = async (_req: AuthRequest, res: Response) => {
+  try {
+    const [ejercicios, usoDe] = await Promise.all([Exercise.find().sort({ name: 1 }).lean(), exerciseUsage()]);
+    return res.status(200).json(ejercicios.map((e) => ({ ...e, uso: usoDe(String(e._id)) })));
+  } catch (error) {
+    return responderError(res, error, 'Error al obtener los ejercicios');
   }
 };

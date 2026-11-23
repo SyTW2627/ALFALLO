@@ -366,3 +366,17 @@ export function editarAdmin(tipo, id, datos) {
 export function eliminarAdmin(tipo, id) {
   return peticion(`/admin/${tipo}/${encodeURIComponent(id)}`, { metodo: "DELETE", auth: true });
 }
+
+// Catálogo de ejercicios (solo administradores). El listado con su uso es listarAdmin("exercises").
+// `datos` usa la forma de la API: { name, description, bodyPart, difficulty, rankingKey }
+export function crearEjercicio(datos) {
+  return peticion("/exercises", { metodo: "POST", auth: true, cuerpo: datos });
+}
+
+export function editarEjercicio(id, datos) {
+  return peticion(`/exercises/${encodeURIComponent(id)}`, { metodo: "PUT", auth: true, cuerpo: datos });
+}
+
+export function eliminarEjercicio(id) {
+  return peticion(`/exercises/${encodeURIComponent(id)}`, { metodo: "DELETE", auth: true });
+}
