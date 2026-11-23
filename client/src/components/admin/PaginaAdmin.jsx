@@ -8,8 +8,10 @@ import GestionRetos from "./GestionRetos.jsx";
 import GestionNotificaciones from "./GestionNotificaciones.jsx";
 import GestionEjercicios from "./GestionEjercicios.jsx";
 import GestionModeracion from "./GestionModeracion.jsx";
+import PanelResumen from "./PanelResumen.jsx";
 
 const PESTANAS = [
+  { valor: "resumen", etiqueta: "Resumen" },
   { valor: "hitos", etiqueta: "Hitos" },
   { valor: "retos", etiqueta: "Retos" },
   { valor: "notificaciones", etiqueta: "Notificaciones" },
@@ -22,7 +24,7 @@ const CON_OPCIONES = { hitos: GestionHitos, retos: GestionRetos, ejercicios: Ges
 
 function leerPestana() {
   const t = new URLSearchParams(window.location.search).get("tab");
-  return PESTANAS.some((p) => p.valor === t) ? t : "hitos";
+  return PESTANAS.some((p) => p.valor === t) ? t : "resumen";
 }
 
 /* ---------- Acceso con la contraseña de administración ---------- */
@@ -115,7 +117,7 @@ function AccesoAdmin({ usuario, aviso, onConcedido }) {
 /* ---------- Panel ---------- */
 
 function Panel({ usuario, onPerderAdmin, onSalir }) {
-  const [pestana, setPestana] = useState("hitos");
+  const [pestana, setPestana] = useState("resumen");
   const [opciones, setOpciones] = useState(null);
   const [error, setError] = useState("");
   const [saliendo, setSaliendo] = useState(false);
@@ -129,7 +131,7 @@ function Panel({ usuario, onPerderAdmin, onSalir }) {
 
   const cambiarPestana = (valor) => {
     setPestana(valor);
-    window.history.replaceState(null, "", valor === "hitos" ? "/admin" : `/admin?tab=${valor}`);
+    window.history.replaceState(null, "", valor === "resumen" ? "/admin" : `/admin?tab=${valor}`);
   };
 
   async function salir() {
@@ -189,6 +191,7 @@ function Panel({ usuario, onPerderAdmin, onSalir }) {
       <Mensaje>{error}</Mensaje>
 
       <div role="tabpanel" id={`panel-${pestana}`} aria-labelledby={`tab-${pestana}`}>
+        {pestana === "resumen" && <PanelResumen alPerderAdmin={onPerderAdmin} irA={cambiarPestana} />}
         {pestana === "notificaciones" && <GestionNotificaciones alPerderAdmin={onPerderAdmin} />}
         {pestana === "moderacion" && <GestionModeracion alPerderAdmin={onPerderAdmin} />}
         {Gestion &&

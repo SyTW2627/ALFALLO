@@ -19,6 +19,7 @@ import {
   listReports,
   resolveReport,
 } from '../controllers/admin';
+import { getStats } from '../controllers/stats';
 
 const router = Router();
 
@@ -81,6 +82,26 @@ router.post('/leave', requireAdmin, leaveAdmin);
 
 // A partir de aquí, todo requiere ser administrador.
 router.use(requireAdmin);
+
+/**
+ * @openapi
+ * /api/admin/stats:
+ *   get:
+ *     summary: Resumen de actividad (usuarios, entrenamientos, publicaciones, retos e hitos)
+ *     description: >
+ *       Usuarios registrados y activos, entrenamientos de esta semana y la anterior, actividad de las
+ *       últimas 8 semanas, cuánta gente participa y completa cada reto (especiales y de esta semana)
+ *       y cuántos usuarios tienen cada hito.
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estadísticas
+ *       403:
+ *         description: No eres administrador
+ */
+router.get('/stats', getStats);
 
 /**
  * @openapi

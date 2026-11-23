@@ -103,6 +103,19 @@ describe('Zona de administración (/api/admin) y notificaciones (/api/notificati
     expect(res.body.retos.some((r: any) => r.key === `custom-${retoId}` && r.tipo === 'especial')).toBe(true);
   });
 
+  it('GET /api/admin/stats - Devuelve el resumen de actividad', async () => {
+    const noAdmin = await request(app).get('/api/admin/stats').set('Authorization', `Bearer ${tokenOtro}`);
+    expect(noAdmin.status).toBe(403);
+
+    const res = await request(app).get('/api/admin/stats').set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(200);
+    expect(res.body.usuarios.total).toBeGreaterThanOrEqual(2);
+    expect(res.body.semanas).toHaveLength(8);
+    expect(res.body.retosEspeciales.some((r: any) => r._id === retoId && r.enCurso)).toBe(true);
+    expect(res.body.hitos.some((h: any) => h.key === `custom-${hitoId}`)).toBe(true);
+    expect(res.body.hitos.some((h: any) => h.key === 'primer-entreno')).toBe(true);
+  });
+
   it('POST /api/admin/notifications - Envía una notificación', async () => {
     const res = await request(app)
       .post('/api/admin/notifications')
