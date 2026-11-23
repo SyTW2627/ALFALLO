@@ -2,6 +2,7 @@ import { useState } from "react";
 import { eliminarRutina } from "../../lib/api.js";
 import { salirSiSesionCaducada } from "../../lib/entrenamiento.js";
 import { PERFILES, resumenRutina, duracionDia, plural } from "../../lib/rutinas.js";
+import RutinasPorDefecto from "./RutinasPorDefecto.jsx";
 
 function TarjetaRutina({ rutina, onEditar, onEliminada }) {
   const [confirmar, setConfirmar] = useState(false);
@@ -100,7 +101,7 @@ function TarjetaRutina({ rutina, onEditar, onEliminada }) {
   );
 }
 
-export default function ListaRutinas({ rutinas, aviso, onNueva, onEditar, onEliminada }) {
+export default function ListaRutinas({ rutinas, aviso, onNueva, onEditar, onEliminada, plantillas = [], errorPlantilla, onUsarPlantilla }) {
   return (
     <div>
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -142,6 +143,7 @@ export default function ListaRutinas({ rutinas, aviso, onNueva, onEditar, onElim
           <p className="mt-4 text-lg font-bold">Aún no tienes rutinas.</p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-suave">
             Crea tu primera rutina: elige los días, el objetivo de cada uno y sus ejercicios.
+            {plantillas.length > 0 && " O empieza con una de las rutinas por defecto de abajo."}
           </p>
           <button
             type="button"
@@ -158,6 +160,8 @@ export default function ListaRutinas({ rutinas, aviso, onNueva, onEditar, onElim
           ))}
         </ul>
       )}
+
+      <RutinasPorDefecto plantillas={plantillas} rutinas={rutinas} onUsar={onUsarPlantilla} error={errorPlantilla} />
     </div>
   );
 }

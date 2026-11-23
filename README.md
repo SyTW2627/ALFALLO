@@ -41,6 +41,7 @@ Proyecto de la asignatura **Sistemas y Tecnologías Web** (Universidad de La Lag
 - Perfil de usuario: consultar, editar, cambiar contraseña y eliminar la cuenta
 - Catálogo de ejercicios por grupo muscular y dificultad
 - Rutinas por días, con validación de series, repeticiones y descanso según el objetivo
+- Rutinas por defecto listas para copiar y editar: Heavy Duty, Push Pull Legs y Upper Lower
 - Entrenamiento en curso: empezar, registrar series (repeticiones y peso), terminar o descartar
 - Historial de entrenamientos con duración, series y volumen calculados automáticamente
 - Estadísticas y récords personales por ejercicio (peso máximo, 1RM estimado, más repeticiones y mejor sesión), con aviso al momento si superas una marca mientras entrenas

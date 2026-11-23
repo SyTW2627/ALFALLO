@@ -421,3 +421,15 @@ export function editarNotificacion(id, datos) {
 export function obtenerClasificacion() {
   return peticion("/leaderboard", { auth: true, copiaLocal: true });
 }
+
+/* ---------- Rutinas por defecto ---------- */
+
+// Heavy Duty, Push Pull Legs y Upper Lower, en el mismo formato que las rutinas (más clave, descripción...).
+export function obtenerPlantillasRutina() {
+  return peticion("/routines/templates", { auth: true, copiaLocal: true });
+}
+
+// Copia una rutina por defecto a las rutinas del usuario. Devuelve la rutina creada.
+export function usarPlantillaRutina(clave) {
+  return peticion(`/routines/templates/${encodeURIComponent(clave)}`, { metodo: "POST", auth: true });
+}

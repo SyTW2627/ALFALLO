@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { getUsuario } from "../../lib/auth.js";
-import { obtenerRutinas, obtenerRutina, obtenerEjercicios } from "../../lib/api.js";
+import { obtenerRutinas, obtenerRutina, obtenerEjercicios, obtenerPlantillasRutina, usarPlantillaRutina } from "../../lib/api.js";
 import { normalizarEjercicio, salirSiSesionCaducada } from "../../lib/entrenamiento.js";
 import { normalizarRutina, nuevaRutinaVacia } from "../../lib/rutinas.js";
 import ListaRutinas from "./ListaRutinas.jsx";
@@ -38,6 +38,8 @@ export default function PaginaRutinas() {
   const [editando, setEditando] = useState(null); // rutina abierta en el editor
   const [aviso, setAviso] = useState("");
   const [intento, setIntento] = useState(0);
+  const [plantillas, setPlantillas] = useState([]); // rutinas por defecto
+  const [errorPlantilla, setErrorPlantilla] = useState("");
 
   // Abre la vista pedida; si es una rutina que no está en la lista, la pide a la API.
   const abrir = useCallback(async (v, lista) => {
@@ -74,7 +76,7 @@ export default function PaginaRutinas() {
     let cancelado = false;
     setEstado("cargando");
     (async () => {
-      const [rs, ej] = await Promise.allSettled([obtenerRutinas(), obtenerEjercicios()]);
+      const [rs, ej, pl] = await Promise.allSettled([obtenerRutinas(), obtenerEjercicios(), obtenerPlantillasRutina()]);
       if (cancelado) return;
       const fallo = [rs, ej].find((x) => x.status === "rejected");
       if (fallo && salirSiSesionCaducada(fallo.reason)) return;
@@ -86,6 +88,7 @@ export default function PaginaRutinas() {
       const lista = rs.value.map(normalizarRutina);
       setRutinas(lista);
       if (ej.status === "fulfilled") setCatalogo(ej.value.map(normalizarEjercicio));
+      if (pl.status === "fulfilled") setPlantillas(pl.value);
       await abrir(leerVista(), lista);
       setEstado("listo");
     })();
@@ -104,6 +107,19 @@ export default function PaginaRutinas() {
   const navegar = (v) => {
     irA(v);
     abrir(v, rutinas);
+  };
+
+  const usarPlantilla = async (clave) => {
+    setErrorPlantilla("");
+    try {
+      const nueva = normalizarRutina(await usarPlantillaRutina(clave));
+      setRutinas((lista) => [nueva, ...lista]);
+      setAviso(`Rutina «${nueva.nombre}» añadida a tus rutinas. Puedes editarla cuando quieras.`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      if (salirSiSesionCaducada(err)) return;
+      setErrorPlantilla(err.message || "No se ha podido añadir la rutina.");
+    }
   };
 
   if (estado === "cargando") {
@@ -152,6 +168,9 @@ export default function PaginaRutinas() {
 
   return (
     <ListaRutinas
+      plantillas={plantillas}
+      errorPlantilla={errorPlantilla}
+      onUsarPlantilla={usarPlantilla}
       rutinas={rutinas}
       aviso={aviso}
       onNueva={() => navegar({ modo: "nueva" })}
