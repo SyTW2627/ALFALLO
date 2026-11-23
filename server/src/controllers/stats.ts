@@ -80,7 +80,7 @@ export const getStats = async (_req: AuthRequest, res: Response) => {
     }));
     const indiceSemana = (d: Date) => Math.floor((weekStart(new Date(d)).getTime() - inicioGrafico.getTime()) / WEEK);
     for (const u of altas) {
-      const i = indiceSemana(u.createdAt as Date);
+      const i = indiceSemana(u.createAt as Date);
       if (semanas[i]) semanas[i].usuariosNuevos++;
     }
     for (const w of entrenosGrafico) {
