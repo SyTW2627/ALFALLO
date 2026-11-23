@@ -89,7 +89,7 @@ const options: swaggerJsdoc.Options = {
                         titulo: { type: 'string' },
                         mensaje: { type: 'string' },
                         enlace: { type: 'string', example: '/progreso?tab=retos' },
-                        tipo: { type: 'string', enum: ['aviso', 'hito', 'reto'] },
+                        tipo: { type: 'string', enum: ['aviso', 'hito', 'reto', 'kudos', 'comentario', 'seguidor', 'progreso'] },
                         fecha: { type: 'string', format: 'date-time', description: 'Cuándo se publicó' },
                         leida: { type: 'boolean' },
                         createdAt: { type: 'string', format: 'date-time' },

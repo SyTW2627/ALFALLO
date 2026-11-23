@@ -20,6 +20,11 @@ const ICONOS = {
   hito: { color: "text-acento bg-acento/15", path: "M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" },
   reto: { color: "text-primario bg-primario/15", path: "M12 2 15 8.5l7 .9-5.1 4.8 1.3 7L12 17.8 5.8 21.2l1.3-7L2 9.4l7-.9L12 2Z" },
   aviso: { color: "text-white bg-elevada", path: "M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14" },
+  // Personales
+  kudos: { color: "text-primario bg-primario/15", path: "M12 2c1 3 4 4.5 4 8a4 4 0 0 1-8 0c0-1.5.5-2.5 1.5-3.5C9.5 9 11 9 12 2ZM6 14a6 6 0 0 0 12 0" },
+  comentario: { color: "text-white bg-elevada", path: "M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" },
+  seguidor: { color: "text-acento bg-acento/15", path: "M15 19a6 6 0 0 0-12 0M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6" },
+  progreso: { color: "text-primario bg-primario/15", path: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" },
 };
 
 function Notificacion({ n }) {

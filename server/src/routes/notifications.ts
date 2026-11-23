@@ -11,6 +11,9 @@ router.use(authenticateJWT);
  * /api/notifications:
  *   get:
  *     summary: Últimas notificaciones (campanita) y cuántas no ha visto el usuario
+ *     description: >
+ *       Incluye las enviadas a todos por los administradores y las personales del usuario
+ *       (ánimos y comentarios en sus publicaciones, nuevos seguidores y retos a punto de completar).
  *     tags: [Notifications]
  *     security:
  *       - bearerAuth: []

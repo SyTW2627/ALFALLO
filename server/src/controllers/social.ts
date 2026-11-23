@@ -5,6 +5,7 @@ import { User } from '../models/user';
 import { Post } from '../models/post';
 import { Workout, WorkoutStatus } from '../models/workout';
 import { POPULATE, conMiKudo } from './posts';
+import { avisarSeguidor } from '../notifications/personal';
 
 // Número de seguidores de un usuario: cuántos usuarios lo tienen en su "following"
 const contarSeguidores = (id: string | Types.ObjectId) => User.countDocuments({ following: id });
@@ -28,6 +29,7 @@ export const followUser = async (req: AuthRequest, res: Response) => {
 
     // $addToSet: si ya lo seguía, no se duplica
     await User.updateOne({ _id: me }, { $addToSet: { following: id } });
+    await avisarSeguidor(id, me); // "Pablo te sigue" (solo la primera vez)
     return res.status(200).json({ following: true, followersCount: await contarSeguidores(id) });
   } catch (error) {
     return res.status(500).json({ message: 'Error al seguir al usuario', error });

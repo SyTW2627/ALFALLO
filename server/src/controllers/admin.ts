@@ -11,6 +11,7 @@ import { Post } from '../models/post';
 import { Report, REPORT_REASONS } from '../models/report';
 import { BodyParts, Exercise } from '../models/exercises';
 import { exerciseUsage } from './exercises';
+import { olvidarAvisosDe } from '../notifications/personal';
 import { generateToken } from '../utils/jwt';
 import { adminOptions, CUSTOM_ACHIEVEMENT_METRICS, customAchievementKey } from '../progress/custom';
 
@@ -329,7 +330,8 @@ function leerPublicarEn(valor: unknown): Date | null | 'invalida' {
 // GET /api/admin/notifications - Todas, también las programadas (primero las que se publicarán más tarde)
 export const listNotifications = async (_req: AuthRequest, res: Response) => {
   try {
-    const lista = await Notification.find().sort({ publicarEn: -1, createdAt: -1 }).limit(100).lean();
+    // Solo las enviadas a todos (las personales, como "Ana te ha dado ánimos", no se gestionan aquí).
+    const lista = await Notification.find({ destinatario: null }).sort({ publicarEn: -1, createdAt: -1 }).limit(100).lean();
     const ahora = new Date();
     return res.status(200).json(lista.map((n) => conEstado(n, ahora)));
   } catch (error) {
@@ -480,6 +482,7 @@ export const resolveReport = async (req: AuthRequest, res: Response) => {
     if (accion === 'eliminar') {
       if (comment) await Post.updateOne({ _id: post }, { $pull: { comments: { _id: comment } } });
       else await Post.deleteOne({ _id: post });
+      await olvidarAvisosDe(post, comment || undefined);
     }
 
     // Al eliminar una publicación también se cierran los reportes de sus comentarios.

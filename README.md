@@ -45,6 +45,7 @@ Proyecto de la asignatura **Sistemas y Tecnologías Web** (Universidad de La Lag
 - Historial de entrenamientos con duración, series y volumen calculados automáticamente
 - Estadísticas y récords personales por ejercicio (peso máximo, 1RM estimado, más repeticiones y mejor sesión), con aviso al momento si superas una marca mientras entrenas
 - Clasificaciones con la gente que sigues: ranking semanal de volumen y de entrenamientos, y quién completó antes cada reto especial
+- Notificaciones en la campanita: avisos para todos y personales ("Ana te ha dado ánimos", "Pablo te sigue", "Te has quedado a 2 series del reto")
 - Documentación interactiva de la API con Swagger
 
 **Próximamente**

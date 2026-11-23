@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import { AuthRequest, isAdmin } from '../middlewares/auth';
 import { Post } from '../models/post';
 import { Report, resolveReportsFor } from '../models/report';
+import { avisarKudos, avisarComentario, olvidarAvisosDe } from '../notifications/personal';
 import { Workout, WorkoutStatus } from '../models/workout';
 import { User } from '../models/user';
 
@@ -112,6 +113,7 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
 
     await post.deleteOne();
     await resolveReportsFor(post._id as Types.ObjectId, null, userId);
+    await olvidarAvisosDe(post._id as Types.ObjectId);
     return res.status(200).json({ message: 'Post eliminado' });
   } catch (error) {
     return res.status(500).json({ message: 'Error al eliminar el post', error });
@@ -134,6 +136,7 @@ export const giveKudo = async (req: AuthRequest, res: Response) => {
     if (!post) {
       return res.status(404).json({ message: 'Post no encontrado' });
     }
+    await avisarKudos(post, req.user!.id);
     return res.status(200).json({ kudosCount: post.kudos.length, hasKudo: true });
   } catch (error) {
     return res.status(500).json({ message: 'Error al dar kudos', error });
@@ -178,6 +181,8 @@ export const addComment = async (req: AuthRequest, res: Response) => {
 
     post.comments.push({ user: req.user?.id, text });
     await post.save();
+    const nuevo = post.comments[post.comments.length - 1];
+    await avisarComentario(post, nuevo, req.user!.id);
     await post.populate({ path: 'comments.user', select: 'name' });
 
     return res.status(201).json(post.comments[post.comments.length - 1]);
@@ -212,6 +217,7 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
     comment.deleteOne();
     await post.save();
     await resolveReportsFor(post._id as Types.ObjectId, commentId, userId);
+    await olvidarAvisosDe(post._id as Types.ObjectId, commentId);
     return res.status(200).json({ message: 'Comentario eliminado' });
   } catch (error) {
     return res.status(500).json({ message: 'Error al eliminar el comentario', error });

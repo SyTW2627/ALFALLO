@@ -8,6 +8,7 @@ import { Sex } from '../progress/standards';
 import { CustomAchievement } from '../models/customAchievement';
 import { CustomChallenge } from '../models/customChallenge';
 import { CustomAchievementDef, CustomChallengeDef } from '../progress/custom';
+import { avisarRetosCasi } from '../notifications/personal';
 
 // Convierte los entrenamientos de Mongo (con los ejercicios populados) al formato del motor.
 export function toEngineWorkouts(docs: any[]): WorkoutIn[] {
@@ -141,6 +142,8 @@ export async function progressNews(userId: string, workoutId: string) {
   const despues = computeProgress(data.input);
   const antes = computeProgress({ ...data.input, workouts: data.input.workouts.filter((w) => w.id !== workoutId) });
   const { nuevos } = await syncAchievements(userId, despues);
+  // "Te has quedado a 2 series del reto": a la campanita, para cuando vuelva a abrir la app.
+  await avisarRetosCasi(userId, despues.retos);
 
   return { ...diffProgress(antes, despues), hitos: nuevos };
 }
