@@ -16,6 +16,8 @@ import {
   createNotification,
   deleteNotification,
   listExercises,
+  listReports,
+  resolveReport,
 } from '../controllers/admin';
 
 const router = Router();
@@ -312,5 +314,54 @@ router.delete('/notifications/:id', deleteNotification);
  *         description: Lista de ejercicios
  */
 router.get('/exercises', listExercises);
+
+/**
+ * @openapi
+ * /api/admin/reports:
+ *   get:
+ *     summary: Reportes del feed agrupados por publicación o comentario
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: estado
+ *         schema:
+ *           type: string
+ *           enum: [pendiente, resuelto]
+ *           default: pendiente
+ *     responses:
+ *       200:
+ *         description: Grupos de reportes (lo más reportado primero)
+ * /api/admin/reports/resolve:
+ *   post:
+ *     summary: Resuelve los reportes de un contenido borrándolo o descartándolos
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [post, accion]
+ *             properties:
+ *               post:
+ *                 type: string
+ *               comment:
+ *                 type: string
+ *                 description: Si se omite, se trata de la publicación entera
+ *               accion:
+ *                 type: string
+ *                 enum: [eliminar, descartar]
+ *     responses:
+ *       200:
+ *         description: Reportes resueltos
+ *       400:
+ *         description: Datos no válidos
+ */
+router.get('/reports', listReports);
+router.post('/reports/resolve', resolveReport);
 
 export default router;

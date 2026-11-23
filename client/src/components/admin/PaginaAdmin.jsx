@@ -7,12 +7,14 @@ import GestionHitos from "./GestionHitos.jsx";
 import GestionRetos from "./GestionRetos.jsx";
 import GestionNotificaciones from "./GestionNotificaciones.jsx";
 import GestionEjercicios from "./GestionEjercicios.jsx";
+import GestionModeracion from "./GestionModeracion.jsx";
 
 const PESTANAS = [
   { valor: "hitos", etiqueta: "Hitos" },
   { valor: "retos", etiqueta: "Retos" },
   { valor: "notificaciones", etiqueta: "Notificaciones" },
   { valor: "ejercicios", etiqueta: "Ejercicios" },
+  { valor: "moderacion", etiqueta: "Moderación" },
 ];
 
 // Pestañas que necesitan las opciones de los formularios (métricas, zonas...).
@@ -55,7 +57,7 @@ function AccesoAdmin({ usuario, aviso, onConcedido }) {
         <p className="text-xs text-suave">Mi espacio / Administración</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight">Zona de administración</h1>
         <p className="mt-1 text-sm text-suave">
-          Desde aquí se gestionan los hitos, retos, notificaciones y ejercicios de AlFallo.
+          Desde aquí se gestionan los hitos, retos, notificaciones, ejercicios y la moderación del feed.
         </p>
       </header>
 
@@ -188,6 +190,7 @@ function Panel({ usuario, onPerderAdmin, onSalir }) {
 
       <div role="tabpanel" id={`panel-${pestana}`} aria-labelledby={`tab-${pestana}`}>
         {pestana === "notificaciones" && <GestionNotificaciones alPerderAdmin={onPerderAdmin} />}
+        {pestana === "moderacion" && <GestionModeracion alPerderAdmin={onPerderAdmin} />}
         {Gestion &&
           (opciones ? (
             <Gestion opciones={opciones} alPerderAdmin={onPerderAdmin} />

@@ -31,13 +31,19 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
   }
 };
 
+// ¿Es administrador? Se mira en la base de datos (el rol del token puede estar desactualizado).
+export async function isAdmin(userId?: string) {
+  if (!userId) return false;
+  const user = await User.findById(userId).select('role').lean();
+  return user?.role === 'admin';
+}
+
 // Solo deja pasar a administradores. Se comprueba en la base de datos (y no solo en el token)
 // para que quitarle el rol a alguien tenga efecto inmediato.
 // Va siempre DESPUÉS de authenticateJWT.
 export const requireAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const user = await User.findById(req.user?.id).select('role').lean();
-    if (!user || user.role !== 'admin') {
+    if (!(await isAdmin(req.user?.id))) {
       return res.status(403).json({ message: 'Necesitas permisos de administrador', code: 'NOT_ADMIN' });
     }
     req.user!.role = 'admin';

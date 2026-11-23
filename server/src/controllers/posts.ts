@@ -1,7 +1,8 @@
 import { Response } from 'express';
 import { Types } from 'mongoose';
-import { AuthRequest } from '../middlewares/auth';
+import { AuthRequest, isAdmin } from '../middlewares/auth';
 import { Post } from '../models/post';
+import { Report, resolveReportsFor } from '../models/report';
 import { Workout, WorkoutStatus } from '../models/workout';
 import { User } from '../models/user';
 
@@ -94,18 +95,23 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// DELETE /api/posts/:id - Borrar un post propio (el entrenamiento no se borra)
+// DELETE /api/posts/:id - Borrar un post propio, o cualquiera si eres administrador (el entrenamiento no se borra)
 export const deletePost = async (req: AuthRequest, res: Response) => {
   try {
     const id = req.params.id as string;
+    const userId = req.user?.id;
     if (!Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Id de post no válido' });
     }
 
-    const post = await Post.findOneAndDelete({ _id: id, user: req.user?.id });
-    if (!post) {
+    const post = await Post.findById(id);
+    // A quien no es el autor ni administrador se le responde 404, igual que si no existiera.
+    if (!post || (!post.user.equals(userId) && !(await isAdmin(userId)))) {
       return res.status(404).json({ message: 'Post no encontrado' });
     }
+
+    await post.deleteOne();
+    await resolveReportsFor(post._id as Types.ObjectId, null, userId);
     return res.status(200).json({ message: 'Post eliminado' });
   } catch (error) {
     return res.status(500).json({ message: 'Error al eliminar el post', error });
@@ -180,7 +186,7 @@ export const addComment = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// DELETE /api/posts/:id/comments/:commentId - Borrar un comentario (su autor o el dueño del post)
+// DELETE /api/posts/:id/comments/:commentId - Borrar un comentario (su autor, el dueño del post o un administrador)
 export const deleteComment = async (req: AuthRequest, res: Response) => {
   try {
     const id = req.params.id as string;
@@ -199,14 +205,92 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
     if (!comment) {
       return res.status(404).json({ message: 'Comentario no encontrado' });
     }
-    if (!comment.user.equals(userId) && !post.user.equals(userId)) {
+    if (!comment.user.equals(userId) && !post.user.equals(userId) && !(await isAdmin(userId))) {
       return res.status(403).json({ message: 'No puedes borrar este comentario' });
     }
 
     comment.deleteOne();
     await post.save();
+    await resolveReportsFor(post._id as Types.ObjectId, commentId, userId);
     return res.status(200).json({ message: 'Comentario eliminado' });
   } catch (error) {
     return res.status(500).json({ message: 'Error al eliminar el comentario', error });
+  }
+};
+
+/* ---------- Reportes ---------- */
+
+async function crearReporte(
+  req: AuthRequest,
+  res: Response,
+  datos: { post: Types.ObjectId; comment: Types.ObjectId | null; autor: Types.ObjectId; contenido: string }
+) {
+  const userId = req.user?.id;
+  if (datos.autor.equals(userId)) {
+    return res.status(400).json({ message: 'No puedes reportar tu propio contenido' });
+  }
+  try {
+    await Report.create({
+      ...datos,
+      contenido: datos.contenido.slice(0, 500),
+      reportadoPor: userId,
+      motivo: req.body?.motivo,
+      detalle: typeof req.body?.detalle === 'string' ? req.body.detalle.trim() || undefined : undefined,
+    });
+    return res.status(201).json({ message: 'Gracias. Un administrador lo revisará.' });
+  } catch (error: any) {
+    if (error?.code === 11000) return res.status(409).json({ message: 'Ya lo habías reportado' });
+    if (error?.name === 'ValidationError') {
+      const primero: any = Object.values(error.errors)[0];
+      return res.status(400).json({ message: primero?.message ?? 'Datos no válidos' });
+    }
+    throw error;
+  }
+}
+
+// POST /api/posts/:id/report - Reportar una publicación
+export const reportPost = async (req: AuthRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Id de post no válido' });
+    }
+    const post = await Post.findById(id).populate({ path: 'workout', select: 'title' });
+    if (!post) {
+      return res.status(404).json({ message: 'Post no encontrado' });
+    }
+    const titulo = (post.workout as any)?.title;
+    return await crearReporte(req, res, {
+      post: post._id as Types.ObjectId,
+      comment: null,
+      autor: post.user,
+      contenido: post.caption || (titulo ? `(sin texto) Entrenamiento: ${titulo}` : '(sin texto)'),
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al enviar el reporte', error });
+  }
+};
+
+// POST /api/posts/:id/comments/:commentId/report - Reportar un comentario
+export const reportComment = async (req: AuthRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const commentId = req.params.commentId as string;
+    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(commentId)) {
+      return res.status(400).json({ message: 'Id no válido' });
+    }
+    const post = await Post.findById(id);
+    const comment = post?.comments.id(commentId);
+    if (!post || !comment) {
+      return res.status(404).json({ message: 'Comentario no encontrado' });
+    }
+    return await crearReporte(req, res, {
+      post: post._id as Types.ObjectId,
+      comment: comment._id,
+      autor: comment.user,
+      contenido: comment.text,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al enviar el reporte', error });
   }
 };
