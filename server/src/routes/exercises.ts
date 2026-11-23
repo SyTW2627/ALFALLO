@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getExercises, createExercise } from '../controllers/exercises';
-import { authenticateJWT } from '../middlewares/auth';
+import { getExercises, createExercise, updateExercise, deleteExercise } from '../controllers/exercises';
+import { authenticateJWT, requireAdmin } from '../middlewares/auth';
 
 const router = Router();
 
@@ -26,7 +26,7 @@ const router = Router();
  *       403:
  *         $ref: '#/components/responses/Forbidden'
  *   post:
- *     summary: Añade un ejercicio al catálogo
+ *     summary: Añade un ejercicio al catálogo (solo administradores)
  *     tags: [Exercises]
  *     security:
  *       - bearerAuth: []
@@ -52,10 +52,58 @@ const router = Router();
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  *       403:
- *         $ref: '#/components/responses/Forbidden'
+ *         description: Token inválido o no eres administrador
+ * /api/exercises/{id}:
+ *   put:
+ *     summary: Edita un ejercicio del catálogo (solo administradores)
+ *     tags: [Exercises]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ExerciseInput'
+ *     responses:
+ *       200:
+ *         description: Ejercicio actualizado
+ *       400:
+ *         description: Datos inválidos o nombre repetido
+ *       403:
+ *         description: No eres administrador
+ *       404:
+ *         description: Ejercicio no encontrado
+ *   delete:
+ *     summary: Elimina un ejercicio (solo si no se usa en ningún entrenamiento ni rutina)
+ *     tags: [Exercises]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Ejercicio eliminado
+ *       403:
+ *         description: No eres administrador
+ *       404:
+ *         description: Ejercicio no encontrado
+ *       409:
+ *         description: El ejercicio se usa en entrenamientos o rutinas
  */
-// Consultar catálogo es público o protegido según queráis, lo ponemos tras autenticación
+// Consultar el catálogo: cualquier usuario autenticado. Modificarlo: solo administradores.
 router.get('/', authenticateJWT, getExercises);
-router.post('/', authenticateJWT, createExercise);
+router.post('/', authenticateJWT, requireAdmin, createExercise);
+router.put('/:id', authenticateJWT, requireAdmin, updateExercise);
+router.delete('/:id', authenticateJWT, requireAdmin, deleteExercise);
 
 export default router;

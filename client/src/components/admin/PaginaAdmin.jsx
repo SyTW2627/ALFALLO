@@ -6,12 +6,17 @@ import { Mensaje, mensajeDeError } from "./controles.jsx";
 import GestionHitos from "./GestionHitos.jsx";
 import GestionRetos from "./GestionRetos.jsx";
 import GestionNotificaciones from "./GestionNotificaciones.jsx";
+import GestionEjercicios from "./GestionEjercicios.jsx";
 
 const PESTANAS = [
   { valor: "hitos", etiqueta: "Hitos" },
   { valor: "retos", etiqueta: "Retos" },
   { valor: "notificaciones", etiqueta: "Notificaciones" },
+  { valor: "ejercicios", etiqueta: "Ejercicios" },
 ];
+
+// Pestañas que necesitan las opciones de los formularios (métricas, zonas...).
+const CON_OPCIONES = { hitos: GestionHitos, retos: GestionRetos, ejercicios: GestionEjercicios };
 
 function leerPestana() {
   const t = new URLSearchParams(window.location.search).get("tab");
@@ -50,7 +55,7 @@ function AccesoAdmin({ usuario, aviso, onConcedido }) {
         <p className="text-xs text-suave">Mi espacio / Administración</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight">Zona de administración</h1>
         <p className="mt-1 text-sm text-suave">
-          Desde aquí se crean hitos, retos y notificaciones para todos los usuarios.
+          Desde aquí se gestionan los hitos, retos, notificaciones y ejercicios de AlFallo.
         </p>
       </header>
 
@@ -138,6 +143,8 @@ function Panel({ usuario, onPerderAdmin, onSalir }) {
     }
   }
 
+  const Gestion = CON_OPCIONES[pestana];
+
   return (
     <div>
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
@@ -180,15 +187,13 @@ function Panel({ usuario, onPerderAdmin, onSalir }) {
       <Mensaje>{error}</Mensaje>
 
       <div role="tabpanel" id={`panel-${pestana}`} aria-labelledby={`tab-${pestana}`}>
-        {pestana === "notificaciones" ? (
-          <GestionNotificaciones alPerderAdmin={onPerderAdmin} />
-        ) : !opciones ? (
-          !error && <p className="text-sm text-suave">Cargando...</p>
-        ) : pestana === "hitos" ? (
-          <GestionHitos opciones={opciones} alPerderAdmin={onPerderAdmin} />
-        ) : (
-          <GestionRetos opciones={opciones} alPerderAdmin={onPerderAdmin} />
-        )}
+        {pestana === "notificaciones" && <GestionNotificaciones alPerderAdmin={onPerderAdmin} />}
+        {Gestion &&
+          (opciones ? (
+            <Gestion opciones={opciones} alPerderAdmin={onPerderAdmin} />
+          ) : (
+            !error && <p className="text-sm text-suave">Cargando...</p>
+          ))}
       </div>
     </div>
   );

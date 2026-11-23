@@ -15,6 +15,7 @@ import {
   listNotifications,
   createNotification,
   deleteNotification,
+  listExercises,
 } from '../controllers/admin';
 
 const router = Router();
@@ -296,5 +297,20 @@ router.delete('/challenges/:id', deleteChallenge);
 router.get('/notifications', listNotifications);
 router.post('/notifications', createNotification);
 router.delete('/notifications/:id', deleteNotification);
+
+/**
+ * @openapi
+ * /api/admin/exercises:
+ *   get:
+ *     summary: Catálogo de ejercicios con su uso (entrenamientos y rutinas que lo incluyen)
+ *     description: Para crear, editar o borrar ejercicios se usan POST/PUT/DELETE de /api/exercises.
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de ejercicios
+ */
+router.get('/exercises', listExercises);
 
 export default router;
