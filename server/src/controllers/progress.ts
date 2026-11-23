@@ -10,7 +10,7 @@ import { CustomChallenge } from '../models/customChallenge';
 import { CustomAchievementDef, CustomChallengeDef } from '../progress/custom';
 
 // Convierte los entrenamientos de Mongo (con los ejercicios populados) al formato del motor.
-function toEngineWorkouts(docs: any[]): WorkoutIn[] {
+export function toEngineWorkouts(docs: any[]): WorkoutIn[] {
   return docs
     .filter((w) => w.finishedAt)
     .map((w) => ({

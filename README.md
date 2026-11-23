@@ -222,6 +222,7 @@ La web queda en `http://localhost:4321`.
 
 Los administradores tienen un panel en **`/admin`** desde el que pueden:
 
+- **Ver un resumen de la actividad**: usuarios registrados y activos, entrenamientos de esta semana frente a la anterior, gráficos de las últimas 8 semanas, cuánta gente completa cada reto y cuántos usuarios tienen cada hito.
 - **Crear hitos** que aparecen a todos los usuarios en *Logros → Hitos* (por entrenamientos, volumen, racha, peso máximo, fuerza relativa o rango en cada levantamiento).
 - **Crear retos especiales** con fecha de inicio y fin, que aparecen en *Logros → Retos* mientras están en curso (entrenamientos, series de unas zonas musculares, volumen o minutos).
 - **Enviar notificaciones** que todos los usuarios ven en la campanita de la parte superior.

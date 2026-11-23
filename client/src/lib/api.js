@@ -404,3 +404,8 @@ export function listarReportes(estado = "pendiente") {
 export function resolverReporte({ post, comment, accion }) {
   return peticion("/admin/reports/resolve", { metodo: "POST", auth: true, cuerpo: { post, comment, accion } });
 }
+
+// Resumen de actividad para el panel de administración.
+export function obtenerEstadisticasAdmin() {
+  return peticion("/admin/stats", { auth: true });
+}
