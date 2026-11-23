@@ -225,7 +225,7 @@ Los administradores tienen un panel en **`/admin`** desde el que pueden:
 - **Ver un resumen de la actividad**: usuarios registrados y activos, entrenamientos de esta semana frente a la anterior, gráficos de las últimas 8 semanas, cuánta gente completa cada reto y cuántos usuarios tienen cada hito.
 - **Crear hitos** que aparecen a todos los usuarios en *Logros → Hitos* (por entrenamientos, volumen, racha, peso máximo, fuerza relativa o rango en cada levantamiento).
 - **Crear retos especiales** con fecha de inicio y fin, que aparecen en *Logros → Retos* mientras están en curso (entrenamientos, series de unas zonas musculares, volumen o minutos).
-- **Enviar notificaciones** que todos los usuarios ven en la campanita de la parte superior.
+- **Enviar notificaciones** que todos los usuarios ven en la campanita de la parte superior, al momento o **programadas** para una fecha y hora (por ejemplo, el lunes a las 8:00). Las programadas no se ven hasta que llega su hora y se pueden publicar antes o cancelar. El aviso de un reto que empieza más adelante se programa solo para el día que empieza.
 - **Gestionar el catálogo de ejercicios**: añadir, editar (nombre, zona, dificultad y a qué levantamiento cuenta para los rangos) y borrar los que no se usen en ningún entrenamiento ni rutina. Crear, editar y borrar ejercicios en la API (`/api/exercises`) es solo para administradores.
 - **Moderar el feed**: los usuarios pueden *reportar* publicaciones y comentarios (spam, lenguaje ofensivo, acoso…). En la pestaña *Moderación* el administrador ve lo reportado, agrupado y ordenado por número de reportes, y decide si lo elimina o descarta los reportes. Los administradores también pueden borrar cualquier publicación o comentario directamente desde el feed.
 

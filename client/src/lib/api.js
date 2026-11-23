@@ -409,3 +409,8 @@ export function resolverReporte({ post, comment, accion }) {
 export function obtenerEstadisticasAdmin() {
   return peticion("/admin/stats", { auth: true });
 }
+
+// Edita o reprograma una notificación. `publicarEn: null` = publicarla ya.
+export function editarNotificacion(id, datos) {
+  return editarAdmin("notifications", id, datos);
+}

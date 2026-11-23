@@ -38,7 +38,7 @@ function Notificacion({ n }) {
           {!n.leida && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primario" aria-label="Nueva" />}
         </p>
         <p className="mt-0.5 whitespace-pre-line text-xs text-suave">{n.mensaje}</p>
-        <p className="mt-1 text-[11px] text-suave/80">{haceCuanto(n.createdAt)}</p>
+        <p className="mt-1 text-[11px] text-suave/80">{haceCuanto(n.fecha ?? n.createdAt)}</p>
       </div>
     </div>
   );
