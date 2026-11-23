@@ -320,3 +320,49 @@ export function obtenerSeguidos(id) {
 export function obtenerSeguidores(id) {
   return peticion(`/users/${encodeURIComponent(id)}/followers`, { auth: true, copiaLocal: true });
 }
+
+/* ---------- Notificaciones (campanita) ---------- */
+
+// Devuelve { noLeidas, notificaciones: [{ _id, titulo, mensaje, enlace, tipo, leida, createdAt }] }
+export function obtenerNotificaciones() {
+  return peticion("/notifications", { auth: true, copiaLocal: true });
+}
+
+export function marcarNotificacionesLeidas() {
+  return peticion("/notifications/read", { metodo: "POST", auth: true });
+}
+
+/* ---------- Administración ---------- */
+
+// Entra como administrador con la contraseña de administración. Devuelve una sesión nueva.
+export async function accederComoAdmin(password) {
+  const r = await peticion("/admin/access", { metodo: "POST", auth: true, cuerpo: { password } });
+  return { token: r.token, usuario: normalizarUsuario(r.user) };
+}
+
+export async function salirDeAdmin() {
+  const r = await peticion("/admin/leave", { metodo: "POST", auth: true });
+  return { token: r.token, usuario: normalizarUsuario(r.user) };
+}
+
+// Métricas, categorías, rangos y zonas musculares para los formularios.
+export function obtenerOpcionesAdmin() {
+  return peticion("/admin/options", { auth: true });
+}
+
+// `tipo`: "achievements" (hitos), "challenges" (retos) o "notifications".
+export function listarAdmin(tipo) {
+  return peticion(`/admin/${tipo}`, { auth: true });
+}
+
+export function crearAdmin(tipo, datos) {
+  return peticion(`/admin/${tipo}`, { metodo: "POST", auth: true, cuerpo: datos });
+}
+
+export function editarAdmin(tipo, id, datos) {
+  return peticion(`/admin/${tipo}/${encodeURIComponent(id)}`, { metodo: "PUT", auth: true, cuerpo: datos });
+}
+
+export function eliminarAdmin(tipo, id) {
+  return peticion(`/admin/${tipo}/${encodeURIComponent(id)}`, { metodo: "DELETE", auth: true });
+}

@@ -13,6 +13,12 @@ import {
     CURRENT_WINDOW_DAYS,
     MAX_JUMP,
   } from "./standards";
+  import {
+    CustomAchievementDef,
+    CustomChallengeDef,
+    computeCustomAchievements,
+    computeCustomChallenges,
+  } from "./custom";
   
   const DAY = 24 * 60 * 60 * 1000;
   const WEEK = 7 * DAY;
@@ -45,6 +51,8 @@ import {
     bodyWeights: BodyWeightIn[];
     sex: Sex;
     now?: Date;
+    // Hitos y retos creados por los administradores (ver custom.ts).
+    custom?: { hitos?: CustomAchievementDef[]; retos?: CustomChallengeDef[] };
   }
   
   /* ---------- Utilidades ---------- */
@@ -223,7 +231,7 @@ import {
   
   /* ---------- Hitos ---------- */
   
-  interface Stats {
+  export interface Stats {
     entrenos: number;
     volumen: number;
     racha: number;
@@ -328,8 +336,8 @@ import {
   
     return {
       rangos: ranks.map(({ _maxKg, _maxKgRatio, _idxMejor, _idxActual, ...r }) => r),
-      hitos: computeAchievements(stats),
-      retos: computeChallenges(workouts, now),
+      hitos: [...computeAchievements(stats), ...computeCustomAchievements(input.custom?.hitos ?? [], stats)],
+      retos: [...computeChallenges(workouts, now), ...computeCustomChallenges(input.custom?.retos ?? [], workouts, now)],
       _idxActual: Object.fromEntries(ranks.map((r) => [r.key, r._idxActual])) as Record<LiftKey, number>,
     };
   }

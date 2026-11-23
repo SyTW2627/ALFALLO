@@ -5,6 +5,9 @@ import { Workout, WorkoutStatus } from '../models/workout';
 import { Achievement } from '../models/achievement';
 import { computeProgress, diffProgress, Progress, WorkoutIn } from '../progress/engine';
 import { Sex } from '../progress/standards';
+import { CustomAchievement } from '../models/customAchievement';
+import { CustomChallenge } from '../models/customChallenge';
+import { CustomAchievementDef, CustomChallengeDef } from '../progress/custom';
 
 // Convierte los entrenamientos de Mongo (con los ejercicios populados) al formato del motor.
 function toEngineWorkouts(docs: any[]): WorkoutIn[] {
@@ -26,13 +29,42 @@ function toEngineWorkouts(docs: any[]): WorkoutIn[] {
     }));
 }
 
+// Hitos activos y retos especiales en curso creados por los administradores.
+async function loadCustomDefs(now = new Date()) {
+  const [hitos, retos] = await Promise.all([
+    CustomAchievement.find({ activo: true }).sort({ createdAt: 1 }).lean(),
+    CustomChallenge.find({ activo: true, inicio: { $lte: now }, fin: { $gt: now } }).sort({ fin: 1 }).lean(),
+  ]);
+  return {
+    hitos: hitos.map<CustomAchievementDef>((h) => ({
+      id: String(h._id),
+      titulo: h.titulo,
+      descripcion: h.descripcion,
+      categoria: h.categoria,
+      metrica: h.metrica,
+      objetivo: h.objetivo,
+    })),
+    retos: retos.map<CustomChallengeDef>((r) => ({
+      id: String(r._id),
+      titulo: r.titulo,
+      descripcion: r.descripcion ?? '',
+      metrica: r.metrica,
+      zonas: r.zonas ?? [],
+      objetivo: r.objetivo,
+      inicio: new Date(r.inicio),
+      fin: new Date(r.fin),
+    })),
+  };
+}
+
 async function loadProgressData(userId: string) {
-  const [user, workouts] = await Promise.all([
+  const [user, workouts, custom] = await Promise.all([
     User.findById(userId),
     Workout.find({ user: userId, status: WorkoutStatus.FINISHED })
       .populate('exercises.exercise')
       .sort({ finishedAt: 1 })
       .lean(),
+    loadCustomDefs(),
   ]);
   if (!user) return null;
   return {
@@ -41,6 +73,7 @@ async function loadProgressData(userId: string) {
       workouts: toEngineWorkouts(workouts),
       bodyWeights: (user.bodyWeights ?? []).map((b) => ({ kg: b.kg, date: new Date(b.date) })),
       sex: (user.sex ?? 'unspecified') as Sex,
+      custom,
     },
   };
 }

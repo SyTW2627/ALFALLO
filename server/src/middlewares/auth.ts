@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { User } from '../models/user';
 
 // Extender la interfaz Request de Express para adjuntar los datos del usuario
 export interface AuthRequest extends Request {
@@ -27,5 +28,21 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
     next();
   } catch (error) {
     return res.status(403).json({ message: 'Token inválido o expirado' });
+  }
+};
+
+// Solo deja pasar a administradores. Se comprueba en la base de datos (y no solo en el token)
+// para que quitarle el rol a alguien tenga efecto inmediato.
+// Va siempre DESPUÉS de authenticateJWT.
+export const requireAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = await User.findById(req.user?.id).select('role').lean();
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ message: 'Necesitas permisos de administrador', code: 'NOT_ADMIN' });
+    }
+    req.user!.role = 'admin';
+    next();
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al comprobar los permisos', error });
   }
 };

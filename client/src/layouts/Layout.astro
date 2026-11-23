@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import BottomNav from "../components/BottomNav.astro";
+import CampanaNotificaciones from "../components/CampanaNotificaciones.jsx";
 
 interface Props {
   title?: string;
@@ -73,7 +74,15 @@ const {
       </div>
     </div>
 
-    <main class="mx-auto px-4 py-6 md:px-8 md:py-10">
+    <!-- Campanita de notificaciones (solo se ve con la sesión iniciada) -->
+    {
+      showNav && (
+        <div class="flex h-10 justify-end px-4 pt-4 md:px-8 md:pt-6" style="box-sizing: content-box">
+          <CampanaNotificaciones client:only="react" />
+        </div>
+      )
+    }
+    <main class:list={["mx-auto px-4 md:px-8", showNav ? "pb-6 pt-2 md:pb-10 md:pt-3" : "py-6 md:py-10"]}>
       <slot />
     </main>
     {showNav && <BottomNav />}

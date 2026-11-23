@@ -30,7 +30,7 @@ export default function Novedades({ novedades }) {
       ))}
       {retos.map((r) => (
         <div key={r.key} className="rounded-2xl border border-primario/30 bg-primario/10 p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-primario">Reto semanal completado</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-primario">Reto completado</p>
           <p className="font-bold">{r.titulo}</p>
         </div>
       ))}

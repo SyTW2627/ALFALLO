@@ -218,6 +218,18 @@ La web queda en `http://localhost:4321`.
 | `client` | `npm run dev` | Arranca la web en modo desarrollo |
 | `client` | `npm run build` | Genera la versión de producción |
 
+## Zona de administración
+
+Los administradores tienen un panel en **`/admin`** desde el que pueden:
+
+- **Crear hitos** que aparecen a todos los usuarios en *Logros → Hitos* (por entrenamientos, volumen, racha, peso máximo, fuerza relativa o rango en cada levantamiento).
+- **Crear retos especiales** con fecha de inicio y fin, que aparecen en *Logros → Retos* mientras están en curso (entrenamientos, series de unas zonas musculares, volumen o minutos).
+- **Enviar notificaciones** que todos los usuarios ven en la campanita de la parte superior.
+
+Para entrar, un usuario con sesión iniciada abre `/admin` (o el enlace al final de su perfil) e introduce la **contraseña de administración**, que se configura en el servidor con la variable de entorno `ADMIN_PASSWORD` (en `server/config/dev.env`). Si es correcta, su cuenta pasa a tener el rol `admin`. Se permiten 5 intentos fallidos cada 15 minutos. Desde el panel se puede volver a ser un usuario normal con *Salir del modo administrador*.
+
+> Cambia `ADMIN_PASSWORD` por una contraseña larga en producción. Si la variable no está definida, el acceso de administrador queda desactivado.
+
 ## API
 
 Toda la API está documentada en **Swagger**, donde se puede probar cada endpoint desde el navegador:

@@ -27,6 +27,9 @@ const options: swaggerJsdoc.Options = {
             { name: 'Routines', description: 'Rutinas del usuario' },
             { name: 'Workouts', description: 'Entrenamientos en curso e historial' },
             { name: 'Posts', description: 'Feed, kudos y comentarios' },
+            { name: 'Progress', description: 'Rangos, hitos y retos' },
+            { name: 'Notifications', description: 'Notificaciones para todos los usuarios (campanita)' },
+            { name: 'Admin', description: 'Zona de administración: hitos, retos especiales y notificaciones' },
         ],
         components: {
             securitySchemes: {
@@ -43,6 +46,46 @@ const options: swaggerJsdoc.Options = {
                 },
             },
             schemas: {
+                CustomAchievementInput: {
+                    type: 'object',
+                    required: ['titulo', 'descripcion', 'metrica', 'objetivo'],
+                    properties: {
+                        titulo: { type: 'string', example: 'Medio millón' },
+                        descripcion: { type: 'string', example: 'Levanta 500 toneladas en total.' },
+                        categoria: { type: 'string', enum: ['constancia', 'volumen', 'fuerza', 'rango', 'especial'] },
+                        metrica: { type: 'string', example: 'volumen', description: 'Ver GET /api/admin/options' },
+                        objetivo: { type: 'number', example: 500000 },
+                        activo: { type: 'boolean', default: true },
+                        notificar: { type: 'boolean', description: 'Solo al crear: avisa a todos con una notificación' },
+                    },
+                },
+                CustomChallengeInput: {
+                    type: 'object',
+                    required: ['titulo', 'metrica', 'objetivo', 'inicio', 'fin'],
+                    properties: {
+                        titulo: { type: 'string', example: 'Diciembre de pierna' },
+                        descripcion: { type: 'string', example: 'Haz 60 series de pierna antes de Navidad.' },
+                        metrica: { type: 'string', enum: ['entrenos', 'series', 'volumen', 'minutos'] },
+                        zonas: { type: 'array', items: { type: 'string', enum: Object.values(BodyParts) }, description: 'Solo para la métrica "series"' },
+                        objetivo: { type: 'number', example: 60 },
+                        inicio: { type: 'string', format: 'date-time' },
+                        fin: { type: 'string', format: 'date-time', description: 'Exclusivo' },
+                        activo: { type: 'boolean', default: true },
+                        notificar: { type: 'boolean', description: 'Solo al crear: avisa a todos con una notificación' },
+                    },
+                },
+                Notification: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string' },
+                        titulo: { type: 'string' },
+                        mensaje: { type: 'string' },
+                        enlace: { type: 'string', example: '/progreso?tab=retos' },
+                        tipo: { type: 'string', enum: ['aviso', 'hito', 'reto'] },
+                        leida: { type: 'boolean' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                    },
+                },
                 Message: {
                     type: 'object',
                     properties: { message: { type: 'string' } },
