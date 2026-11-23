@@ -43,13 +43,13 @@ Proyecto de la asignatura **Sistemas y Tecnologías Web** (Universidad de La Lag
 - Rutinas por días, con validación de series, repeticiones y descanso según el objetivo
 - Entrenamiento en curso: empezar, registrar series (repeticiones y peso), terminar o descartar
 - Historial de entrenamientos con duración, series y volumen calculados automáticamente
+- Estadísticas y récords personales por ejercicio (peso máximo, 1RM estimado, más repeticiones y mejor sesión), con aviso al momento si superas una marca mientras entrenas
 - Documentación interactiva de la API con Swagger
 
 **Próximamente**
 
 - Seguir a otros usuarios y feed con sus entrenamientos
 - Ánimos y comentarios en los entrenamientos
-- Estadísticas y récords personales
 - Temporizador de descanso entre series
 
 ## Tecnologías

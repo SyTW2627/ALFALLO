@@ -94,10 +94,15 @@ export const totalSeries = (ejercicios) => ejercicios.reduce((a, e) => a + e.ser
 export const volumenTotal = (ejercicios) =>
   ejercicios.reduce((a, e) => a + e.series.reduce((b, s) => b + s.reps * s.kg, 0), 0);
 
-// Para cada ejercicio: la mejor serie de la última sesión y el peso máximo histórico.
+// 1RM estimado con la fórmula de Epley (igual que el servidor). Solo tiene sentido hasta 10 repeticiones.
+export const MAX_REPS_1RM = 10;
+export const estimar1RM = (kg, reps) => (reps === 1 ? kg : kg * (1 + reps / 30));
+
+// Para cada ejercicio: la mejor serie de la última sesión, el peso máximo histórico y el mejor 1RM estimado.
 export function resumenHistorial(historial = []) {
   const ultima = {};
   const maximo = {};
+  const mejor1rm = {};
   // El historial viene ordenado del más reciente al más antiguo.
   for (const w of historial) {
     for (const x of w.exercises ?? []) {
@@ -106,9 +111,36 @@ export function resumenHistorial(historial = []) {
       const mejor = x.sets.reduce((m, s) => (s.weightKg > m.weightKg ? s : m), x.sets[0]);
       if (!ultima[id]) ultima[id] = { kg: mejor.weightKg, reps: mejor.reps, fecha: w.finishedAt };
       maximo[id] = Math.max(maximo[id] ?? 0, mejor.weightKg);
+      for (const s of x.sets) {
+        if (s.weightKg > 0 && s.reps >= 1 && s.reps <= MAX_REPS_1RM) {
+          mejor1rm[id] = Math.max(mejor1rm[id] ?? 0, estimar1RM(s.weightKg, s.reps));
+        }
+      }
     }
   }
-  return { ultima, maximo };
+  return { ultima, maximo, mejor1rm };
+}
+
+// ¿La serie que se acaba de hacer es un récord? Se compara con el historial y con las series
+// anteriores de esta misma sesión. Si es la primera vez que se hace el ejercicio, no hay récord.
+// Devuelve { tipo: "peso" | "1rm", kg, reps, e1rm, mejora } o null.
+export function detectarRecord(ejercicio, serie, historial) {
+  const id = ejercicio.id;
+  if (!serie || !(serie.kg > 0) || historial?.maximo?.[id] === undefined) return null;
+
+  const previas = ejercicio.series ?? [];
+  const pesoAntes = Math.max(historial.maximo[id], ...previas.map((s) => s.kg));
+  if (serie.kg > pesoAntes) return { tipo: "peso", kg: serie.kg, reps: serie.reps, mejora: serie.kg - pesoAntes };
+
+  if (serie.reps > MAX_REPS_1RM) return null;
+  const e1rm = estimar1RM(serie.kg, serie.reps);
+  const e1rmAntes = Math.max(
+    historial.mejor1rm?.[id] ?? 0,
+    ...previas.filter((s) => s.kg > 0 && s.reps <= MAX_REPS_1RM).map((s) => estimar1RM(s.kg, s.reps))
+  );
+  // Medio kilo de margen: así no salta el aviso por diferencias mínimas de redondeo.
+  if (e1rmAntes > 0 && e1rm >= e1rmAntes + 0.5) return { tipo: "1rm", kg: serie.kg, reps: serie.reps, e1rm, mejora: e1rm - e1rmAntes };
+  return null;
 }
 
 // Ejercicios en los que se ha superado el peso máximo anterior.
