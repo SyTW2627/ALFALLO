@@ -1,12 +1,14 @@
 import { Response } from 'express';
 import crypto from 'crypto';
-import { Error as MongooseError } from 'mongoose';
+import { Error as MongooseError, Types } from 'mongoose';
 import { AuthRequest } from '../middlewares/auth';
 import { User } from '../models/user';
 import { Achievement } from '../models/achievement';
 import { CustomAchievement } from '../models/customAchievement';
 import { CustomChallenge } from '../models/customChallenge';
 import { Notification } from '../models/notification';
+import { Post } from '../models/post';
+import { Report, REPORT_REASONS } from '../models/report';
 import { BodyParts, Exercise } from '../models/exercises';
 import { exerciseUsage } from './exercises';
 import { generateToken } from '../utils/jwt';
@@ -350,5 +352,101 @@ export const listExercises = async (_req: AuthRequest, res: Response) => {
     return res.status(200).json(ejercicios.map((e) => ({ ...e, uso: usoDe(String(e._id)) })));
   } catch (error) {
     return responderError(res, error, 'Error al obtener los ejercicios');
+  }
+};
+
+/* ---------- Moderación ---------- */
+
+const claveReporte = (r: { post: unknown; comment?: unknown }) => `${r.post}:${r.comment ?? ''}`;
+
+// GET /api/admin/reports?estado=pendiente|resuelto
+// Agrupa los reportes por contenido (una publicación o un comentario) y dice si ese contenido sigue existiendo.
+export const listReports = async (req: AuthRequest, res: Response) => {
+  try {
+    const resueltos = req.query.estado === 'resuelto';
+    const reportes = await Report.find({ estado: resueltos ? { $in: ['eliminado', 'descartado'] } : 'pendiente' })
+      .sort({ createdAt: -1 })
+      .limit(resueltos ? 300 : 1000)
+      .populate([
+        { path: 'reportadoPor', select: 'name' },
+        { path: 'autor', select: 'name' },
+        { path: 'resueltoPor', select: 'name' },
+      ])
+      .lean();
+
+    const posts = await Post.find({ _id: { $in: [...new Set(reportes.map((r) => String(r.post)))] } })
+      .select('user caption comments')
+      .lean();
+    const postPorId = new Map(posts.map((p) => [String(p._id), p]));
+
+    const grupos = new Map<string, any>();
+    for (const r of reportes as any[]) {
+      const clave = claveReporte(r);
+      if (!grupos.has(clave)) {
+        const post = postPorId.get(String(r.post));
+        const comentario = r.comment ? post?.comments?.find((c: any) => String(c._id) === String(r.comment)) : null;
+        const existe = Boolean(post && (!r.comment || comentario));
+        grupos.set(clave, {
+          clave,
+          tipo: r.comment ? 'comentario' : 'publicacion',
+          post: String(r.post),
+          comment: r.comment ? String(r.comment) : null,
+          autor: r.autor ? { id: String(r.autor._id), nombre: r.autor.name } : null,
+          contenido: existe ? (r.comment ? comentario?.text : post?.caption) || r.contenido : r.contenido,
+          existe,
+          estado: r.estado,
+          resueltoEn: r.resueltoEn ?? null,
+          resueltoPor: r.resueltoPor?.name ?? null,
+          total: 0,
+          motivos: Object.fromEntries(REPORT_REASONS.map((m) => [m, 0])),
+          reportes: [],
+          ultimo: r.createdAt,
+        });
+      }
+      const g = grupos.get(clave);
+      g.total++;
+      g.motivos[r.motivo]++;
+      g.reportes.push({ motivo: r.motivo, detalle: r.detalle ?? '', por: r.reportadoPor?.name ?? 'Usuario eliminado', fecha: r.createdAt });
+    }
+
+    // Lo más reportado primero (y, a igualdad, lo más reciente).
+    const lista = [...grupos.values()].sort((a, b) => b.total - a.total || +new Date(b.ultimo) - +new Date(a.ultimo));
+    return res.status(200).json(resueltos ? lista.sort((a, b) => +new Date(b.resueltoEn) - +new Date(a.resueltoEn)) : lista);
+  } catch (error) {
+    return responderError(res, error, 'Error al obtener los reportes');
+  }
+};
+
+// POST /api/admin/reports/resolve - { post, comment?, accion: "eliminar" | "descartar" }
+export const resolveReport = async (req: AuthRequest, res: Response) => {
+  try {
+    const { post, comment, accion } = req.body ?? {};
+    if (!Types.ObjectId.isValid(post) || (comment && !Types.ObjectId.isValid(comment))) {
+      return res.status(400).json({ message: 'Id no válido' });
+    }
+    if (accion !== 'eliminar' && accion !== 'descartar') {
+      return res.status(400).json({ message: 'La acción debe ser "eliminar" o "descartar"' });
+    }
+
+    if (accion === 'eliminar') {
+      if (comment) await Post.updateOne({ _id: post }, { $pull: { comments: { _id: comment } } });
+      else await Post.deleteOne({ _id: post });
+    }
+
+    // Al eliminar una publicación también se cierran los reportes de sus comentarios.
+    const filtro: Record<string, unknown> = { post, estado: 'pendiente' };
+    if (comment || accion === 'descartar') filtro.comment = comment || null;
+    const r = await Report.updateMany(filtro, {
+      estado: accion === 'eliminar' ? 'eliminado' : 'descartado',
+      resueltoPor: req.user!.id,
+      resueltoEn: new Date(),
+    });
+
+    return res.status(200).json({
+      message: accion === 'eliminar' ? 'Contenido eliminado' : 'Reportes descartados',
+      actualizados: r.modifiedCount,
+    });
+  } catch (error) {
+    return responderError(res, error, 'Error al resolver el reporte');
   }
 };

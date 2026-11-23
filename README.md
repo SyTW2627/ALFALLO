@@ -226,6 +226,7 @@ Los administradores tienen un panel en **`/admin`** desde el que pueden:
 - **Crear retos especiales** con fecha de inicio y fin, que aparecen en *Logros → Retos* mientras están en curso (entrenamientos, series de unas zonas musculares, volumen o minutos).
 - **Enviar notificaciones** que todos los usuarios ven en la campanita de la parte superior.
 - **Gestionar el catálogo de ejercicios**: añadir, editar (nombre, zona, dificultad y a qué levantamiento cuenta para los rangos) y borrar los que no se usen en ningún entrenamiento ni rutina. Crear, editar y borrar ejercicios en la API (`/api/exercises`) es solo para administradores.
+- **Moderar el feed**: los usuarios pueden *reportar* publicaciones y comentarios (spam, lenguaje ofensivo, acoso…). En la pestaña *Moderación* el administrador ve lo reportado, agrupado y ordenado por número de reportes, y decide si lo elimina o descarta los reportes. Los administradores también pueden borrar cualquier publicación o comentario directamente desde el feed.
 
 Para entrar, un usuario con sesión iniciada abre `/admin` (o el enlace al final de su perfil) e introduce la **contraseña de administración**, que se configura en el servidor con la variable de entorno `ADMIN_PASSWORD` (en `server/config/dev.env`). Si es correcta, su cuenta pasa a tener el rol `admin`. Se permiten 5 intentos fallidos cada 15 minutos. Desde el panel se puede volver a ser un usuario normal con *Salir del modo administrador*.
 

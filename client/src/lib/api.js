@@ -380,3 +380,27 @@ export function editarEjercicio(id, datos) {
 export function eliminarEjercicio(id) {
   return peticion(`/exercises/${encodeURIComponent(id)}`, { metodo: "DELETE", auth: true });
 }
+
+/* ---------- Reportes y moderación ---------- */
+
+// `motivo`: "spam" | "ofensivo" | "inapropiado" | "acoso" | "otro"
+export function reportarPost(id, { motivo, detalle }) {
+  return peticion(`/posts/${encodeURIComponent(id)}/report`, { metodo: "POST", auth: true, cuerpo: { motivo, detalle } });
+}
+
+export function reportarComentario(idPost, idComentario, { motivo, detalle }) {
+  return peticion(
+    `/posts/${encodeURIComponent(idPost)}/comments/${encodeURIComponent(idComentario)}/report`,
+    { metodo: "POST", auth: true, cuerpo: { motivo, detalle } }
+  );
+}
+
+// `estado`: "pendiente" o "resuelto".
+export function listarReportes(estado = "pendiente") {
+  return peticion(`/admin/reports?estado=${estado}`, { auth: true });
+}
+
+// `accion`: "eliminar" (borra el contenido) o "descartar" (lo deja).
+export function resolverReporte({ post, comment, accion }) {
+  return peticion("/admin/reports/resolve", { metodo: "POST", auth: true, cuerpo: { post, comment, accion } });
+}

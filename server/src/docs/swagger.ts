@@ -74,6 +74,14 @@ const options: swaggerJsdoc.Options = {
                         notificar: { type: 'boolean', description: 'Solo al crear: avisa a todos con una notificación' },
                     },
                 },
+                ReportInput: {
+                    type: 'object',
+                    required: ['motivo'],
+                    properties: {
+                        motivo: { type: 'string', enum: ['spam', 'ofensivo', 'inapropiado', 'acoso', 'otro'] },
+                        detalle: { type: 'string', maxLength: 300, example: 'Insulta a otros usuarios' },
+                    },
+                },
                 Notification: {
                     type: 'object',
                     properties: {
