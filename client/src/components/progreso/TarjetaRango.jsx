@@ -129,7 +129,7 @@ export default function TarjetaRango({ rango: r }) {
       )}
 
       <details className="mt-auto pt-4 text-sm">
-        <summary className="cursor-pointer text-xs font-semibold text-suave hover:text-white">Ver tabla de rangos</summary>
+        <summary className="cursor-pointer text-xs font-semibold text-suave hover:text-texto">Ver tabla de rangos</summary>
         <table className="mt-2 w-full text-left">
           <thead className="text-[10px] uppercase tracking-wider text-suave">
             <tr>

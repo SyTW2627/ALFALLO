@@ -197,7 +197,7 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
             type="button"
             onClick={() => setReportando((r) => (r === "post" ? null : "post"))}
             aria-expanded={reportando === "post"}
-            className="rounded-lg px-2 py-1 text-xs font-semibold text-suave transition hover:bg-elevada hover:text-white"
+            className="rounded-lg px-2 py-1 text-xs font-semibold text-suave transition hover:bg-elevada hover:text-texto"
           >
             Reportar
           </button>
@@ -208,7 +208,7 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
             onClick={borrarPost}
             disabled={borrando}
             title={esMio ? undefined : "Eliminar como administrador"}
-            className="rounded-lg px-2 py-1 text-xs font-semibold text-suave transition hover:bg-elevada hover:text-red-300 disabled:opacity-50"
+            className="rounded-lg px-2 py-1 text-xs font-semibold text-suave transition hover:bg-elevada hover:text-peligro disabled:opacity-50"
           >
             {borrando ? "Eliminando…" : "Eliminar"}
           </button>
@@ -242,14 +242,14 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
           type="button"
           onClick={() => setVerComentarios((v) => !v)}
           aria-expanded={verComentarios}
-          className="text-suave transition hover:text-white"
+          className="text-suave transition hover:text-texto"
         >
           {comentarios.length === 1 ? "1 comentario" : `${comentarios.length} comentarios`}
         </button>
       </div>
 
       {error && (
-        <p role="alert" className="mt-3 text-xs text-red-300">
+        <p role="alert" className="mt-3 text-xs text-peligro">
           {error}
         </p>
       )}
@@ -270,7 +270,7 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
                         type="button"
                         onClick={() => setReportando((r) => (r === c.id ? null : c.id))}
                         aria-expanded={reportando === c.id}
-                        className="text-[11px] text-suave transition hover:text-white"
+                        className="text-[11px] text-suave transition hover:text-texto"
                       >
                         Reportar
                       </button>
@@ -280,7 +280,7 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
                       <button
                         type="button"
                         onClick={() => borrarComentario(c.id)}
-                        className="text-[11px] text-suave transition hover:text-red-300"
+                        className="text-[11px] text-suave transition hover:text-peligro"
                       >
                         Borrar
                       </button>
@@ -310,7 +310,7 @@ export default function TarjetaPost({ post, idUsuario, onEliminado, seguidos, on
             <button
               type="submit"
               disabled={!texto.trim() || enviando}
-              className="h-11 rounded-lg bg-primario px-4 text-sm font-bold text-fondo transition hover:brightness-110 disabled:opacity-50"
+              className="h-11 rounded-lg bg-primario px-4 text-sm font-bold text-tinta transition hover:brightness-110 disabled:opacity-50"
             >
               {enviando ? "…" : "Enviar"}
             </button>

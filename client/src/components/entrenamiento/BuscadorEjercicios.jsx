@@ -51,7 +51,7 @@ export default function BuscadorEjercicios({ catalogo, yaAnadidos, onElegir, onC
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-buscador"
-        className="relative flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-2xl border border-borde bg-superficie shadow-2xl shadow-black/60 sm:rounded-2xl"
+        className="relative flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-2xl border border-borde bg-superficie shadow-2xl shadow-sombra/60 sm:rounded-2xl"
       >
         <div className="border-b border-borde p-5">
           <div className="flex items-center justify-between gap-3">
@@ -62,7 +62,7 @@ export default function BuscadorEjercicios({ catalogo, yaAnadidos, onElegir, onC
               type="button"
               onClick={onCerrar}
               aria-label="Cerrar buscador"
-              className="grid h-10 w-10 place-items-center rounded-full text-suave transition hover:bg-elevada hover:text-white"
+              className="grid h-10 w-10 place-items-center rounded-full text-suave transition hover:bg-elevada hover:text-texto"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                 <path d="M18 6 6 18M6 6l12 12" />
@@ -80,7 +80,7 @@ export default function BuscadorEjercicios({ catalogo, yaAnadidos, onElegir, onC
             placeholder="Buscar por nombre o zona..."
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
-            className="mt-3 h-12 w-full rounded-lg border border-borde bg-fondo px-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario"
+            className="mt-3 h-12 w-full rounded-lg border border-borde bg-fondo px-3 text-sm text-texto outline-none transition placeholder:text-suave/60 focus:border-primario"
           />
 
           {zonas.length > 1 && (
@@ -92,7 +92,7 @@ export default function BuscadorEjercicios({ catalogo, yaAnadidos, onElegir, onC
                   aria-pressed={zona === z}
                   onClick={() => setZona(z)}
                   className={`h-8 shrink-0 rounded-full border px-3 text-xs font-semibold transition ${
-                    zona === z ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-white"
+                    zona === z ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-texto"
                   }`}
                 >
                   {z ? etiquetaZona(z) : "Todas"}

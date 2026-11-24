@@ -66,7 +66,7 @@ function TarjetaRutina({ rutina, onEditar, onEliminada }) {
       </ol>
 
       {error && (
-        <p role="alert" className="mt-3 text-xs text-red-400">
+        <p role="alert" className="mt-3 text-xs text-peligro">
           {error}
         </p>
       )}
@@ -74,16 +74,16 @@ function TarjetaRutina({ rutina, onEditar, onEliminada }) {
       <div className="mt-4 flex items-center gap-2">
         <a
           href="/entrenamiento"
-          className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-primario text-sm font-bold text-fondo transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
+          className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-primario text-sm font-bold text-tinta transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
         >
           Entrenar
         </a>
         {confirmar ? (
           <span className="flex items-center gap-3 px-1 text-xs">
-            <button type="button" disabled={borrando} onClick={eliminar} className="font-bold text-red-400 hover:underline disabled:opacity-60">
+            <button type="button" disabled={borrando} onClick={eliminar} className="font-bold text-peligro hover:underline disabled:opacity-60">
               {borrando ? "Eliminando..." : "Sí, eliminar"}
             </button>
-            <button type="button" disabled={borrando} onClick={() => setConfirmar(false)} className="font-semibold text-suave hover:text-white">
+            <button type="button" disabled={borrando} onClick={() => setConfirmar(false)} className="font-semibold text-suave hover:text-texto">
               No
             </button>
           </span>
@@ -91,7 +91,7 @@ function TarjetaRutina({ rutina, onEditar, onEliminada }) {
           <button
             type="button"
             onClick={() => setConfirmar(true)}
-            className="h-11 rounded-lg px-4 text-sm font-semibold text-red-400 transition hover:bg-red-500/10"
+            className="h-11 rounded-lg px-4 text-sm font-semibold text-peligro transition hover:bg-red-500/10"
           >
             Eliminar
           </button>
@@ -114,7 +114,7 @@ export default function ListaRutinas({ rutinas, aviso, onNueva, onEditar, onElim
           <button
             type="button"
             onClick={onNueva}
-            className="inline-flex h-11 items-center gap-2 rounded-lg bg-primario px-5 text-sm font-bold text-fondo shadow-lg shadow-primario/20 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-primario px-5 text-sm font-bold text-tinta shadow-lg shadow-primario/20 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
           >
             <span aria-hidden="true" className="text-lg leading-none">
               +
@@ -148,7 +148,7 @@ export default function ListaRutinas({ rutinas, aviso, onNueva, onEditar, onElim
           <button
             type="button"
             onClick={onNueva}
-            className="mt-5 inline-flex h-12 items-center rounded-lg bg-primario px-6 text-sm font-bold text-fondo transition hover:brightness-110"
+            className="mt-5 inline-flex h-12 items-center rounded-lg bg-primario px-6 text-sm font-bold text-tinta transition hover:brightness-110"
           >
             Crear mi primera rutina
           </button>

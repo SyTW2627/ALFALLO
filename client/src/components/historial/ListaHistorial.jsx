@@ -18,7 +18,7 @@ export default function ListaHistorial({ entrenamientos, aviso, sinConexion, pen
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs text-suave">
-            <a href="/entrenamiento" className="hover:text-white">
+            <a href="/entrenamiento" className="hover:text-texto">
               Entrenar
             </a>{" "}
             / Historial
@@ -28,7 +28,7 @@ export default function ListaHistorial({ entrenamientos, aviso, sinConexion, pen
         </div>
         <a
           href="/entrenamiento"
-          className="inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-fondo shadow-lg shadow-primario/20 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
+          className="inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-tinta shadow-lg shadow-primario/20 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
         >
           Entrenar ahora
         </a>
@@ -60,7 +60,7 @@ export default function ListaHistorial({ entrenamientos, aviso, sinConexion, pen
           <p className="mx-auto mt-1 max-w-sm text-sm text-suave">Cuando termines uno, aparecerá aquí con todas sus series.</p>
           <a
             href="/entrenamiento"
-            className="mt-5 inline-flex h-12 items-center rounded-lg bg-primario px-6 text-sm font-bold text-fondo transition hover:brightness-110"
+            className="mt-5 inline-flex h-12 items-center rounded-lg bg-primario px-6 text-sm font-bold text-tinta transition hover:brightness-110"
           >
             Empezar a entrenar
           </a>
@@ -89,7 +89,7 @@ export default function ListaHistorial({ entrenamientos, aviso, sinConexion, pen
             placeholder="Buscar por nombre o ejercicio..."
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
-            className="mb-6 h-12 w-full rounded-lg border border-borde bg-superficie px-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario"
+            className="mb-6 h-12 w-full rounded-lg border border-borde bg-superficie px-3 text-sm text-texto outline-none transition placeholder:text-suave/60 focus:border-primario"
           />
 
           {grupos.length === 0 && (

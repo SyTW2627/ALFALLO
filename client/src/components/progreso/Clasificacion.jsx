@@ -18,7 +18,7 @@ const CRITERIOS = [
   },
 ];
 
-const MEDALLAS = { 1: "bg-[#f2c94c] text-fondo", 2: "bg-[#c9ced8] text-fondo", 3: "bg-[#cd8a52] text-fondo" };
+const MEDALLAS = { 1: "bg-[#f2c94c] text-tinta", 2: "bg-[#c9ced8] text-tinta", 3: "bg-[#cd8a52] text-tinta" };
 
 function Posicion({ n }) {
   return (
@@ -87,7 +87,7 @@ export default function Clasificacion() {
 
   if (!datos) {
     return error ? (
-      <p role="alert" className="text-sm text-red-300">
+      <p role="alert" className="text-sm text-peligro">
         {error}
       </p>
     ) : (
@@ -128,7 +128,7 @@ export default function Clasificacion() {
                 aria-pressed={criterio === x.valor}
                 onClick={() => setCriterio(x.valor)}
                 className={`h-8 flex-1 rounded-full text-xs font-semibold transition ${
-                  criterio === x.valor ? "bg-primario/15 text-primario" : "text-suave hover:text-white"
+                  criterio === x.valor ? "bg-primario/15 text-primario" : "text-suave hover:text-texto"
                 }`}
               >
                 {x.etiqueta}

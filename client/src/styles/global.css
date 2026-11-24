@@ -1,24 +1,191 @@
 @import "tailwindcss";
 @source "../";
 
+/*
+  Sistema de diseño de AlFallo
+  ----------------------------
+  Los componentes usan siempre estos nombres de color (bg-superficie, text-suave, text-primario...).
+  Cada nombre apunta a una variable --c-* que cambia según el tema: claro u oscuro.
+  El tema lo decide el atributo data-tema de <html> (lo pone el script de Layout.astro).
+
+  fondo       fondo de la página
+  superficie  tarjetas
+  elevada     elementos dentro de tarjetas, menús, hover
+  borde       bordes y separadores
+  texto       texto principal
+  suave       texto secundario
+  primario    naranja de la marca (el disco de 20 kg)
+  acento      verde para lo conseguido / completado
+  tinta       texto sobre fondos de color (botón naranja, insignias)
+  peligro     errores y acciones destructivas
+  sombra      color base de las sombras
+*/
+
 @theme {
-  --color-fondo: #0b0b0d;
-  --color-superficie: #151518;
-  --color-elevada: #1c1c21;
-  --color-borde: #26262b;
-  --color-primario: #f26a1b;
-  --color-acento: #b6f23a;
-  --color-suave: #8b8b94;
-  --font-sans: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --color-fondo: var(--c-fondo);
+  --color-superficie: var(--c-superficie);
+  --color-elevada: var(--c-elevada);
+  --color-borde: var(--c-borde);
+  --color-texto: var(--c-texto);
+  --color-suave: var(--c-suave);
+  --color-primario: var(--c-primario);
+  --color-acento: var(--c-acento);
+  --color-tinta: var(--c-tinta);
+  --color-peligro: var(--c-peligro);
+  --color-sombra: var(--c-sombra);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Inter Tight", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-html {
+/* ---------- Tema oscuro (por defecto) ---------- */
+:root,
+:root[data-tema="oscuro"] {
   color-scheme: dark;
+  --c-fondo: #09090b;
+  --c-superficie: #131316;
+  --c-elevada: #1b1b1f;
+  --c-borde: #27272c;
+  --c-texto: #f4f4f5;
+  --c-suave: #a1a1aa;
+  --c-primario: #f26a1b;
+  --c-acento: #b6f23a;
+  --c-tinta: #0b0b0d;
+  --c-peligro: #f87171;
+  --c-sombra: #000000;
+  --brillo: color-mix(in oklab, #f26a1b 13%, transparent);
+}
+
+/* ---------- Tema claro ---------- */
+:root[data-tema="claro"] {
+  color-scheme: light;
+  --c-fondo: #f6f5f2;
+  --c-superficie: #ffffff;
+  --c-elevada: #f1efeb;
+  --c-borde: #e4e1db;
+  --c-texto: #17171a;
+  --c-suave: #5f5f68;
+  --c-primario: #e0590c;
+  --c-acento: #4d7c0f;
+  --c-tinta: #17171a;
+  --c-peligro: #dc2626;
+  --c-sombra: #3f3a33;
+  --brillo: color-mix(in oklab, #f26a1b 9%, transparent);
+}
+
+/* ---------- Base ---------- */
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 5rem;
 }
 
 body {
   background-color: var(--color-fondo);
-  color: #f4f4f5;
+  /* Un brillo naranja muy suave arriba: recuerda al disco del logo sin distraer */
+  background-image: radial-gradient(1100px 480px at 50% -220px, var(--brillo), transparent 70%);
+  background-repeat: no-repeat;
+  color: var(--color-texto);
   font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+h1 {
+  letter-spacing: -0.03em;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-primario) 30%, transparent);
+}
+
+/* Números alineados en cifras, tiempos y pesos */
+.tabular-nums,
+time {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Foco visible y coherente para teclado */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 2px;
+}
+
+/* Campos: en pantallas táctiles, 16 px como mínimo para que iOS no haga zoom al escribir */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+input,
+select,
+textarea {
+  color: var(--color-texto);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in oklab, var(--color-suave) 70%, transparent);
+}
+
+/* Desplegables nativos: que sigan el tema */
+select {
+  background-color: var(--color-fondo);
+}
+
+/* Barras de desplazamiento discretas */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-borde) transparent;
+}
+
+/* En el tema claro las tarjetas necesitan una sombra muy suave para separarse del fondo */
+:root[data-tema="claro"] .bg-superficie {
+  box-shadow:
+    0 1px 2px rgb(23 23 26 / 0.04),
+    0 2px 8px rgb(23 23 26 / 0.03);
+}
+
+/* Logos: se muestra el de cada tema */
+:root[data-tema="claro"] .solo-oscuro,
+:root:not([data-tema="claro"]) .solo-claro {
+  display: none !important;
+}
+
+/* Transición suave al cambiar de tema (solo durante el cambio, ver Layout.astro) */
+.cambiando-tema,
+.cambiando-tema * {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

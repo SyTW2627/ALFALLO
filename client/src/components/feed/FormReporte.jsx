@@ -45,7 +45,7 @@ export default function FormReporte({ idPost, idComentario, onCerrar }) {
     return (
       <div role="status" className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-acento/30 bg-acento/5 px-3 py-2 text-xs text-acento">
         <span>{mensaje}</span>
-        <button type="button" onClick={onCerrar} className="font-semibold text-suave hover:text-white">
+        <button type="button" onClick={onCerrar} className="font-semibold text-suave hover:text-texto">
           Cerrar
         </button>
       </div>
@@ -82,7 +82,7 @@ export default function FormReporte({ idPost, idComentario, onCerrar }) {
         className="h-10 w-full rounded-lg border border-borde bg-superficie px-3 text-sm outline-none placeholder:text-suave focus:border-primario"
       />
       {mensaje && (
-        <p role="alert" className="text-xs text-red-300">
+        <p role="alert" className="text-xs text-peligro">
           {mensaje}
         </p>
       )}
@@ -90,11 +90,11 @@ export default function FormReporte({ idPost, idComentario, onCerrar }) {
         <button
           type="submit"
           disabled={estado === "enviando"}
-          className="h-9 rounded-lg bg-primario px-4 text-xs font-bold text-fondo transition hover:brightness-110 disabled:opacity-50"
+          className="h-9 rounded-lg bg-primario px-4 text-xs font-bold text-tinta transition hover:brightness-110 disabled:opacity-50"
         >
           {estado === "enviando" ? "Enviando…" : "Enviar reporte"}
         </button>
-        <button type="button" onClick={onCerrar} className="h-9 rounded-lg px-3 text-xs font-semibold text-suave hover:text-white">
+        <button type="button" onClick={onCerrar} className="h-9 rounded-lg px-3 text-xs font-semibold text-suave hover:text-texto">
           Cancelar
         </button>
       </div>

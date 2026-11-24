@@ -14,7 +14,7 @@ export default function Contador({ etiqueta, valor, rango, paso = 1, formato = (
           onClick={() => cambiar(-paso)}
           disabled={valor <= rango.min}
           aria-label={`Bajar ${etiqueta.toLowerCase()}`}
-          className="grid h-full w-8 shrink-0 place-items-center rounded-l-lg text-lg font-bold text-suave transition hover:bg-elevada hover:text-white disabled:opacity-30 disabled:hover:bg-transparent sm:w-10"
+          className="grid h-full w-8 shrink-0 place-items-center rounded-l-lg text-lg font-bold text-suave transition hover:bg-elevada hover:text-texto disabled:opacity-30 disabled:hover:bg-transparent sm:w-10"
         >
           −
         </button>
@@ -26,7 +26,7 @@ export default function Contador({ etiqueta, valor, rango, paso = 1, formato = (
           onClick={() => cambiar(paso)}
           disabled={valor >= rango.max}
           aria-label={`Subir ${etiqueta.toLowerCase()}`}
-          className="grid h-full w-8 shrink-0 place-items-center rounded-r-lg text-lg font-bold text-suave transition hover:bg-elevada hover:text-white disabled:opacity-30 disabled:hover:bg-transparent sm:w-10"
+          className="grid h-full w-8 shrink-0 place-items-center rounded-r-lg text-lg font-bold text-suave transition hover:bg-elevada hover:text-texto disabled:opacity-30 disabled:hover:bg-transparent sm:w-10"
         >
           +
         </button>

@@ -32,7 +32,7 @@ export default function PublicarEntrenamiento({ idEntrenamiento }) {
     return (
       <div className="mt-6 rounded-2xl border border-acento/30 bg-acento/10 p-5 text-center">
         <p className="font-bold text-acento">¡Publicado en la comunidad!</p>
-        <a href="/" className="mt-2 inline-block text-sm font-semibold text-suave underline hover:text-white">
+        <a href="/" className="mt-2 inline-block text-sm font-semibold text-suave underline hover:text-texto">
           Ver el feed
         </a>
       </div>
@@ -60,13 +60,13 @@ export default function PublicarEntrenamiento({ idEntrenamiento }) {
         <button
           type="submit"
           disabled={estado === "enviando"}
-          className="h-11 rounded-lg bg-primario px-5 text-sm font-bold text-fondo transition hover:brightness-110 disabled:opacity-50"
+          className="h-11 rounded-lg bg-primario px-5 text-sm font-bold text-tinta transition hover:brightness-110 disabled:opacity-50"
         >
           {estado === "enviando" ? "Publicando…" : "Publicar"}
         </button>
       </div>
       {error && (
-        <p role="alert" className="mt-3 text-xs text-red-300">
+        <p role="alert" className="mt-3 text-xs text-peligro">
           {error}
         </p>
       )}

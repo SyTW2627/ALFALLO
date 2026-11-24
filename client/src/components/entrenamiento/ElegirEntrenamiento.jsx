@@ -56,7 +56,7 @@ export default function ElegirEntrenamiento({ dias, sinConexion = false, onEmpez
       {error && (
         <p
           role="alert"
-          className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+          className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-peligro"
         >
           {error}
         </p>
@@ -116,7 +116,7 @@ export default function ElegirEntrenamiento({ dias, sinConexion = false, onEmpez
                     onClick={() =>
                       empezar(d.clave, { titulo: d.nombre, objetivo: d.objetivo, ejercicios: d.ejercicios })
                     }
-                    className="mt-5 h-11 rounded-lg bg-primario text-sm font-bold text-fondo transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-5 h-11 rounded-lg bg-primario text-sm font-bold text-tinta transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {cargando === d.clave ? "Empezando..." : "Empezar"}
                   </button>
@@ -146,7 +146,7 @@ export default function ElegirEntrenamiento({ dias, sinConexion = false, onEmpez
               placeholder="Torso, Pierna, Empuje..."
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
-              className="mt-1 h-12 w-full rounded-lg border border-borde bg-fondo px-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario"
+              className="mt-1 h-12 w-full rounded-lg border border-borde bg-fondo px-3 text-sm text-texto outline-none transition placeholder:text-suave/60 focus:border-primario"
             />
 
             <fieldset className="mt-4">
@@ -161,7 +161,7 @@ export default function ElegirEntrenamiento({ dias, sinConexion = false, onEmpez
                     className={`h-10 rounded-full border px-4 text-sm font-semibold transition ${
                       objetivo === valor
                         ? "border-primario bg-primario/15 text-primario"
-                        : "border-borde text-suave hover:text-white"
+                        : "border-borde text-suave hover:text-texto"
                     }`}
                   >
                     {etiqueta}
@@ -173,7 +173,7 @@ export default function ElegirEntrenamiento({ dias, sinConexion = false, onEmpez
             <button
               type="submit"
               disabled={cargando !== null}
-              className="mt-5 h-12 w-full rounded-lg bg-primario text-sm font-bold text-fondo transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-5 h-12 w-full rounded-lg bg-primario text-sm font-bold text-tinta transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-60"
             >
               {cargando === "libre" ? "Empezando..." : "Empezar entrenamiento"}
             </button>

@@ -22,7 +22,7 @@ function Grupo({ g, pendiente, onResolver, ocupado }) {
           {g.tipo === "comentario" ? "Comentario" : "Publicación"}
         </Etiquetita>
         <span className="text-sm font-semibold">de {g.autor?.nombre ?? "Usuario eliminado"}</span>
-        <span className="ml-auto text-xs font-bold text-red-300">
+        <span className="ml-auto text-xs font-bold text-peligro">
           {g.total} {g.total === 1 ? "reporte" : "reportes"}
         </span>
       </div>
@@ -45,7 +45,7 @@ function Grupo({ g, pendiente, onResolver, ocupado }) {
         type="button"
         onClick={() => setVerDetalle((v) => !v)}
         aria-expanded={verDetalle}
-        className="mt-2 text-xs font-semibold text-suave hover:text-white"
+        className="mt-2 text-xs font-semibold text-suave hover:text-texto"
       >
         {verDetalle ? "Ocultar quién lo reportó" : "Ver quién lo reportó"}
       </button>
@@ -53,7 +53,7 @@ function Grupo({ g, pendiente, onResolver, ocupado }) {
         <ul className="mt-2 space-y-1 text-xs text-suave">
           {g.reportes.map((r, i) => (
             <li key={i}>
-              <span className="text-white">{r.por}</span> · {nombreMotivo(r.motivo)} · {fecha.format(new Date(r.fecha))}
+              <span className="text-texto">{r.por}</span> · {nombreMotivo(r.motivo)} · {fecha.format(new Date(r.fecha))}
               {r.detalle && <> · “{r.detalle}”</>}
             </li>
           ))}
@@ -136,7 +136,7 @@ export default function GestionModeracion({ alPerderAdmin }) {
               aria-pressed={vista === v.valor}
               onClick={() => setVista(v.valor)}
               className={`h-8 rounded-full px-3 text-xs font-semibold transition ${
-                vista === v.valor ? "bg-primario/15 text-primario" : "text-suave hover:text-white"
+                vista === v.valor ? "bg-primario/15 text-primario" : "text-suave hover:text-texto"
               }`}
             >
               {v.etiqueta}

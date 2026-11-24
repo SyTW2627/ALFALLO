@@ -89,7 +89,7 @@ export default function ListaRecords({ records }) {
       <div className="rounded-2xl border border-dashed border-borde p-8 text-center">
         <p className="font-bold">Aún no tienes récords.</p>
         <p className="mt-1 text-sm text-suave">Termina tu primer entrenamiento y aquí verás tus mejores marcas de cada ejercicio.</p>
-        <a href="/entrenamiento" className="mt-4 inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-fondo">
+        <a href="/entrenamiento" className="mt-4 inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-tinta">
           Empezar a entrenar
         </a>
       </div>

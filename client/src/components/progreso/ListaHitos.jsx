@@ -29,7 +29,7 @@ function Hito({ hito, icono }) {
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <p className={`font-bold ${hecho ? "" : "text-white/80"}`}>{hito.titulo}</p>
+          <p className={`font-bold ${hecho ? "" : "text-texto/80"}`}>{hito.titulo}</p>
           {hecho && (
             <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-acento">Conseguido</span>
           )}

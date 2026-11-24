@@ -50,7 +50,7 @@ function ItemNotificacion({ n, onPublicar, onEliminar }) {
         ) : (
           <>Publicada el {fecha.format(new Date(n.fecha ?? n.createdAt))}</>
         )}
-        {n.enlace && <> · Enlace: <span className="text-white">{n.enlace}</span></>}
+        {n.enlace && <> · Enlace: <span className="text-texto">{n.enlace}</span></>}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         {n.estado === "programada" && <BotonSecundario onClick={() => onPublicar(n)}>Publicar ahora</BotonSecundario>}
@@ -187,7 +187,7 @@ export default function GestionNotificaciones({ alPerderAdmin }) {
                     o.valor === "programar" && !form.publicarEn ? programarPara(proximoLunesALas8()) : setForm((f) => ({ ...f, cuando: o.valor }))
                   }
                   className={`h-8 flex-1 rounded-full text-xs font-semibold transition ${
-                    form.cuando === o.valor ? "bg-primario/15 text-primario" : "text-suave hover:text-white"
+                    form.cuando === o.valor ? "bg-primario/15 text-primario" : "text-suave hover:text-texto"
                   }`}
                 >
                   {o.etiqueta}

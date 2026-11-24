@@ -91,7 +91,7 @@ export default function EditorRutina({ inicial, catalogo, onGuardada, onSalir })
         <button
           type="button"
           onClick={salir}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-suave transition hover:text-white"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-suave transition hover:text-texto"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="m12 19-7-7 7-7" />
@@ -121,12 +121,12 @@ export default function EditorRutina({ inicial, catalogo, onGuardada, onSalir })
               onChange={(e) => setRutina((r) => ({ ...r, nombre: e.target.value }))}
               aria-invalid={intentado && errores.nombre ? "true" : undefined}
               aria-describedby={intentado && errores.nombre ? "nombre-rutina-error" : undefined}
-              className={`mt-1 h-12 w-full rounded-lg border bg-fondo px-3 text-base font-semibold text-white outline-none transition placeholder:font-normal placeholder:text-suave/60 focus:border-primario ${
+              className={`mt-1 h-12 w-full rounded-lg border bg-fondo px-3 text-base font-semibold text-texto outline-none transition placeholder:font-normal placeholder:text-suave/60 focus:border-primario ${
                 intentado && errores.nombre ? "border-red-500/60" : "border-borde"
               }`}
             />
             {intentado && errores.nombre && (
-              <p id="nombre-rutina-error" className="mt-1 text-xs text-red-400">
+              <p id="nombre-rutina-error" className="mt-1 text-xs text-peligro">
                 {errores.nombre}
               </p>
             )}
@@ -153,7 +153,7 @@ export default function EditorRutina({ inicial, catalogo, onGuardada, onSalir })
             type="button"
             onClick={anadirDia}
             disabled={rutina.dias.length >= MAX_DIAS}
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-borde text-sm font-bold text-suave transition hover:border-primario/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-borde text-sm font-bold text-suave transition hover:border-primario/50 hover:text-texto disabled:cursor-not-allowed disabled:opacity-50"
           >
             {rutina.dias.length >= MAX_DIAS ? `Máximo ${MAX_DIAS} días` : `+ Añadir día ${rutina.dias.length + 1}`}
           </button>
@@ -183,13 +183,13 @@ export default function EditorRutina({ inicial, catalogo, onGuardada, onSalir })
           )}
 
           {intentado && !valida && (
-            <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+            <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-peligro">
               {errores.general ?? "Revisa los campos marcados antes de guardar."}
             </p>
           )}
 
           {errorServidor && (
-            <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+            <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-peligro">
               {errorServidor}
             </p>
           )}
@@ -202,7 +202,7 @@ export default function EditorRutina({ inicial, catalogo, onGuardada, onSalir })
                 <button
                   type="button"
                   onClick={onSalir}
-                  className="h-11 flex-1 rounded-lg bg-red-500 text-sm font-bold text-white transition hover:brightness-110"
+                  className="h-11 flex-1 rounded-lg bg-red-500 text-sm font-bold text-texto transition hover:brightness-110"
                 >
                   Salir
                 </button>
@@ -220,14 +220,14 @@ export default function EditorRutina({ inicial, catalogo, onGuardada, onSalir })
               <button
                 type="submit"
                 disabled={guardando || (!esNueva && !hayCambios)}
-                className="h-12 w-full rounded-lg bg-primario text-sm font-bold text-fondo shadow-lg shadow-primario/20 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                className="h-12 w-full rounded-lg bg-primario text-sm font-bold text-tinta shadow-lg shadow-primario/20 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
               >
                 {guardando ? "Guardando..." : esNueva ? "Crear rutina" : hayCambios ? "Guardar cambios" : "Sin cambios"}
               </button>
               <button
                 type="button"
                 onClick={salir}
-                className="h-11 w-full rounded-lg text-sm font-semibold text-suave transition hover:bg-elevada hover:text-white"
+                className="h-11 w-full rounded-lg text-sm font-semibold text-suave transition hover:bg-elevada hover:text-texto"
               >
                 Cancelar
               </button>
