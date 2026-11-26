@@ -19,6 +19,12 @@ const links = [
     icon: '<path d="M3 3v18h18"/><path d="M8 17v-5M13 17V8M18 17v-9"/>',
   },
   {
+    href: "/versus",
+    label: "Versus",
+    icon: '<path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6M16 16l4 4M19 21l2-2"/><path d="M14.5 6.5 18 3h3v3l-3.5 3.5"/><path d="m5 14 4 4M7 17l-3 3M3 19l2 2"/>',
+    beta: true,
+  },
+  {
     href: "/rutinas",
     label: "Rutinas",
     icon: '<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>',
@@ -57,7 +63,7 @@ const isActive = (href: string) =>
   <p class="mb-2 hidden px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-suave lg:block">Tu espacio</p>
 
   <!-- Enlaces -->
-  <ul class="mx-auto grid max-w-lg grid-cols-6 px-1 md:mx-0 md:flex md:max-w-none md:flex-col md:gap-1 md:px-0">
+  <ul class="mx-auto grid max-w-lg grid-cols-7 px-1 md:mx-0 md:flex md:max-w-none md:flex-col md:gap-1 md:px-0">
     {
       links.map((l) => {
         const activo = isActive(l.href);
@@ -95,6 +101,11 @@ const isActive = (href: string) =>
                 />
               </span>
               <span class="max-w-full truncate px-0.5 md:sr-only lg:not-sr-only lg:px-0">{l.label}</span>
+              {l.beta && (
+                <span class="absolute right-1 top-1.5 rounded-full bg-acento px-1 text-[8px] font-bold uppercase leading-[14px] text-tinta md:right-1 md:top-1 lg:static lg:ml-auto lg:px-1.5 lg:text-[9px]">
+                  Beta
+                </span>
+              )}
               {activo && <span aria-hidden="true" class="absolute inset-y-2.5 -left-3 hidden w-1 rounded-r-full bg-primario md:block lg:-left-4" />}
             </a>
           </li>

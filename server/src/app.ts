@@ -11,6 +11,7 @@ import progressRoutes from './routes/progress';
 import adminRoutes from './routes/admin';
 import notificationRoutes from './routes/notifications';
 import leaderboardRoutes from './routes/leaderboard';
+import versusRoutes from './routes/versus';
 const app = express();
 
 // CORS_ORIGIN (opcional): orígenes permitidos separados por comas, p. ej. "https://alfallo.app".
@@ -47,6 +48,7 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/versus', versusRoutes);
 
 /**
  * @openapi

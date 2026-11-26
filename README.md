@@ -46,6 +46,7 @@ Proyecto de la asignatura **Sistemas y Tecnologías Web** (Universidad de La Lag
 - Historial de entrenamientos con duración, series y volumen calculados automáticamente
 - Estadísticas y récords personales por ejercicio (peso máximo, 1RM estimado, más repeticiones y mejor sesión), con aviso al momento si superas una marca mientras entrenas
 - Clasificaciones con la gente que sigues: ranking semanal de volumen y de entrenamientos, y quién completó antes cada reto especial
+- **Versus (beta)**: reta a quien sigues a un duelo de 3, 7, 14 o 30 días en press de banca, sentadilla, peso muerto, press militar o remo. Gana quien levante más (1RM estimado) o quien levante más en proporción a su peso corporal. El rival acepta o rechaza, el marcador se actualiza con cada entrenamiento y al terminar se avisa a los dos. Incluye una comparación cara a cara con tus amigos (os seguís mutuamente) en los cinco ejercicios
 - Notificaciones en la campanita: avisos para todos y personales ("Ana te ha dado ánimos", "Pablo te sigue", "Te has quedado a 2 series del reto")
 - Documentación interactiva de la API con Swagger
 

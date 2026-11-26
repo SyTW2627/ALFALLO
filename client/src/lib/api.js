@@ -433,3 +433,33 @@ export function obtenerPlantillasRutina() {
 export function usarPlantillaRutina(clave) {
   return peticion(`/routines/templates/${encodeURIComponent(clave)}`, { metodo: "POST", auth: true });
 }
+
+/* ---------- Versus (beta) ---------- */
+
+// Tus duelos (pendientes, en curso y recientes), a quién puedes retar y las opciones disponibles.
+export function obtenerVersus() {
+  return peticion("/versus", { auth: true });
+}
+
+// `ejercicio`: "bench" | "squat" | "deadlift" | "ohp" | "row"; `modalidad`: "kg" | "relativa"; `dias`: 3, 7, 14 o 30.
+export function crearVersus({ rival, ejercicio, modalidad, dias, mensaje }) {
+  return peticion("/versus", { metodo: "POST", auth: true, cuerpo: { rival, ejercicio, modalidad, dias, mensaje } });
+}
+
+export function aceptarVersus(id) {
+  return peticion(`/versus/${encodeURIComponent(id)}/accept`, { metodo: "POST", auth: true });
+}
+
+export function rechazarVersus(id) {
+  return peticion(`/versus/${encodeURIComponent(id)}/decline`, { metodo: "POST", auth: true });
+}
+
+// Retira un versus que lanzaste y que todavía no se ha aceptado.
+export function retirarVersus(id) {
+  return peticion(`/versus/${encodeURIComponent(id)}`, { metodo: "DELETE", auth: true });
+}
+
+// Comparación al momento con un amigo (os seguís mutuamente) en los 5 básicos.
+export function compararCaraACara(idUsuario) {
+  return peticion(`/versus/head-to-head/${encodeURIComponent(idUsuario)}`, { auth: true });
+}
