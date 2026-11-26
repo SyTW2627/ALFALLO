@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user';
+import { jwtSecret } from '../utils/jwt';
 
 // Extender la interfaz Request de Express para adjuntar los datos del usuario
 export interface AuthRequest extends Request {
@@ -20,8 +21,7 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
   const token = authHeader.split(' ')[1];
 
   try {
-    const secret = process.env.JWT_SECRET || 'secret_key_fallback';
-    const decoded = jwt.verify(token, secret) as { id: string; role: string };
+    const decoded = jwt.verify(token, jwtSecret()) as { id: string; role: string };
 
     // Inyectar el usuario decodificado en la petición
     req.user = decoded;

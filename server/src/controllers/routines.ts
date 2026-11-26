@@ -44,7 +44,11 @@ export const createRoutine = async (req: AuthRequest, res: Response) => {
 export const deleteRoutine = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
-    const { id } = req.params;
+    const id = req.params.id as string;
+
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Id de rutina no válido' });
+    }
 
     const routine = await Routine.findOneAndDelete({ _id: id, user: userId });
     if (!routine) {

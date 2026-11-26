@@ -74,6 +74,24 @@ describe('Pruebas de Gestión de Usuarios (/api/users)', () => {
     expect(res.body).toHaveProperty('message', 'Contraseña actualizada correctamente');
   });
 
+  it('PATCH /api/users/change-password - Nueva contraseña demasiado corta → 400', async () => {
+    const res = await request(app)
+      .patch('/api/users/change-password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ currentPassword: newPassword, newPassword: '123' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/al menos 6 caracteres/);
+  });
+
+  it('DELETE /api/routines/:id - Id no válido → 400', async () => {
+    const res = await request(app)
+      .delete('/api/routines/no-es-un-id')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(400);
+  });
+
   it('DELETE /api/users/account - Eliminar la cuenta del usuario', async () => {
     const res = await request(app)
       .delete('/api/users/account')

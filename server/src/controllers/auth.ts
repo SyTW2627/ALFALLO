@@ -2,8 +2,20 @@ import { Request, Response } from 'express';
 import { User } from '../models/user';
 import { generateToken } from '../utils/jwt';
 import { OAuth2Client } from 'google-auth-library';
+import { responderError, esDuplicado } from '../utils/errores';
+import { crearLimiteIntentos } from '../utils/limiteIntentos';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Los emails se guardan en minúsculas (ver models/user.ts): se normalizan también al buscarlos,
+// así "Ana@Mail.com" encuentra la cuenta de "ana@mail.com".
+const normalizarEmail = (email: string) => email.trim().toLowerCase();
+
+// Solo se aceptan textos: un objeto como { "$ne": null } no debe llegar a una consulta de MongoDB.
+const sonTextos = (...valores: unknown[]) => valores.every((v) => typeof v === 'string' && v.trim() !== '');
+
+// Máximo de inicios de sesión fallidos por email e IP antes de bloquear un rato.
+const limiteLogin = crearLimiteIntentos(10, 15 * 60 * 1000);
 
 // POST /api/auth/register
 export const register = async (req: Request, res: Response) => {
@@ -11,11 +23,11 @@ export const register = async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
 
     // Validación limpia sin espacios invisibles
-    if (!name || !email || !password) {
+    if (!sonTextos(name, email, password)) {
       return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: normalizarEmail(email) });
     if (existingUser) {
       return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
     }
@@ -31,7 +43,12 @@ export const register = async (req: Request, res: Response) => {
       user,
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Error interno del servidor', error });
+    // Dos registros simultáneos con el mismo email: lo frena el índice único
+    if (esDuplicado(error)) {
+      return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
+    }
+    // Contraseña demasiado corta, email con formato incorrecto...
+    return responderError(res, error, 'Error interno del servidor');
   }
 };
 
@@ -40,12 +57,18 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (!sonTextos(email, password)) {
       return res.status(400).json({ message: 'Email y contraseña son requeridos' });
     }
 
-    const user = await User.findOne({ email });
+    const claveLimite = `${normalizarEmail(email)}|${req.ip}`;
+    if (limiteLogin.bloqueado(claveLimite)) {
+      return res.status(429).json({ message: 'Demasiados intentos fallidos. Prueba de nuevo en unos minutos.' });
+    }
+
+    const user = await User.findOne({ email: normalizarEmail(email) });
     if (!user) {
+      limiteLogin.registrarFallo(claveLimite);
       return res.status(400).json({ message: 'Credenciales inválidas' });
     }
 
@@ -55,8 +78,10 @@ export const login = async (req: Request, res: Response) => {
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      limiteLogin.registrarFallo(claveLimite);
       return res.status(400).json({ message: 'Credenciales inválidas' });
     }
+    limiteLogin.limpiar(claveLimite);
 
     const token = generateToken(user._id.toString(), user.role);
 
@@ -75,7 +100,7 @@ export const login = async (req: Request, res: Response) => {
 export const googleLogin = async (req: Request, res: Response) => {
   try {
     const { credential } = req.body;
-    if (!credential) {
+    if (!sonTextos(credential)) {
       return res.status(400).json({ message: 'Falta el token de Google' });
     }
 

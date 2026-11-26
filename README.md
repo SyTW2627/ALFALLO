@@ -236,6 +236,13 @@ Para entrar, un usuario con sesión iniciada abre `/admin` (o el enlace al final
 
 > Cambia `ADMIN_PASSWORD` por una contraseña larga en producción. Si la variable no está definida, el acceso de administrador queda desactivado.
 
+### Seguridad en producción
+
+- `JWT_SECRET` es **obligatoria** con `NODE_ENV=production`: sin ella el servidor no firma ni acepta tokens.
+- `CORS_ORIGIN` (opcional): orígenes permitidos separados por comas, p. ej. `https://alfallo.app`. Si no se define, se acepta cualquier origen.
+- El inicio de sesión se bloquea 15 minutos tras 10 intentos fallidos con el mismo email desde la misma IP.
+- Los errores 500 no devuelven detalles internos al cliente; se registran en la consola del servidor.
+
 ## API
 
 Toda la API está documentada en **Swagger**, donde se puede probar cada endpoint desde el navegador:

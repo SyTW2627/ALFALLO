@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import crypto from 'crypto';
-import { Error as MongooseError, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { AuthRequest } from '../middlewares/auth';
 import { User } from '../models/user';
 import { Achievement } from '../models/achievement';
@@ -13,6 +13,8 @@ import { BodyParts, Exercise } from '../models/exercises';
 import { exerciseUsage } from './exercises';
 import { olvidarAvisosDe } from '../notifications/personal';
 import { generateToken } from '../utils/jwt';
+import { responderError } from '../utils/errores';
+import { crearLimiteIntentos } from '../utils/limiteIntentos';
 import { adminOptions, CUSTOM_ACHIEVEMENT_METRICS, customAchievementKey } from '../progress/custom';
 
 /* ---------- Utilidades ---------- */
@@ -24,42 +26,12 @@ function pick<T extends string>(body: any, campos: readonly T[]): Partial<Record
   return out;
 }
 
-// Errores de validación de Mongoose → 400 con un mensaje legible; el resto → 500.
-function responderError(res: Response, error: unknown, mensaje500: string) {
-  if (error instanceof MongooseError.ValidationError) {
-    const primero = Object.values(error.errors)[0];
-    return res.status(400).json({ message: primero?.message ?? 'Datos no válidos' });
-  }
-  if (error instanceof MongooseError.CastError) {
-    return res.status(400).json({ message: `Valor no válido en "${error.path}"` });
-  }
-  return res.status(500).json({ message: mensaje500, error });
-}
-
 const quiereNotificar = (body: any) => body?.notificar === true;
 
 /* ---------- Acceso de administrador ---------- */
 
-// Límite de intentos fallidos por usuario (en memoria) para evitar que se adivine la contraseña.
-const MAX_INTENTOS = 5;
-const VENTANA_MS = 15 * 60 * 1000;
-const intentos = new Map<string, { fallos: number; desde: number }>();
-
-function bloqueado(userId: string) {
-  const r = intentos.get(userId);
-  if (!r) return false;
-  if (Date.now() - r.desde > VENTANA_MS) {
-    intentos.delete(userId);
-    return false;
-  }
-  return r.fallos >= MAX_INTENTOS;
-}
-
-function registrarFallo(userId: string) {
-  const r = intentos.get(userId);
-  if (!r || Date.now() - r.desde > VENTANA_MS) intentos.set(userId, { fallos: 1, desde: Date.now() });
-  else r.fallos++;
-}
+// Límite de intentos fallidos por usuario para evitar que se adivine la contraseña.
+const limite = crearLimiteIntentos(5, 15 * 60 * 1000);
 
 // Comparación en tiempo constante (no revela cuántos caracteres coinciden).
 function mismaContrasena(a: string, b: string) {
@@ -77,7 +49,7 @@ export const accessAdmin = async (req: AuthRequest, res: Response) => {
     }
 
     const userId = req.user!.id;
-    if (bloqueado(userId)) {
+    if (limite.bloqueado(userId)) {
       return res.status(429).json({ message: 'Demasiados intentos fallidos. Prueba de nuevo en unos minutos.' });
     }
 
@@ -87,10 +59,10 @@ export const accessAdmin = async (req: AuthRequest, res: Response) => {
     }
 
     if (!mismaContrasena(password, adminPassword)) {
-      registrarFallo(userId);
+      limite.registrarFallo(userId);
       return res.status(401).json({ message: 'Contraseña de administración incorrecta' });
     }
-    intentos.delete(userId);
+    limite.limpiar(userId);
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });

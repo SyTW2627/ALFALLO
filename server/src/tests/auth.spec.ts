@@ -16,8 +16,10 @@ describe('Pruebas de Autenticación (/api/auth)', () => {
     await connectDB();
   });
 
+  const otroEmail = `auth_limite_${Date.now()}@example.com`;
+
   afterAll(async () => {
-    await User.deleteOne({ email: testUser.email });
+    await User.deleteMany({ email: { $in: [testUser.email, otroEmail, `corta_${testUser.email}`] } });
     await mongoose.connection.close();
   });
 
@@ -62,5 +64,68 @@ describe('Pruebas de Autenticación (/api/auth)', () => {
 
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('message', 'Credenciales inválidas');
+  });
+
+  it('POST /api/auth/login - El email no distingue mayúsculas ni espacios', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: `  ${testUser.email.toUpperCase()} `, password: testUser.password });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('token');
+  });
+
+  it('POST /api/auth/register - Email repetido con otras mayúsculas → 400 (no 500)', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({ ...testUser, email: testUser.email.toUpperCase() });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('message', 'El correo electrónico ya está registrado');
+  });
+
+  it('POST /api/auth/register - Contraseña demasiado corta → 400 con el motivo', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({ name: 'Corta', email: `corta_${testUser.email}`, password: '123' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/al menos 6 caracteres/);
+  });
+
+  it('POST /api/auth/login - Rechaza operadores de MongoDB en lugar de textos', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: { $ne: null }, password: testUser.password });
+
+    expect(res.status).toBe(400);
+    expect(res.body).not.toHaveProperty('token');
+  });
+
+  it('POST /api/auth/login - Bloquea tras demasiados intentos fallidos', async () => {
+    await request(app).post('/api/auth/register').send({ name: 'Límite', email: otroEmail, password: 'Password123!' });
+
+    for (let i = 0; i < 10; i++) {
+      await request(app).post('/api/auth/login').send({ email: otroEmail, password: 'mal' });
+    }
+    // Ni siquiera la contraseña correcta entra mientras dura el bloqueo
+    const res = await request(app).post('/api/auth/login').send({ email: otroEmail, password: 'Password123!' });
+    expect(res.status).toBe(429);
+  });
+
+  it('JSON mal formado → 400 en JSON', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .set('Content-Type', 'application/json')
+      .send('{"email": ');
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('message');
+  });
+
+  it('Ruta de la API inexistente → 404 en JSON', async () => {
+    const res = await request(app).get('/api/no-existe');
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('message', 'Ruta no encontrada');
   });
 });
