@@ -103,6 +103,73 @@ describe('Pruebas de entrenamientos y su historial (/api/workouts)', () => {
     });
   });
 
+  it('Rechaza series inválidas sin guardar cambios en el entrenamiento activo', async () => {
+    const inicio = await request(app)
+      .post('/api/workouts/start')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Entrenamiento con datos inválidos' });
+    expect(inicio.status).toBe(201);
+
+    const entradasInvalidas = [
+      { exercise: exerciseIds[0], sets: [{ reps: 0, weightKg: 20 }] },
+      { exercise: exerciseIds[0], sets: [{ reps: 8, weightKg: -1 }] },
+      { exercise: 'no-es-un-objectid', sets: [{ reps: 8, weightKg: 20 }] },
+    ];
+
+    for (const ejercicio of entradasInvalidas) {
+      const res = await request(app)
+        .put('/api/workouts/active')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ exercises: [ejercicio] });
+      expect(res.status).toBe(400);
+
+      const guardado = await Workout.findById(inicio.body._id);
+      expect(guardado?.exercises).toHaveLength(0);
+    }
+
+    const limpiar = await request(app).delete('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(limpiar.status).toBe(200);
+  });
+
+  it('Al actualizar ejercicios reemplaza la lista y una actualización de notas conserva las series', async () => {
+    const inicio = await request(app)
+      .post('/api/workouts/start')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Entrenamiento editable' });
+    expect(inicio.status).toBe(201);
+
+    const ejerciciosIniciales = [
+      { exercise: exerciseIds[0], sets: [{ reps: 8, weightKg: 50 }] },
+      { exercise: exerciseIds[1], sets: [{ reps: 10, weightKg: 30 }] },
+    ];
+    const inicial = await request(app)
+      .put('/api/workouts/active')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ exercises: ejerciciosIniciales });
+    expect(inicial.status).toBe(200);
+    expect(inicial.body.exercises).toHaveLength(2);
+
+    const notas = await request(app)
+      .put('/api/workouts/active')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ notes: 'Mantener las series' });
+    expect(notas.status).toBe(200);
+    expect(notas.body.exercises).toHaveLength(2);
+    expect(notas.body.notes).toBe('Mantener las series');
+
+    const reemplazo = await request(app)
+      .put('/api/workouts/active')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ exercises: [{ exercise: exerciseIds[1], sets: [{ reps: 12, weightKg: 35 }] }] });
+    expect(reemplazo.status).toBe(200);
+    expect(reemplazo.body.exercises).toHaveLength(1);
+    expect(reemplazo.body.exercises[0].exercise.name).toContain('Sentadilla');
+    expect(reemplazo.body.totalSets).toBe(1);
+
+    const limpiar = await request(app).delete('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(limpiar.status).toBe(200);
+  });
+
   it('Descartar un entrenamiento activo lo elimina sin añadirlo al historial', async () => {
     const inicio = await request(app)
       .post('/api/workouts/start')
@@ -151,6 +218,28 @@ describe('Pruebas de entrenamientos y su historial (/api/workouts)', () => {
     expect(finalizado.body).toMatchObject({ status: WorkoutStatus.FINISHED, totalSets: 1 });
   });
 
+  it('Rechaza finalizar antes de la hora de inicio y conserva el entrenamiento activo', async () => {
+    const startedAt = new Date(Date.now() - 60 * 1000);
+    const inicio = await request(app)
+      .post('/api/workouts/start')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Entrenamiento con fecha incoherente', startedAt });
+    expect(inicio.status).toBe(201);
+
+    const finalizacionAnterior = await request(app)
+      .post('/api/workouts/finish')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ finishedAt: new Date(startedAt.getTime() - 60 * 1000) });
+    expect(finalizacionAnterior.status).toBe(400);
+
+    const activo = await request(app).get('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(activo.status).toBe(200);
+    expect(activo.body).toMatchObject({ _id: inicio.body._id, status: WorkoutStatus.IN_PROGRESS });
+
+    const limpiar = await request(app).delete('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(limpiar.status).toBe(200);
+  });
+
   it('Un usuario no puede ver, actualizar, finalizar ni descartar el entrenamiento activo de otro', async () => {
     const inicio = await request(app)
       .post('/api/workouts/start')
@@ -180,6 +269,51 @@ describe('Pruebas de entrenamientos y su historial (/api/workouts)', () => {
 
     const limpiar = await request(app).delete('/api/workouts/active').set('Authorization', `Bearer ${token}`);
     expect(limpiar.status).toBe(200);
+  });
+
+  it('El historial solo muestra entrenamientos terminados propios y los ordena por fecha', async () => {
+    const ahora = Date.now();
+    const [antiguo, reciente, activo, ajeno] = await Workout.create([
+      {
+        user: userId,
+        title: 'Terminado antiguo',
+        status: WorkoutStatus.FINISHED,
+        startedAt: new Date(ahora - 3 * HORA),
+        finishedAt: new Date(ahora - 2 * HORA),
+        exercises: [{ exercise: exerciseIds[0], sets: [{ reps: 8, weightKg: 40 }] }],
+      },
+      {
+        user: userId,
+        title: 'Terminado reciente',
+        status: WorkoutStatus.FINISHED,
+        startedAt: new Date(ahora - 2 * HORA),
+        finishedAt: new Date(ahora - HORA),
+        exercises: [{ exercise: exerciseIds[1], sets: [{ reps: 10, weightKg: 30 }] }],
+      },
+      {
+        user: userId,
+        title: 'Todavía activo',
+        status: WorkoutStatus.IN_PROGRESS,
+        startedAt: new Date(ahora - 30 * 60 * 1000),
+      },
+      {
+        user: otherUserId,
+        title: 'Entrenamiento ajeno',
+        status: WorkoutStatus.FINISHED,
+        startedAt: new Date(ahora - 3 * HORA),
+        finishedAt: new Date(ahora - 90 * 60 * 1000),
+        exercises: [{ exercise: exerciseIds[0], sets: [{ reps: 8, weightKg: 40 }] }],
+      },
+    ]);
+
+    const historial = await request(app).get('/api/workouts/history').set('Authorization', `Bearer ${token}`);
+    expect(historial.status).toBe(200);
+    const idsEnHistorial = historial.body.map((w: { _id: string }) => w._id);
+    const idsPropios = idsEnHistorial.filter((id: string) => [antiguo, reciente].some((w) => String(w._id) === id));
+
+    expect(idsPropios).toEqual([String(reciente._id), String(antiguo._id)]);
+    expect(idsEnHistorial).not.toContain(String(activo._id));
+    expect(idsEnHistorial).not.toContain(String(ajeno._id));
   });
 
   beforeAll(async () => {
