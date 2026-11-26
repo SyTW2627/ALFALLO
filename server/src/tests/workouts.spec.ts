@@ -9,7 +9,7 @@ import { connectDB } from '../db/mongoose';
 import app from '../app';
 import { generateToken } from '../utils/jwt';
 
-describe('Pruebas del historial de entrenamientos (/api/workouts/:id)', () => {
+describe('Pruebas de entrenamientos y su historial (/api/workouts)', () => {
   let userId = '';
   let token = '';
   let otherUserId = '';
@@ -32,6 +32,155 @@ describe('Pruebas del historial de entrenamientos (/api/workouts/:id)', () => {
       ...extra,
     });
   };
+
+  it('Ciclo de entrenamiento: iniciar, registrar series, finalizar y consultar historial', async () => {
+    const startedAt = new Date(Date.now() - HORA);
+    const finishedAt = new Date(startedAt.getTime() + 45 * 60 * 1000);
+    const inicio = await request(app)
+      .post('/api/workouts/start')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Entrenamiento de integración', objective: Objective.HYPERTROPHY, startedAt });
+
+    expect(inicio.status).toBe(201);
+    expect(inicio.body).toMatchObject({
+      title: 'Entrenamiento de integración',
+      objective: Objective.HYPERTROPHY,
+      status: WorkoutStatus.IN_PROGRESS,
+    });
+
+    const duplicado = await request(app)
+      .post('/api/workouts/start')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'No debe empezar' });
+    expect(duplicado.status).toBe(409);
+
+    const activo = await request(app).get('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(activo.status).toBe(200);
+    expect(activo.body._id).toBe(inicio.body._id);
+
+    const ejercicios = [
+      { exercise: exerciseIds[0], sets: [{ reps: 15, weightKg: 20 }, { reps: 15, weightKg: 20 }] },
+      { exercise: exerciseIds[1], sets: [{ reps: 10, weightKg: 10 }, { reps: 10, weightKg: 10 }] },
+    ];
+    const actualizado = await request(app)
+      .put('/api/workouts/active')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ exercises: ejercicios, notes: 'Series registradas' });
+    expect(actualizado.status).toBe(200);
+    expect(actualizado.body.exercises).toHaveLength(2);
+    expect(actualizado.body.exercises[0].exercise.name).toContain('Press banca');
+    expect(actualizado.body.notes).toBe('Series registradas');
+
+    const finalizado = await request(app)
+      .post('/api/workouts/finish')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ finishedAt });
+    expect(finalizado.status).toBe(200);
+    expect(finalizado.body).toMatchObject({
+      _id: inicio.body._id,
+      status: WorkoutStatus.FINISHED,
+      durationMinutes: 45,
+      totalSets: 4,
+      totalVolumeKg: 800,
+      finishedAt: finishedAt.toISOString(),
+    });
+
+    const activoTrasFinalizar = await request(app)
+      .get('/api/workouts/active')
+      .set('Authorization', `Bearer ${token}`);
+    expect(activoTrasFinalizar.status).toBe(200);
+    expect(activoTrasFinalizar.body).toBeNull();
+
+    const historial = await request(app).get('/api/workouts/history').set('Authorization', `Bearer ${token}`);
+    expect(historial.status).toBe(200);
+    const guardados = historial.body.filter((w: { _id: string }) => w._id === inicio.body._id);
+    expect(guardados).toHaveLength(1);
+    expect(guardados[0]).toMatchObject({
+      status: WorkoutStatus.FINISHED,
+      durationMinutes: 45,
+      totalSets: 4,
+      totalVolumeKg: 800,
+    });
+  });
+
+  it('Descartar un entrenamiento activo lo elimina sin añadirlo al historial', async () => {
+    const inicio = await request(app)
+      .post('/api/workouts/start')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Entrenamiento descartable' });
+    expect(inicio.status).toBe(201);
+
+    const descarte = await request(app).delete('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(descarte.status).toBe(200);
+    expect(await Workout.findById(inicio.body._id)).toBeNull();
+
+    const activo = await request(app).get('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(activo.status).toBe(200);
+    expect(activo.body).toBeNull();
+
+    const historial = await request(app).get('/api/workouts/history').set('Authorization', `Bearer ${token}`);
+    expect(historial.status).toBe(200);
+    expect(historial.body.some((w: { _id: string }) => w._id === inicio.body._id)).toBe(false);
+
+    const segundoDescarte = await request(app).delete('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(segundoDescarte.status).toBe(404);
+  });
+
+  it('No finaliza sin series y permite continuar el entrenamiento', async () => {
+    const inicio = await request(app)
+      .post('/api/workouts/start')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Entrenamiento sin series' });
+    expect(inicio.status).toBe(201);
+
+    const intento = await request(app).post('/api/workouts/finish').set('Authorization', `Bearer ${token}`);
+    expect(intento.status).toBe(400);
+
+    const activo = await request(app).get('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(activo.status).toBe(200);
+    expect(activo.body).toMatchObject({ _id: inicio.body._id, status: WorkoutStatus.IN_PROGRESS });
+
+    const actualizado = await request(app)
+      .put('/api/workouts/active')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ exercises: [{ exercise: exerciseIds[0], sets: [{ reps: 8, weightKg: 50 }] }] });
+    expect(actualizado.status).toBe(200);
+
+    const finalizado = await request(app).post('/api/workouts/finish').set('Authorization', `Bearer ${token}`);
+    expect(finalizado.status).toBe(200);
+    expect(finalizado.body).toMatchObject({ status: WorkoutStatus.FINISHED, totalSets: 1 });
+  });
+
+  it('Un usuario no puede ver, actualizar, finalizar ni descartar el entrenamiento activo de otro', async () => {
+    const inicio = await request(app)
+      .post('/api/workouts/start')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Entrenamiento privado' });
+    expect(inicio.status).toBe(201);
+
+    const ajeno = await request(app).get('/api/workouts/active').set('Authorization', `Bearer ${otherToken}`);
+    expect(ajeno.status).toBe(200);
+    expect(ajeno.body).toBeNull();
+
+    const actualizar = await request(app)
+      .put('/api/workouts/active')
+      .set('Authorization', `Bearer ${otherToken}`)
+      .send({ notes: 'Cambio no autorizado' });
+    expect(actualizar.status).toBe(404);
+
+    const finalizar = await request(app).post('/api/workouts/finish').set('Authorization', `Bearer ${otherToken}`);
+    expect(finalizar.status).toBe(404);
+
+    const descartar = await request(app).delete('/api/workouts/active').set('Authorization', `Bearer ${otherToken}`);
+    expect(descartar.status).toBe(404);
+
+    const sigueActivo = await request(app).get('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(sigueActivo.status).toBe(200);
+    expect(sigueActivo.body).toMatchObject({ _id: inicio.body._id, status: WorkoutStatus.IN_PROGRESS });
+
+    const limpiar = await request(app).delete('/api/workouts/active').set('Authorization', `Bearer ${token}`);
+    expect(limpiar.status).toBe(200);
+  });
 
   beforeAll(async () => {
     await connectDB();
