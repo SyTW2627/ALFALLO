@@ -1,0 +1,57 @@
+name: CI · Tests del backend
+
+# Se lanza al subir a main/develop, en cada pull request hacia ellas y a mano desde Actions
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  backend:
+    name: Vitest + Supertest
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # MongoDB de usar y tirar para los tests
+    services:
+      mongo:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # Los .env no están en el repositorio: se crean aquí con valores solo para la CI
+      - name: Crear config/test.env
+        run: |
+          mkdir -p config
+          cat > config/test.env <<EOF
+          PORT=3001
+          MONGODB_URL=mongodb://127.0.0.1:27017/alfallo-test
+          JWT_SECRET=ci-secret-solo-para-tests
+          ADMIN_PASSWORD=ci-admin-solo-para-tests
+          EOF
+
+      - name: Ejecutar los tests
+        run: npm test

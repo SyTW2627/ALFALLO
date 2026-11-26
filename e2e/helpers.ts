@@ -40,6 +40,21 @@ export async function borrarCuenta(request: APIRequestContext, token: string) {
   await request.delete(`${API_URL}/users/account`, { headers: { Authorization: `Bearer ${token}` } });
 }
 
+// Inicia sesión en la API y devuelve el token (para preparar datos sin pasar por la interfaz)
+export async function loginPorApi(request: APIRequestContext, email: string, password = PASSWORD) {
+  const res = await request.post(`${API_URL}/auth/login`, { data: { email, password } });
+  expect(res.ok(), await res.text()).toBeTruthy();
+  return (await res.json()).token as string;
+}
+
+// El usuario del token pasa a seguir al usuario con ese id
+export async function seguirPorApi(request: APIRequestContext, token: string, idUsuario: string) {
+  const res = await request.post(`${API_URL}/users/${idUsuario}/follow`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  expect(res.ok(), await res.text()).toBeTruthy();
+}
+
 // Inicia sesión desde el formulario y espera a estar en el inicio con la sesión abierta
 export async function iniciarSesion(page: Page, email: string, password = PASSWORD) {
   await irA(page, "/login");
@@ -123,3 +138,4 @@ export const tarjetaPost = (page: Page, texto: string) => page.getByRole("articl
 function escaparRegex(texto: string) {
   return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+
