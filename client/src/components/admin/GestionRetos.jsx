@@ -140,7 +140,7 @@ function FormularioReto({ opciones, inicial, onGuardado, onCancelar, alPerderAdm
                   aria-pressed={marcada}
                   onClick={() => alternarZona(z.valor)}
                   className={`h-9 rounded-full border px-3 text-xs font-semibold transition ${
-                    marcada ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-white"
+                    marcada ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-texto"
                   }`}
                 >
                   {z.label}
@@ -178,7 +178,7 @@ function FormularioReto({ opciones, inicial, onGuardado, onCancelar, alPerderAdm
           {guardando ? "Guardando..." : editando ? "Guardar cambios" : "Crear reto"}
         </BotonPrimario>
         {onCancelar && (
-          <button type="button" onClick={onCancelar} className="h-11 rounded-lg px-4 text-sm font-semibold text-suave hover:text-white">
+          <button type="button" onClick={onCancelar} className="h-11 rounded-lg px-4 text-sm font-semibold text-suave hover:text-texto">
             Cancelar
           </button>
         )}
@@ -280,7 +280,7 @@ export default function GestionRetos({ opciones, alPerderAdmin }) {
                   </div>
                   {r.descripcion && <p className="mt-1 text-sm text-suave">{r.descripcion}</p>}
                   <p className="mt-2 text-xs text-suave">
-                    {m?.label ?? r.metrica}: <strong className="text-white">{formatearValorHito(m?.unidad ?? "", r.objetivo)}</strong>
+                    {m?.label ?? r.metrica}: <strong className="text-texto">{formatearValorHito(m?.unidad ?? "", r.objetivo)}</strong>
                     {r.metrica === "series" && r.zonas?.length ? ` (${r.zonas.map(zona).join(", ")})` : ""}
                   </p>
                   <p className="mt-1 text-xs text-suave">

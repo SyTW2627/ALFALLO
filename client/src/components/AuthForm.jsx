@@ -35,22 +35,22 @@ function validar(modo, d) {
 function Campo({ id, label, error, extra, ...props }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-xs font-medium text-suave">
+      <label htmlFor={id} className="block text-sm font-medium">
         {label}
       </label>
-      <div className="relative mt-1">
+      <div className="relative mt-1.5">
         <input
           id={id}
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error ? `${id}-error` : undefined}
-          className={`h-12 w-full rounded-lg border bg-fondo px-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario ${error ? "border-red-500/60" : "border-borde"
+          className={`h-12 w-full rounded-xl border bg-fondo px-4 text-sm text-texto outline-none transition placeholder:text-suave/60 focus:border-primario focus:ring-4 focus:ring-primario/15 ${error ? "border-red-500/60" : "border-borde"
             } ${extra ? "pr-16" : ""}`}
           {...props}
         />
         {extra}
       </div>
       {error && (
-        <p id={`${id}-error`} className="mt-1 text-xs text-red-400">
+        <p id={`${id}-error`} className="mt-1 text-xs text-peligro">
           {error}
         </p>
       )}
@@ -127,24 +127,22 @@ export default function AuthForm({ modo = "login" }) {
   };
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-full max-w-md">
       {/* Logo */}
-      <a href="/" className="mb-8 flex items-center justify-center gap-0.5" aria-label="AlFallo, ir al inicio">
-        <span className="text-3xl font-extrabold tracking-tight">AlFall</span>
-        <span className="mt-1 grid h-7 w-7 place-items-center rounded-full bg-primario">
-          <span className="h-2 w-2 rounded-full bg-fondo" />
-        </span>
+      <a href="/" className="mb-8 flex justify-center" aria-label="AlFallo, ir al inicio">
+        <img src="/images/logo-claro.webp" alt="AlFallo" width="168" height="56" className="solo-claro h-12 w-auto" />
+        <img src="/images/logo-oscuro.webp" alt="AlFallo" width="168" height="56" className="solo-oscuro h-12 w-auto" />
       </a>
 
       <form
         onSubmit={enviar}
         noValidate
-        className="rounded-2xl border border-borde bg-superficie p-6 shadow-2xl shadow-black/40 sm:p-8"
+        className="rounded-3xl border border-borde bg-superficie p-6 shadow-2xl shadow-sombra/20 sm:p-9"
       >
-        <h1 className="text-2xl font-extrabold tracking-tight">{cfg.titulo}</h1>
-        <p className="mt-1 text-sm text-suave">{cfg.subtitulo}</p>
+        <h1 className="text-3xl font-extrabold">{cfg.titulo}</h1>
+        <p className="mt-1.5 text-sm text-suave">{cfg.subtitulo}</p>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-7 space-y-5">
           {esRegistro && (
             <Campo
               id="nombre"
@@ -183,7 +181,7 @@ export default function AuthForm({ modo = "login" }) {
                 type="button"
                 onClick={() => setVerPassword((v) => !v)}
                 aria-pressed={verPassword}
-                className="absolute inset-y-0 right-0 px-3 text-xs font-semibold text-suave hover:text-white"
+                className="absolute inset-y-0 right-0 px-4 text-xs font-semibold text-suave hover:text-texto"
               >
                 {verPassword ? "Ocultar" : "Ver"}
               </button>
@@ -207,7 +205,7 @@ export default function AuthForm({ modo = "login" }) {
         {aviso && (
           <p
             role="status"
-            className="mt-4 rounded-lg border border-primario/30 bg-primario/10 px-3 py-2 text-sm text-primario"
+            className="mt-5 rounded-xl border border-primario/30 bg-primario/10 px-4 py-3 text-sm text-primario"
           >
             {aviso}
           </p>
@@ -216,7 +214,7 @@ export default function AuthForm({ modo = "login" }) {
         {errorGeneral && (
           <p
             role="alert"
-            className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+            className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-peligro"
           >
             {errorGeneral}
           </p>
@@ -225,18 +223,18 @@ export default function AuthForm({ modo = "login" }) {
         <button
           type="submit"
           disabled={cargando}
-          className="mt-6 h-12 w-full rounded-lg bg-primario ..."
+          className="mt-7 h-12 w-full rounded-xl bg-primario text-sm font-bold text-tinta shadow-lg shadow-primario/25 transition hover:brightness-110 disabled:cursor-wait disabled:opacity-60"
         >
           {cargando ? cfg.cargando : cfg.boton}
         </button>
 
-        <div className="my-5 flex items-center gap-3 text-xs text-suave" aria-hidden="true">
+        <div className="my-6 flex items-center gap-3 text-xs text-suave" aria-hidden="true">
           <span className="h-px flex-1 bg-borde" />o<span className="h-px flex-1 bg-borde" />
         </div>
 
         <BotonGoogle modo={modo} onCredential={conGoogle} />
 
-        <p className="mt-5 text-center text-sm text-suave">
+        <p className="mt-6 text-center text-sm text-suave">
           {cfg.alterno.texto}{" "}
           <a href={cfg.alterno.href} className="font-semibold text-primario hover:underline">
             {cfg.alterno.enlace}

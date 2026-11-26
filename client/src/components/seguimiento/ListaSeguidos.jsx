@@ -61,7 +61,7 @@ export default function ListaSeguidos({ idUsuario }) {
       </div>
 
       {error ? (
-        <p role="alert" className="mt-3 text-sm text-red-300">
+        <p role="alert" className="mt-3 text-sm text-peligro">
           {error}
         </p>
       ) : seguidos === null ? (

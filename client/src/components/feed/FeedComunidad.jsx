@@ -98,7 +98,7 @@ export default function FeedComunidad({ soloSeguidos = false }) {
       <Aviso titulo="Únete a la comunidad" texto="Inicia sesión para ver y animar los entrenamientos de los demás.">
         <a
           href="/login"
-          className="inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-fondo transition hover:brightness-110"
+          className="inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-tinta transition hover:brightness-110"
         >
           Iniciar sesión
         </a>
@@ -111,13 +111,13 @@ export default function FeedComunidad({ soloSeguidos = false }) {
   if (estado === "error" && posts.length === 0) {
     return (
       <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5">
-        <p role="alert" className="text-sm text-red-300">
+        <p role="alert" className="text-sm text-peligro">
           {error}
         </p>
         <button
           type="button"
           onClick={() => setIntento((n) => n + 1)}
-          className="mt-4 h-11 rounded-lg bg-primario px-5 text-sm font-bold text-fondo transition hover:brightness-110"
+          className="mt-4 h-11 rounded-lg bg-primario px-5 text-sm font-bold text-tinta transition hover:brightness-110"
         >
           Reintentar
         </button>
@@ -133,7 +133,7 @@ export default function FeedComunidad({ soloSeguidos = false }) {
       >
         <a
           href="/descubrir"
-          className="inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-fondo transition hover:brightness-110"
+          className="inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-tinta transition hover:brightness-110"
         >
           Descubrir gente
         </a>
@@ -149,7 +149,7 @@ export default function FeedComunidad({ soloSeguidos = false }) {
       >
         <a
           href="/entrenamiento"
-          className="inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-fondo transition hover:brightness-110"
+          className="inline-flex h-11 items-center rounded-lg bg-primario px-5 text-sm font-bold text-tinta transition hover:brightness-110"
         >
           Empezar entrenamiento
         </a>
@@ -171,7 +171,7 @@ export default function FeedComunidad({ soloSeguidos = false }) {
       ))}
 
       {estado === "error" && (
-        <p role="alert" className="text-center text-sm text-red-300">
+        <p role="alert" className="text-center text-sm text-peligro">
           {error}
         </p>
       )}

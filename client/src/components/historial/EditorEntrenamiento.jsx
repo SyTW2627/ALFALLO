@@ -20,9 +20,9 @@ import {
 import BuscadorEjercicios from "../entrenamiento/BuscadorEjercicios.jsx";
 
 const claseCampo =
-  "mt-1 h-12 w-full rounded-lg border bg-fondo px-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario";
+  "mt-1 h-12 w-full rounded-lg border bg-fondo px-3 text-sm text-texto outline-none transition placeholder:text-suave/60 focus:border-primario";
 const claseNumero =
-  "h-10 w-full rounded-lg border bg-fondo px-2 text-center text-sm font-semibold tabular-nums text-white outline-none transition placeholder:text-suave/50 focus:border-primario";
+  "h-10 w-full rounded-lg border bg-fondo px-2 text-center text-sm font-semibold tabular-nums text-texto outline-none transition placeholder:text-suave/50 focus:border-primario";
 
 function Icono({ d, size = 16 }) {
   return (
@@ -40,7 +40,7 @@ function BotonIcono({ etiqueta, d, onClick, disabled, peligro }) {
       disabled={disabled}
       aria-label={etiqueta}
       className={`grid h-9 w-9 place-items-center rounded-lg text-suave transition disabled:opacity-30 disabled:hover:bg-transparent ${
-        peligro ? "hover:bg-red-500/10 hover:text-red-400" : "hover:bg-elevada hover:text-white"
+        peligro ? "hover:bg-red-500/10 hover:text-peligro" : "hover:bg-elevada hover:text-texto"
       }`}
     >
       <Icono d={d} />
@@ -116,7 +116,7 @@ function EjercicioEditable({ linea, errores, esPrimero, esUltimo, onCambiar, onM
                       onChange={(e) => cambiarSerie(s.clave, "reps", e.target.value)}
                       className={`${claseNumero} ${error ? "border-red-500/60" : "border-borde"}`}
                     />
-                    {error && <p className="mt-1 text-[11px] text-red-400">{error}</p>}
+                    {error && <p className="mt-1 text-[11px] text-peligro">{error}</p>}
                   </td>
                   <td className="py-2 text-right">
                     <BotonIcono etiqueta={`Borrar serie ${i + 1}`} d="M18 6 6 18M6 6l12 12" peligro onClick={() => borrarSerie(s.clave)} />
@@ -133,7 +133,7 @@ function EjercicioEditable({ linea, errores, esPrimero, esUltimo, onCambiar, onM
       <button
         type="button"
         onClick={anadirSerie}
-        className="mt-3 h-10 w-full rounded-lg border border-dashed border-borde text-sm font-semibold text-suave transition hover:border-primario/50 hover:text-white"
+        className="mt-3 h-10 w-full rounded-lg border border-dashed border-borde text-sm font-semibold text-suave transition hover:border-primario/50 hover:text-texto"
       >
         + Añadir serie
       </button>
@@ -206,7 +206,7 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
         <button
           type="button"
           onClick={salir}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-suave transition hover:text-white"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-suave transition hover:text-texto"
         >
           <Icono d="M19 12H5M12 19l-7-7 7-7" size={14} />
           Historial
@@ -231,7 +231,7 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
               aria-invalid={!!e.titulo}
               className={`${claseCampo} ${e.titulo ? "border-red-500/60" : "border-borde"}`}
             />
-            {e.titulo && <p className="mt-1 text-xs text-red-400">{e.titulo}</p>}
+            {e.titulo && <p className="mt-1 text-xs text-peligro">{e.titulo}</p>}
 
             <fieldset className="mt-4">
               <legend className="text-xs font-medium text-suave">Objetivo</legend>
@@ -245,7 +245,7 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
                     className={`h-10 rounded-full border px-4 text-sm font-semibold transition ${
                       borrador.objetivo === valor
                         ? "border-primario bg-primario/15 text-primario"
-                        : "border-borde text-suave hover:text-white"
+                        : "border-borde text-suave hover:text-texto"
                     }`}
                   >
                     {etiqueta}
@@ -292,7 +292,7 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
                 />
               </div>
             </div>
-            {(e.fecha || e.duracion) && <p className="mt-1 text-xs text-red-400">{e.fecha || e.duracion}</p>}
+            {(e.fecha || e.duracion) && <p className="mt-1 text-xs text-peligro">{e.fecha || e.duracion}</p>}
           </section>
 
           {/* Ejercicios */}
@@ -311,7 +311,7 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
             </div>
 
             {e.ejercicios && (
-              <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+              <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-peligro">
                 {e.ejercicios}
               </p>
             )}
@@ -348,7 +348,7 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
               placeholder="Sensaciones, molestias, cambios..."
               value={borrador.notas}
               onChange={(ev) => cambiar("notas", ev.target.value)}
-              className="mt-1 w-full rounded-lg border border-borde bg-fondo p-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario"
+              className="mt-1 w-full rounded-lg border border-borde bg-fondo p-3 text-sm text-texto outline-none transition placeholder:text-suave/60 focus:border-primario"
             />
           </section>
         </div>
@@ -377,12 +377,12 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
             </dl>
 
             {errorServidor && (
-              <p role="alert" className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+              <p role="alert" className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-peligro">
                 {errorServidor}
               </p>
             )}
             {intentado && !valido && (
-              <p role="alert" className="mt-4 text-xs text-red-400">
+              <p role="alert" className="mt-4 text-xs text-peligro">
                 Revisa los campos marcados en rojo.
               </p>
             )}
@@ -390,7 +390,7 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
             <button
               type="submit"
               disabled={guardando}
-              className="mt-4 h-12 w-full rounded-lg bg-primario text-sm font-bold text-fondo transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 h-12 w-full rounded-lg bg-primario text-sm font-bold text-tinta transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-60"
             >
               {guardando ? "Guardando..." : "Guardar cambios"}
             </button>
@@ -399,10 +399,10 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
               <div className="mt-3 rounded-lg border border-borde bg-fondo p-3 text-center text-xs">
                 <p className="text-suave">Tienes cambios sin guardar. ¿Salir igualmente?</p>
                 <div className="mt-2 flex justify-center gap-4">
-                  <button type="button" onClick={onSalir} className="font-bold text-red-400 hover:underline">
+                  <button type="button" onClick={onSalir} className="font-bold text-peligro hover:underline">
                     Salir sin guardar
                   </button>
-                  <button type="button" onClick={() => setConfirmarSalir(false)} className="font-semibold text-suave hover:text-white">
+                  <button type="button" onClick={() => setConfirmarSalir(false)} className="font-semibold text-suave hover:text-texto">
                     Seguir editando
                   </button>
                 </div>
@@ -412,7 +412,7 @@ export default function EditorEntrenamiento({ entrenamiento, catalogo, onGuardad
                 type="button"
                 onClick={salir}
                 disabled={guardando}
-                className="mt-3 h-11 w-full rounded-lg text-sm font-semibold text-suave transition hover:bg-elevada hover:text-white"
+                className="mt-3 h-11 w-full rounded-lg text-sm font-semibold text-suave transition hover:bg-elevada hover:text-texto"
               >
                 Cancelar
               </button>

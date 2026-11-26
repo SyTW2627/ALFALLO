@@ -46,6 +46,7 @@ Proyecto de la asignatura **Sistemas y Tecnologías Web** (Universidad de La Lag
 - Historial de entrenamientos con duración, series y volumen calculados automáticamente
 - Estadísticas y récords personales por ejercicio (peso máximo, 1RM estimado, más repeticiones y mejor sesión), con aviso al momento si superas una marca mientras entrenas
 - Clasificaciones con la gente que sigues: ranking semanal de volumen y de entrenamientos, y quién completó antes cada reto especial
+- **Versus (beta)**: reta a quien sigues a un duelo de 3, 7, 14 o 30 días en press de banca, sentadilla, peso muerto, press militar o remo. Gana quien levante más (1RM estimado) o quien levante más en proporción a su peso corporal. El rival acepta o rechaza, el marcador se actualiza con cada entrenamiento y al terminar se avisa a los dos. Incluye una comparación cara a cara con tus amigos (os seguís mutuamente) en los cinco ejercicios
 - Notificaciones en la campanita: avisos para todos y personales ("Ana te ha dado ánimos", "Pablo te sigue", "Te has quedado a 2 series del reto")
 - Documentación interactiva de la API con Swagger
 
@@ -235,6 +236,13 @@ Los administradores tienen un panel en **`/admin`** desde el que pueden:
 Para entrar, un usuario con sesión iniciada abre `/admin` (o el enlace al final de su perfil) e introduce la **contraseña de administración**, que se configura en el servidor con la variable de entorno `ADMIN_PASSWORD` (en `server/config/dev.env`). Si es correcta, su cuenta pasa a tener el rol `admin`. Se permiten 5 intentos fallidos cada 15 minutos. Desde el panel se puede volver a ser un usuario normal con *Salir del modo administrador*.
 
 > Cambia `ADMIN_PASSWORD` por una contraseña larga en producción. Si la variable no está definida, el acceso de administrador queda desactivado.
+
+### Seguridad en producción
+
+- `JWT_SECRET` es **obligatoria** con `NODE_ENV=production`: sin ella el servidor no firma ni acepta tokens.
+- `CORS_ORIGIN` (opcional): orígenes permitidos separados por comas, p. ej. `https://alfallo.app`. Si no se define, se acepta cualquier origen.
+- El inicio de sesión se bloquea 15 minutos tras 10 intentos fallidos con el mismo email desde la misma IP.
+- Los errores 500 no devuelven detalles internos al cliente; se registran en la consola del servidor.
 
 ## API
 

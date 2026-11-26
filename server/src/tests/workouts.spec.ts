@@ -217,7 +217,6 @@ describe('Pruebas de entrenamientos y su historial (/api/workouts)', () => {
     await mongoose.connection.close();
   });
 
-  
   it('GET /api/workouts/:id - Devuelve un entrenamiento terminado propio', async () => {
     const w = await crearTerminado();
     const res = await request(app).get(`/api/workouts/${w._id}`).set('Authorization', `Bearer ${token}`);

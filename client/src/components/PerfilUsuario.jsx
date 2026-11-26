@@ -156,7 +156,7 @@ export default function PerfilUsuario() {
       <button
         type="button"
         onClick={() => cerrarSesion("/")}
-        className="mt-6 h-12 w-full rounded-lg border border-red-500/40 text-sm font-bold text-red-400 transition hover:bg-red-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400 sm:w-auto sm:px-6"
+        className="mt-6 h-12 w-full rounded-lg border border-red-500/40 text-sm font-bold text-peligro transition hover:bg-red-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400 sm:w-auto sm:px-6"
       >
         Cerrar sesión
       </button>

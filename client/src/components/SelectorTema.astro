@@ -1,0 +1,52 @@
+---
+// Botón para cambiar entre tema claro y oscuro. La elección se guarda en el dispositivo;
+// si el usuario nunca lo ha tocado, se sigue el tema del sistema (ver el script de Layout.astro).
+---
+
+<button
+  type="button"
+  data-selector-tema
+  aria-label="Cambiar tema"
+  title="Cambiar tema"
+  class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-borde bg-superficie text-suave transition hover:border-primario/40 hover:text-texto"
+>
+  <!-- Se ve la luna en el tema claro (para pasar a oscuro) y el sol en el oscuro -->
+  <svg class="solo-claro" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
+  </svg>
+  <svg class="solo-oscuro" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+  </svg>
+</button>
+
+<script>
+  const COLOR_BARRA = { claro: "#f6f5f2", oscuro: "#09090b" };
+
+  function actualizarEtiquetas() {
+    const tema = document.documentElement.dataset.tema === "claro" ? "claro" : "oscuro";
+    const siguiente = tema === "claro" ? "oscuro" : "claro";
+    document.querySelectorAll<HTMLButtonElement>("[data-selector-tema]").forEach((b) => {
+      b.setAttribute("aria-label", `Cambiar a tema ${siguiente}`);
+      b.title = `Tema ${siguiente}`;
+    });
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", COLOR_BARRA[tema]);
+  }
+
+  function cambiarTema() {
+    const raiz = document.documentElement;
+    const nuevo = raiz.dataset.tema === "claro" ? "oscuro" : "claro";
+    raiz.classList.add("cambiando-tema");
+    raiz.dataset.tema = nuevo;
+    try {
+      localStorage.setItem("tema", nuevo);
+    } catch {
+      /* modo privado: el cambio dura hasta recargar */
+    }
+    actualizarEtiquetas();
+    setTimeout(() => raiz.classList.remove("cambiando-tema"), 300);
+  }
+
+  document.querySelectorAll("[data-selector-tema]").forEach((b) => b.addEventListener("click", cambiarTema));
+  actualizarEtiquetas();
+</script>

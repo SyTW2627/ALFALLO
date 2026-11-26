@@ -99,7 +99,8 @@ export function cerrarSesion(destino = "/") {
 
 // ---------- Utilidades ----------
 export function iniciales(nombre = "") {
-  const partes = nombre.trim().split(/\s+/).filter(Boolean);
+  // Solo palabras que empiezan por letra: "Pablo (demo)" → "P", no "P(".
+  const partes = nombre.trim().split(/\s+/).filter((p) => /^\p{L}/u.test(p));
   const texto = (partes[0]?.[0] ?? "?") + (partes[1]?.[0] ?? "");
   return texto.toUpperCase();
 }

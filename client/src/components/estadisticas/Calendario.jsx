@@ -27,7 +27,7 @@ function BotonMes({ etiqueta, disabled, onClick, children }) {
       onClick={onClick}
       disabled={disabled}
       aria-label={etiqueta}
-      className="grid h-9 w-9 place-items-center rounded-lg border border-borde text-suave transition hover:border-primario/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-borde"
+      className="grid h-9 w-9 place-items-center rounded-lg border border-borde text-suave transition hover:border-primario/50 hover:text-texto disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-borde"
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         {children}
@@ -110,7 +110,7 @@ export default function Calendario({ entrenamientos, className = "" }) {
 
               if (!sesiones) {
                 return (
-                  <span key={k} className={`${base} ${esHoy ? "border border-primario/60 text-white" : "text-suave/70"}`}>
+                  <span key={k} className={`${base} ${esHoy ? "border border-primario/60 text-texto" : "text-suave/70"}`}>
                     {d.getDate()}
                   </span>
                 );
@@ -122,7 +122,7 @@ export default function Calendario({ entrenamientos, className = "" }) {
                   aria-pressed={abierto}
                   aria-label={`${nombreDia.format(d)}: ${sesiones} ${sesiones === 1 ? "entrenamiento" : "entrenamientos"}`}
                   onClick={() => setSeleccionado(abierto ? null : k)}
-                  className={`${base} bg-primario font-bold text-fondo hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario ${
+                  className={`${base} bg-primario font-bold text-tinta hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario ${
                     abierto ? "ring-2 ring-white ring-offset-2 ring-offset-superficie" : ""
                   }`}
                 >

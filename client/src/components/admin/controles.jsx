@@ -3,7 +3,7 @@ import { ApiError } from "../../lib/api.js";
 import { cerrarSesion } from "../../lib/auth.js";
 
 const baseCampo =
-  "w-full rounded-lg border border-borde bg-fondo px-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario";
+  "w-full rounded-lg border border-borde bg-fondo px-3 text-sm text-texto outline-none transition placeholder:text-suave/60 focus:border-primario";
 
 export function Etiqueta({ htmlFor, children, ayuda }) {
   return (
@@ -61,7 +61,7 @@ export function Casilla({ id, label, ...props }) {
 export function BotonPrimario({ children, ...props }) {
   return (
     <button
-      className="h-11 rounded-lg bg-primario px-5 text-sm font-bold text-fondo transition hover:brightness-110 disabled:opacity-50"
+      className="h-11 rounded-lg bg-primario px-5 text-sm font-bold text-tinta transition hover:brightness-110 disabled:opacity-50"
       {...props}
     >
       {children}
@@ -74,7 +74,7 @@ export function BotonSecundario({ children, peligro = false, ...props }) {
     <button
       type="button"
       className={`h-9 rounded-lg border px-3 text-xs font-semibold transition disabled:opacity-50 ${
-        peligro ? "border-red-500/40 text-red-300 hover:bg-red-500/10" : "border-borde text-suave hover:text-white"
+        peligro ? "border-red-500/40 text-peligro hover:bg-red-500/10" : "border-borde text-suave hover:text-texto"
       }`}
       {...props}
     >
@@ -86,7 +86,7 @@ export function BotonSecundario({ children, peligro = false, ...props }) {
 export function Mensaje({ tipo = "error", children }) {
   if (!children) return null;
   const estilos =
-    tipo === "error" ? "border-red-500/30 bg-red-500/10 text-red-300" : "border-acento/30 bg-acento/10 text-acento";
+    tipo === "error" ? "border-red-500/30 bg-red-500/10 text-peligro" : "border-acento/30 bg-acento/10 text-acento";
   return (
     <p role={tipo === "error" ? "alert" : "status"} className={`rounded-lg border px-3 py-2 text-sm ${estilos}`}>
       {children}
@@ -99,7 +99,7 @@ export function Etiquetita({ children, color = "suave" }) {
     suave: "border-borde text-suave",
     acento: "border-acento/40 text-acento",
     primario: "border-primario/40 text-primario",
-    rojo: "border-red-500/40 text-red-300",
+    rojo: "border-red-500/40 text-peligro",
   };
   return (
     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${estilos[color]}`}>

@@ -89,7 +89,7 @@ function AccesoAdmin({ usuario, aviso, onConcedido }) {
             <button
               type="button"
               onClick={() => setVer((v) => !v)}
-              className="absolute inset-y-0 right-0 px-3 text-xs font-semibold text-suave hover:text-white"
+              className="absolute inset-y-0 right-0 px-3 text-xs font-semibold text-suave hover:text-texto"
             >
               {ver ? "Ocultar" : "Ver"}
             </button>
@@ -98,7 +98,7 @@ function AccesoAdmin({ usuario, aviso, onConcedido }) {
         <button
           type="submit"
           disabled={enviando}
-          className="h-12 w-full rounded-lg bg-primario text-sm font-bold text-fondo transition hover:brightness-110 disabled:opacity-50"
+          className="h-12 w-full rounded-lg bg-primario text-sm font-bold text-tinta transition hover:brightness-110 disabled:opacity-50"
         >
           {enviando ? "Comprobando..." : "Entrar como administrador"}
         </button>
@@ -163,7 +163,7 @@ function Panel({ usuario, onPerderAdmin, onSalir }) {
           type="button"
           onClick={salir}
           disabled={saliendo}
-          className="h-10 rounded-lg border border-borde px-4 text-sm font-semibold text-suave transition hover:text-white disabled:opacity-50"
+          className="h-10 rounded-lg border border-borde px-4 text-sm font-semibold text-suave transition hover:text-texto disabled:opacity-50"
         >
           Salir del modo administrador
         </button>
@@ -180,7 +180,7 @@ function Panel({ usuario, onPerderAdmin, onSalir }) {
             aria-controls={`panel-${p.valor}`}
             onClick={() => cambiarPestana(p.valor)}
             className={`h-10 shrink-0 rounded-full border px-4 text-sm font-semibold transition ${
-              pestana === p.valor ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-white"
+              pestana === p.valor ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-texto"
             }`}
           >
             {p.etiqueta}

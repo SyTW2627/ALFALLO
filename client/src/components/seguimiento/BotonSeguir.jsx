@@ -33,8 +33,8 @@ export default function BotonSeguir({ idUsuario, loSigo: inicial = false, onCamb
 
   const tamano = pequeno ? "h-8 px-3 text-xs" : "h-11 px-5 text-sm";
   const estilo = loSigo
-    ? "border border-borde bg-elevada text-white hover:border-red-500/40 hover:text-red-300"
-    : "bg-primario text-fondo hover:brightness-110";
+    ? "border border-borde bg-elevada text-texto hover:border-red-500/40 hover:text-peligro"
+    : "bg-primario text-tinta hover:brightness-110";
 
   return (
     <div className="flex shrink-0 flex-col items-end gap-1">
@@ -55,7 +55,7 @@ export default function BotonSeguir({ idUsuario, loSigo: inicial = false, onCamb
         )}
       </button>
       {error && (
-        <p role="alert" className="text-xs text-red-300">
+        <p role="alert" className="text-xs text-peligro">
           {error}
         </p>
       )}

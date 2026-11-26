@@ -59,7 +59,7 @@ export default function DatosCorporales({ perfil, destacado, onGuardado }) {
             value={peso}
             onChange={(e) => setPeso(e.target.value)}
             aria-invalid={error ? "true" : undefined}
-            className={`mt-1 h-11 w-full rounded-lg border bg-fondo px-3 text-sm font-semibold text-white outline-none transition placeholder:text-suave/50 focus:border-primario ${
+            className={`mt-1 h-11 w-full rounded-lg border bg-fondo px-3 text-sm font-semibold text-texto outline-none transition placeholder:text-suave/50 focus:border-primario ${
               error ? "border-red-500/60" : "border-borde"
             }`}
           />
@@ -72,7 +72,7 @@ export default function DatosCorporales({ perfil, destacado, onGuardado }) {
             id="tabla-sexo"
             value={sexo}
             onChange={(e) => setSexo(e.target.value)}
-            className="mt-1 h-11 w-full rounded-lg border border-borde bg-fondo px-3 text-sm text-white outline-none focus:border-primario"
+            className="mt-1 h-11 w-full rounded-lg border border-borde bg-fondo px-3 text-sm text-texto outline-none focus:border-primario"
           >
             {SEXOS.map((s) => (
               <option key={s.valor} value={s.valor}>
@@ -84,7 +84,7 @@ export default function DatosCorporales({ perfil, destacado, onGuardado }) {
       </div>
 
       {error && (
-        <p role="alert" className="mt-2 text-xs text-red-400">
+        <p role="alert" className="mt-2 text-xs text-peligro">
           {error}
         </p>
       )}
@@ -92,7 +92,7 @@ export default function DatosCorporales({ perfil, destacado, onGuardado }) {
       <button
         type="submit"
         disabled={guardando}
-        className="mt-4 h-11 w-full rounded-lg bg-primario text-sm font-bold text-fondo transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:opacity-60"
+        className="mt-4 h-11 w-full rounded-lg bg-primario text-sm font-bold text-tinta transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:opacity-60"
       >
         {guardando ? "Guardando..." : "Guardar"}
       </button>

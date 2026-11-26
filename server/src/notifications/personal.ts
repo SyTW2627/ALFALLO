@@ -124,3 +124,55 @@ export async function avisarRetosCasi(
     });
   }
 }
+
+/* ---------- Versus (beta) ---------- */
+
+type DueloAviso = { _id: Id; retador: Id; rival: Id; etiqueta: string; mensaje?: string };
+
+// "Ana te reta: Press de banca · 7 días"
+export async function avisarVersusRecibido(d: DueloAviso) {
+  await notificar({
+    destinatario: d.rival,
+    clave: `versus:${d._id}:reto`,
+    tipo: 'versus',
+    titulo: recortar(`${await nombreDe(d.retador)} te reta a un versus`, 80),
+    mensaje: d.mensaje ? `${d.etiqueta}. «${recortar(d.mensaje, 140)}»` : `${d.etiqueta}. ¿Aceptas?`,
+    enlace: '/versus',
+  });
+}
+
+// "Pablo ha aceptado tu versus" / "Pablo ha rechazado tu versus"
+export async function avisarVersusRespuesta(d: DueloAviso, aceptado: boolean) {
+  await notificar({
+    destinatario: d.retador,
+    clave: `versus:${d._id}:${aceptado ? 'aceptado' : 'rechazado'}`,
+    tipo: 'versus',
+    titulo: recortar(`${await nombreDe(d.rival)} ha ${aceptado ? 'aceptado' : 'rechazado'} tu versus`, 80),
+    mensaje: aceptado ? `${d.etiqueta}. Empieza ya: cada serie cuenta.` : `${d.etiqueta}. Prueba a retar a otra persona.`,
+    enlace: '/versus',
+  });
+}
+
+// Al terminar: a cada uno, si ha ganado, perdido o empatado.
+export async function avisarVersusTerminado(d: DueloAviso, ganador: 'retador' | 'rival' | 'empate' | null) {
+  const nombres = { retador: await nombreDe(d.retador), rival: await nombreDe(d.rival) };
+  for (const lado of ['retador', 'rival'] as const) {
+    const otro = lado === 'retador' ? 'rival' : 'retador';
+    const titulo =
+      ganador === lado
+        ? `¡Has ganado el versus contra ${nombres[otro]}!`
+        : ganador === otro
+          ? `${nombres[otro]} te ha ganado el versus`
+          : ganador === 'empate'
+            ? `Empate en el versus con ${nombres[otro]}`
+            : `El versus con ${nombres[otro]} ha terminado sin marcas`;
+    await notificar({
+      destinatario: d[lado],
+      clave: `versus:${d._id}:fin`,
+      tipo: 'versus',
+      titulo: recortar(titulo, 80),
+      mensaje: ganador === otro ? `${d.etiqueta}. Pide la revancha.` : `${d.etiqueta}. Mira el resultado.`,
+      enlace: '/versus',
+    });
+  }
+}
