@@ -5,10 +5,12 @@ import {
   empezarEntrenamiento,
   getTestUserEmail,
   iniciarSesion,
+  loginPorApi,
   olvidarSesion,
   publicarEntrenamiento,
   registrarPorApi,
   registrarSeries,
+  seguirPorApi,
   tarjetaPost,
   terminarEntrenamiento,
 } from "./helpers";
@@ -33,17 +35,23 @@ async function publicarComoNuevoUsuario(page: Page, request: APIRequestContext, 
   await terminarEntrenamiento(page);
   await publicarEntrenamiento(page, texto);
   await olvidarSesion(page);
+  return usuario;
 }
 
-test("Dos usuarios publican su entrenamiento y un tercero los ve en el feed y da ánimos", async ({ page, request }) => {
+test("Dos usuarios publican su entrenamiento y quien los sigue los ve en el feed y da ánimos", async ({ page, request }) => {
   test.setTimeout(120_000); // dos entrenamientos completos por la interfaz
 
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
   const texto1 = `Publicado 1 ${id}`;
   const texto2 = `Publicado 2 ${id}`;
 
-  await publicarComoNuevoUsuario(page, request, "Usuaria Uno", texto1);
-  await publicarComoNuevoUsuario(page, request, "Usuario Dos", texto2);
+  const uno = await publicarComoNuevoUsuario(page, request, "Usuaria Uno", texto1);
+  const dos = await publicarComoNuevoUsuario(page, request, "Usuario Dos", texto2);
+
+  // El feed del inicio muestra a la gente que sigues: el usuario compartido sigue a los dos
+  const tokenCompartido = await loginPorApi(request, getTestUserEmail());
+  await seguirPorApi(request, tokenCompartido, uno.id);
+  await seguirPorApi(request, tokenCompartido, dos.id);
 
   // El usuario compartido ve los dos posts, con su autor y sin marcarlos como propios
   await iniciarSesion(page, getTestUserEmail());
