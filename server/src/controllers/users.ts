@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { User } from '../models/user';
 import { AuthRequest } from '../middlewares/auth';
+import { responderError } from '../utils/errores';
 
 // GET /api/users/profile - Obtener perfil del usuario autenticado
 export const getProfile = async (req: AuthRequest, res: Response) => {
@@ -67,7 +68,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    if (!currentPassword || !newPassword) {
+    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || !currentPassword || !newPassword) {
       return res.status(400).json({ message: 'Debes proporcionar la contraseña actual y la nueva' });
     }
 
@@ -88,7 +89,8 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
 
     res.json({ message: 'Contraseña actualizada correctamente' });
   } catch (error) {
-    res.status(500).json({ message: 'Error al cambiar la contraseña', error });
+    // p. ej. la nueva contraseña tiene menos de 6 caracteres → 400 con el motivo
+    responderError(res, error, 'Error al cambiar la contraseña');
   }
 };
 

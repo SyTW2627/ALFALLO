@@ -4,7 +4,7 @@ import { normalizarRutina, PERFILES, resumenRutina, plural } from "../../lib/rut
 const COLOR_NIVEL = {
   Principiante: "border-acento/40 text-acento",
   Intermedio: "border-primario/40 text-primario",
-  Avanzado: "border-red-400/40 text-red-300",
+  Avanzado: "border-red-400/40 text-peligro",
 };
 
 function TarjetaPlantilla({ plantilla, yaLaTienes, onUsar }) {
@@ -94,7 +94,7 @@ export default function RutinasPorDefecto({ plantillas, rutinas, onUsar, error }
         Programas clásicos listos para usar. Al añadir uno se copia a tus rutinas y puedes cambiar lo que quieras.
       </p>
       {error && (
-        <p role="alert" className="mb-3 text-sm text-red-300">
+        <p role="alert" className="mb-3 text-sm text-peligro">
           {error}
         </p>
       )}

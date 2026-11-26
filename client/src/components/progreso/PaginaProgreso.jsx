@@ -65,7 +65,7 @@ export default function PaginaProgreso() {
   if (estado === "error") {
     return (
       <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5">
-        <p role="alert" className="text-sm text-red-300">
+        <p role="alert" className="text-sm text-peligro">
           {error}
         </p>
         <button
@@ -74,7 +74,7 @@ export default function PaginaProgreso() {
             setEstado("cargando");
             cargar();
           }}
-          className="mt-4 h-11 rounded-lg bg-primario px-5 text-sm font-bold text-fondo transition hover:brightness-110"
+          className="mt-4 h-11 rounded-lg bg-primario px-5 text-sm font-bold text-tinta transition hover:brightness-110"
         >
           Reintentar
         </button>
@@ -112,7 +112,7 @@ export default function PaginaProgreso() {
             aria-controls={`panel-${p.valor}`}
             onClick={() => cambiarPestana(p.valor)}
             className={`h-10 shrink-0 rounded-full border px-4 text-sm font-semibold transition ${
-              pestana === p.valor ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-white"
+              pestana === p.valor ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-texto"
             }`}
           >
             {p.etiqueta}

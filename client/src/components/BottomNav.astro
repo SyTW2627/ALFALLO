@@ -1,4 +1,5 @@
 ---
+// Navegación principal: barra inferior en móvil y barra lateral en escritorio.
 const path = Astro.url.pathname;
 
 const links = [
@@ -16,6 +17,12 @@ const links = [
     href: "/estadisticas",
     label: "Estadísticas",
     icon: '<path d="M3 3v18h18"/><path d="M8 17v-5M13 17V8M18 17v-9"/>',
+  },
+  {
+    href: "/versus",
+    label: "Versus",
+    icon: '<path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6M16 16l4 4M19 21l2-2"/><path d="M14.5 6.5 18 3h3v3l-3.5 3.5"/><path d="m5 14 4 4M7 17l-3 3M3 19l2 2"/>',
+    beta: true,
   },
   {
     href: "/rutinas",
@@ -43,58 +50,78 @@ const isActive = (href: string) =>
 
 <nav
   aria-label="Navegación principal"
-  class="fixed inset-x-0 bottom-0 z-50 flex border-t border-borde bg-superficie pb-[env(safe-area-inset-bottom)]
-         md:inset-y-0 md:right-auto md:w-56 md:flex-col md:border-t-0 md:border-r md:p-4 md:pb-4"
+  class="fixed inset-x-0 bottom-0 z-50 border-t border-borde/80 bg-superficie/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl
+         md:inset-y-0 md:right-auto md:flex md:w-20 md:flex-col md:border-r md:border-t-0 md:bg-superficie/60 md:px-3 md:py-6 lg:w-64 lg:px-4"
 >
-  <!-- Logo (solo escritorio) -->
-  <a href="/" class="mb-2 hidden px-4 md:block">
-    <img src="/images/logo.webp" alt="AlFallo, ir al inicio" class="h-18 w-auto" />
+  <!-- Logo: el disco en tableta (barra estrecha) y el logo completo en escritorio -->
+  <a href="/" class="mb-8 hidden justify-center md:flex lg:justify-start lg:px-3" aria-label="AlFallo, ir al inicio">
+    <img src="/images/disco.webp" alt="AlFallo" width="40" height="40" class="h-10 w-10 lg:hidden" />
+    <img src="/images/logo-claro.webp" alt="AlFallo" width="144" height="48" class="solo-claro hidden h-10 w-auto lg:block" />
+    <img src="/images/logo-oscuro.webp" alt="AlFallo" width="144" height="48" class="solo-oscuro hidden h-10 w-auto lg:block" />
   </a>
 
-  <p class="mb-2 hidden px-2 text-[10px] font-semibold uppercase tracking-widest text-suave md:block">
-    Tu espacio
-  </p>
+  <p class="mb-2 hidden px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-suave lg:block">Tu espacio</p>
 
   <!-- Enlaces -->
-  <div class="flex w-full justify-around md:flex-col md:justify-start md:gap-1">
+  <ul class="mx-auto grid max-w-lg grid-cols-7 px-1 md:mx-0 md:flex md:max-w-none md:flex-col md:gap-1 md:px-0">
     {
-      links.map((l) => (
-        <a
-          href={l.href}
-          aria-current={isActive(l.href) ? "page" : undefined}
-          class:list={[
-            "flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario",
-            "md:min-h-0 md:flex-none md:flex-row md:justify-start md:gap-3 md:rounded-lg md:px-3 md:py-2.5 md:text-sm",
-            isActive(l.href)
-              ? "bg-primario/10 text-primario"
-              : "text-suave hover:text-white md:hover:bg-elevada",
-          ]}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-            set:html={l.icon}
-          />
-          <span>{l.label}</span>
-        </a>
-      ))
+      links.map((l) => {
+        const activo = isActive(l.href);
+        return (
+          <li>
+            <a
+              href={l.href}
+              aria-current={activo ? "page" : undefined}
+              title={l.label}
+              class:list={[
+                "group relative flex h-16 flex-col items-center justify-center gap-1 rounded-xl text-[10.5px] font-semibold tracking-tight transition-colors",
+                "md:h-12 md:flex-row md:justify-center md:gap-3 md:text-sm md:font-medium md:tracking-normal lg:h-11 lg:justify-start lg:px-3",
+                activo ? "text-primario md:bg-primario/10" : "text-suave hover:text-texto md:hover:bg-elevada",
+              ]}
+            >
+              {/* En móvil, una pastilla detrás del icono marca la sección activa */}
+              <span
+                class:list={[
+                  "grid h-8 w-12 place-items-center rounded-full transition-colors md:h-auto md:w-auto",
+                  activo ? "bg-primario/12 md:bg-transparent" : "group-hover:bg-elevada md:group-hover:bg-transparent",
+                ]}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="21"
+                  height="21"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width={activo ? "2.3" : "2"}
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  set:html={l.icon}
+                />
+              </span>
+              <span class="max-w-full truncate px-0.5 md:sr-only lg:not-sr-only lg:px-0">{l.label}</span>
+              {l.beta && (
+                <span class="absolute right-1 top-1.5 rounded-full bg-acento px-1 text-[8px] font-bold uppercase leading-[14px] text-tinta md:right-1 md:top-1 lg:static lg:ml-auto lg:px-1.5 lg:text-[9px]">
+                  Beta
+                </span>
+              )}
+              {activo && <span aria-hidden="true" class="absolute inset-y-2.5 -left-3 hidden w-1 rounded-r-full bg-primario md:block lg:-left-4" />}
+            </a>
+          </li>
+        );
+      })
     }
-  </div>
+  </ul>
 
   <!-- Frase motivacional (solo escritorio) -->
-  <div class="mt-auto hidden rounded-xl border border-borde bg-elevada p-4 md:block">
-    <p class="text-sm font-semibold leading-snug">
-      Una repetición más.<br />Un paso más fuerte.
-    </p>
-    <p class="mt-1 text-xs text-suave">Hazlo por ti.</p>
+  <div class="mt-auto hidden overflow-hidden rounded-2xl border border-borde bg-elevada/60 p-4 lg:block">
+    <div class="flex items-center gap-3">
+      <img src="/images/disco.webp" alt="" width="36" height="36" class="h-9 w-9 shrink-0" />
+      <p class="text-sm font-semibold leading-snug">
+        Una repetición más.<br />Un paso más fuerte.
+      </p>
+    </div>
+    <p class="mt-2 text-xs text-suave">Hazlo por ti.</p>
   </div>
 </nav>

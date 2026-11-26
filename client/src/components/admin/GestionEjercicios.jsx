@@ -112,7 +112,7 @@ function FormularioEjercicio({ opciones, inicial, onGuardado, onCancelar, alPerd
           {guardando ? "Guardando..." : editando ? "Guardar cambios" : "Añadir ejercicio"}
         </BotonPrimario>
         {onCancelar && (
-          <button type="button" onClick={onCancelar} className="h-11 rounded-lg px-4 text-sm font-semibold text-suave hover:text-white">
+          <button type="button" onClick={onCancelar} className="h-11 rounded-lg px-4 text-sm font-semibold text-suave hover:text-texto">
             Cancelar
           </button>
         )}

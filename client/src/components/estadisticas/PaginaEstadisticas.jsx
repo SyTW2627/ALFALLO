@@ -125,13 +125,13 @@ export default function PaginaEstadisticas() {
   if (estado === "error") {
     return (
       <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5">
-        <p role="alert" className="text-sm text-red-300">
+        <p role="alert" className="text-sm text-peligro">
           {error}
         </p>
         <button
           type="button"
           onClick={() => setIntento((n) => n + 1)}
-          className="mt-4 h-11 rounded-lg bg-primario px-5 text-sm font-bold text-fondo transition hover:brightness-110"
+          className="mt-4 h-11 rounded-lg bg-primario px-5 text-sm font-bold text-tinta transition hover:brightness-110"
         >
           Reintentar
         </button>
@@ -156,7 +156,7 @@ export default function PaginaEstadisticas() {
           <p className="mt-1 text-sm text-suave">Termina tu primer entrenamiento y aquí verás tu volumen, récords y progresión.</p>
           <a
             href="/entrenamiento"
-            className="mt-5 inline-flex h-12 items-center rounded-lg bg-primario px-6 text-sm font-bold text-fondo transition hover:brightness-110"
+            className="mt-5 inline-flex h-12 items-center rounded-lg bg-primario px-6 text-sm font-bold text-tinta transition hover:brightness-110"
           >
             Empezar entrenamiento
           </a>
@@ -182,7 +182,7 @@ export default function PaginaEstadisticas() {
             aria-pressed={rango === x.valor}
             onClick={() => cambiarRango(x.valor)}
             className={`h-10 shrink-0 rounded-full border px-4 text-sm font-semibold transition ${
-              rango === x.valor ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-white"
+              rango === x.valor ? "border-primario bg-primario/15 text-primario" : "border-borde text-suave hover:text-texto"
             }`}
           >
             {x.etiqueta}
@@ -223,7 +223,7 @@ export default function PaginaEstadisticas() {
                 renderTooltip={(d) => (
                   <>
                     <p className="text-suave">Semana del {fechaCorta(d.semana.inicio)}</p>
-                    <p className="mt-0.5 text-sm font-bold text-white">{formatearKg(d.valor)}</p>
+                    <p className="mt-0.5 text-sm font-bold text-texto">{formatearKg(d.valor)}</p>
                     <p className="text-suave">
                       {d.semana.entrenamientos} {d.semana.entrenamientos === 1 ? "entrenamiento" : "entrenamientos"}
                     </p>
@@ -231,7 +231,7 @@ export default function PaginaEstadisticas() {
                 )}
               />
               <details className="mt-3 text-sm">
-                <summary className="cursor-pointer text-xs font-semibold text-suave hover:text-white">Ver datos</summary>
+                <summary className="cursor-pointer text-xs font-semibold text-suave hover:text-texto">Ver datos</summary>
                 <table className="mt-2 w-full text-left">
                   <thead className="text-[10px] uppercase tracking-wider text-suave">
                     <tr>
@@ -294,7 +294,7 @@ export default function PaginaEstadisticas() {
               <select
                 value={idEjercicio}
                 onChange={(e) => setEjercicio(e.target.value)}
-                className="h-10 max-w-[240px] rounded-lg border border-borde bg-fondo px-3 text-sm text-white outline-none focus:border-primario"
+                className="h-10 max-w-[240px] rounded-lg border border-borde bg-fondo px-3 text-sm text-texto outline-none focus:border-primario"
               >
                 {datos.ejercicios.map((e) => (
                   <option key={e.id} value={e.id}>
@@ -316,7 +316,7 @@ export default function PaginaEstadisticas() {
           <>
             <p className="-mt-2 mb-3 text-xs text-suave">
               Mejor serie de cada sesión ·{" "}
-              <span className={puntos.at(-1).kg >= puntos[0].kg ? "font-semibold text-acento" : "font-semibold text-white"}>
+              <span className={puntos.at(-1).kg >= puntos[0].kg ? "font-semibold text-acento" : "font-semibold text-texto"}>
                 {puntos.at(-1).kg - puntos[0].kg >= 0 ? "+" : ""}
                 {formatearKg(puntos.at(-1).kg - puntos[0].kg)}
               </span>{" "}
@@ -332,7 +332,7 @@ export default function PaginaEstadisticas() {
                   <p className="text-suave">
                     {fechaCorta(p.fecha)} · {p.titulo}
                   </p>
-                  <p className="mt-0.5 text-sm font-bold text-white">
+                  <p className="mt-0.5 text-sm font-bold text-texto">
                     {formatearKg(p.kg)} × {p.reps}
                   </p>
                 </>

@@ -29,7 +29,7 @@ function Tooltip({ x, y, ancho, children }) {
   return (
     <div
       role="status"
-      className="pointer-events-none absolute z-10 whitespace-nowrap rounded-lg border border-borde bg-elevada px-3 py-2 text-xs shadow-xl shadow-black/40"
+      className="pointer-events-none absolute z-10 whitespace-nowrap rounded-lg border border-borde bg-elevada px-3 py-2 text-xs shadow-xl shadow-sombra/40"
       style={{ left: x, top: y, transform: `translate(${izquierda ? "calc(-100% - 10px)" : "10px"}, -50%)` }}
     >
       {children}

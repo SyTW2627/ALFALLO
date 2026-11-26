@@ -97,7 +97,17 @@ export default function PerfilPublico() {
           <p className="truncate text-lg font-bold">{perfil.nombre}</p>
           <p className="truncate text-sm text-suave">Miembro desde {formatearFecha(perfil.creadoEn)}</p>
         </div>
-        <BotonSeguir idUsuario={perfil.id} loSigo={perfil.loSigo} onCambio={alCambiarSeguimiento} />
+        <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
+          {perfil.loSigo && (
+            <a
+              href={`/versus?rival=${encodeURIComponent(perfil.id)}`}
+              className="inline-flex h-10 items-center rounded-lg border border-acento/50 px-3 text-sm font-bold text-acento transition hover:bg-acento/10"
+            >
+              Retar
+            </a>
+          )}
+          <BotonSeguir idUsuario={perfil.id} loSigo={perfil.loSigo} onCambio={alCambiarSeguimiento} />
+        </div>
       </section>
 
       <div className="mt-4 grid grid-cols-3 gap-4">

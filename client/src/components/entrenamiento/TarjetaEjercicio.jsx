@@ -2,7 +2,7 @@ import { useState } from "react";
 import { etiquetaZona, formatearKg, leerNumero } from "../../lib/entrenamiento.js";
 
 const claseInput =
-  "h-11 w-full rounded-lg border bg-fondo px-3 text-center text-sm font-semibold tabular-nums text-white outline-none transition placeholder:text-suave/50 focus:border-primario";
+  "h-11 w-full rounded-lg border bg-fondo px-3 text-center text-sm font-semibold tabular-nums text-texto outline-none transition placeholder:text-suave/50 focus:border-primario";
 
 function valorInicial(ejercicio, anterior, campo) {
   const ultima = ejercicio.series.at(-1);
@@ -60,7 +60,7 @@ export default function TarjetaEjercicio({
           </p>
           {anterior && (
             <p className="mt-1 text-xs text-suave">
-              Última vez: <span className="font-semibold text-white">{formatearKg(anterior.kg)} × {anterior.reps}</span>
+              Última vez: <span className="font-semibold text-texto">{formatearKg(anterior.kg)} × {anterior.reps}</span>
             </p>
           )}
         </div>
@@ -80,7 +80,7 @@ export default function TarjetaEjercicio({
             disabled={esPrimero}
             onClick={() => onMover(-1)}
             aria-label={`Subir ${ejercicio.nombre}`}
-            className="grid h-9 w-9 place-items-center rounded-lg text-suave transition hover:bg-elevada hover:text-white disabled:opacity-30 disabled:hover:bg-transparent"
+            className="grid h-9 w-9 place-items-center rounded-lg text-suave transition hover:bg-elevada hover:text-texto disabled:opacity-30 disabled:hover:bg-transparent"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="m18 15-6-6-6 6" />
@@ -91,7 +91,7 @@ export default function TarjetaEjercicio({
             disabled={esUltimo}
             onClick={() => onMover(1)}
             aria-label={`Bajar ${ejercicio.nombre}`}
-            className="grid h-9 w-9 place-items-center rounded-lg text-suave transition hover:bg-elevada hover:text-white disabled:opacity-30 disabled:hover:bg-transparent"
+            className="grid h-9 w-9 place-items-center rounded-lg text-suave transition hover:bg-elevada hover:text-texto disabled:opacity-30 disabled:hover:bg-transparent"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="m6 9 6 6 6-6" />
@@ -124,7 +124,7 @@ export default function TarjetaEjercicio({
                     type="button"
                     onClick={() => onBorrarSerie(i)}
                     aria-label={`Borrar serie ${i + 1}`}
-                    className="grid h-9 w-9 place-items-center rounded-lg text-suave transition hover:bg-red-500/10 hover:text-red-400"
+                    className="grid h-9 w-9 place-items-center rounded-lg text-suave transition hover:bg-red-500/10 hover:text-peligro"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M18 6 6 18M6 6l12 12" />
@@ -167,13 +167,13 @@ export default function TarjetaEjercicio({
         </div>
         <button
           type="submit"
-          className="h-11 rounded-lg bg-primario px-4 text-sm font-bold text-fondo transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
+          className="h-11 rounded-lg bg-primario px-4 text-sm font-bold text-tinta transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
         >
           + Serie
         </button>
       </form>
       {error && (
-        <p role="alert" className="mt-2 text-xs text-red-400">
+        <p role="alert" className="mt-2 text-xs text-peligro">
           {error}
         </p>
       )}
@@ -185,10 +185,10 @@ export default function TarjetaEjercicio({
             <span className="text-suave">
               {series.length ? `¿Quitar y borrar ${series.length} series?` : "¿Quitar ejercicio?"}
             </span>
-            <button type="button" onClick={onQuitar} className="font-bold text-red-400 hover:underline">
+            <button type="button" onClick={onQuitar} className="font-bold text-peligro hover:underline">
               Sí, quitar
             </button>
-            <button type="button" onClick={() => setConfirmarQuitar(false)} className="font-semibold text-suave hover:text-white">
+            <button type="button" onClick={() => setConfirmarQuitar(false)} className="font-semibold text-suave hover:text-texto">
               No
             </button>
           </span>
@@ -196,7 +196,7 @@ export default function TarjetaEjercicio({
           <button
             type="button"
             onClick={() => setConfirmarQuitar(true)}
-            className="text-xs font-semibold text-suave transition hover:text-red-400"
+            className="text-xs font-semibold text-suave transition hover:text-peligro"
           >
             Quitar ejercicio
           </button>

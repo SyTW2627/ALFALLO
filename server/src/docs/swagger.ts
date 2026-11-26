@@ -29,6 +29,7 @@ const options: swaggerJsdoc.Options = {
             { name: 'Posts', description: 'Feed, kudos y comentarios' },
             { name: 'Progress', description: 'Rangos, hitos y retos' },
             { name: 'Notifications', description: 'Notificaciones para todos los usuarios (campanita)' },
+            { name: 'Versus', description: 'Versus (beta): duelos de fuerza entre amigos' },
             { name: 'Admin', description: 'Zona de administración: hitos, retos especiales y notificaciones' },
         ],
         components: {

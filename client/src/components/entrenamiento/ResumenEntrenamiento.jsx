@@ -104,7 +104,7 @@ import {
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <a
             href="/"
-            className="inline-flex h-12 items-center justify-center rounded-lg bg-primario px-6 text-sm font-bold text-fondo transition hover:brightness-110"
+            className="inline-flex h-12 items-center justify-center rounded-lg bg-primario px-6 text-sm font-bold text-tinta transition hover:brightness-110"
           >
             Volver al inicio
           </a>

@@ -12,7 +12,7 @@ function BotonIcono({ etiqueta, onClick, disabled, peligro = false, children }) 
       aria-label={etiqueta}
       title={etiqueta}
       className={`grid h-9 w-9 place-items-center rounded-lg text-suave transition disabled:opacity-30 disabled:hover:bg-transparent ${
-        peligro ? "hover:bg-red-500/10 hover:text-red-400" : "hover:bg-elevada hover:text-white"
+        peligro ? "hover:bg-red-500/10 hover:text-peligro" : "hover:bg-elevada hover:text-texto"
       }`}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -83,7 +83,7 @@ export default function DiaRutina({
             placeholder="Torso, Pierna, Empuje..."
             value={dia.nombre}
             onChange={(e) => onCambiar({ ...dia, nombre: e.target.value })}
-            className="h-10 w-full rounded-lg border border-transparent bg-transparent px-2 -ml-2 text-xl font-extrabold text-white outline-none transition placeholder:text-suave/50 hover:border-borde focus:border-primario focus:bg-fondo"
+            className="h-10 w-full rounded-lg border border-transparent bg-transparent px-2 -ml-2 text-xl font-extrabold text-texto outline-none transition placeholder:text-suave/50 hover:border-borde focus:border-primario focus:bg-fondo"
           />
           <p className="mt-0.5 text-xs text-suave">
             {plural(dia.ejercicios.length, "ejercicio", "ejercicios")}
@@ -113,12 +113,12 @@ export default function DiaRutina({
 
       {confirmarQuitar && (
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm">
-          <span className="text-red-300">¿Eliminar este día y sus {dia.ejercicios.length} ejercicios?</span>
+          <span className="text-peligro">¿Eliminar este día y sus {dia.ejercicios.length} ejercicios?</span>
           <span className="flex gap-3">
-            <button type="button" onClick={onQuitar} className="font-bold text-red-400 hover:underline">
+            <button type="button" onClick={onQuitar} className="font-bold text-peligro hover:underline">
               Sí, eliminar
             </button>
-            <button type="button" onClick={() => setConfirmarQuitar(false)} className="font-semibold text-suave hover:text-white">
+            <button type="button" onClick={() => setConfirmarQuitar(false)} className="font-semibold text-suave hover:text-texto">
               No
             </button>
           </span>
@@ -210,7 +210,7 @@ export default function DiaRutina({
       </ul>
 
       {error && (
-        <p role="alert" className="mt-3 text-xs text-red-400">
+        <p role="alert" className="mt-3 text-xs text-peligro">
           {error}
         </p>
       )}

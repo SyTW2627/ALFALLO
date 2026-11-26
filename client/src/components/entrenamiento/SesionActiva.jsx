@@ -28,7 +28,7 @@ function estadoGuardado(r) {
   if (r.enviando) return { texto: "Guardando...", clase: "text-suave" };
   if (r.estado === "sin-conexion") return { texto: "Sin conexión · guardado en el móvil", clase: "text-primario" };
   if (r.estado === "sin-sesion") return { texto: "Guardado en el móvil · inicia sesión para subirlo", clase: "text-primario" };
-  if (r.estado === "error" || r.estado === "conflicto") return { texto: "Sin subir", clase: "text-red-400", reintentar: true };
+  if (r.estado === "error" || r.estado === "conflicto") return { texto: "Sin subir", clase: "text-peligro", reintentar: true };
   if (r.sinEnviar > 0) return { texto: "Guardado en el móvil", clase: "text-suave" };
   return { texto: "Guardado", clase: "text-acento" };
 }
@@ -61,7 +61,7 @@ function AvisoRecord({ record, onCerrar }) {
   return (
     <div
       role="status"
-      className="fixed inset-x-4 top-4 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-acento/40 bg-elevada p-4 shadow-2xl shadow-black/60 md:left-60"
+      className="fixed inset-x-4 top-4 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-acento/40 bg-elevada p-4 shadow-2xl shadow-sombra/40 md:left-24 lg:left-68"
     >
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-acento/15 text-acento" aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -72,7 +72,7 @@ function AvisoRecord({ record, onCerrar }) {
         <p className="font-bold">¡Nuevo récord en {record.nombre.toLowerCase()}!</p>
         <p className="text-xs text-suave">{detalle}</p>
       </div>
-      <button type="button" onClick={onCerrar} aria-label="Cerrar aviso" className="shrink-0 px-1 text-suave hover:text-white">
+      <button type="button" onClick={onCerrar} aria-label="Cerrar aviso" className="shrink-0 px-1 text-suave hover:text-texto">
         ✕
       </button>
     </div>
@@ -270,12 +270,12 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
                 setNotas(e.target.value);
                 cambiar({ notas: e.target.value }, { esperar: 800 });
               }}
-              className="mt-1 w-full resize-y rounded-lg border border-borde bg-fondo p-3 text-sm text-white outline-none transition placeholder:text-suave/60 focus:border-primario"
+              className="mt-1 w-full resize-y rounded-lg border border-borde bg-fondo p-3 text-sm text-texto outline-none transition placeholder:text-suave/60 focus:border-primario"
             />
           </div>
 
           {guardado.reintentar && sync.mensaje && (
-            <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+            <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-peligro">
               {sync.mensaje} Tus series siguen guardadas en este móvil.
             </p>
           )}
@@ -283,7 +283,7 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
           {error && (
             <p
               role="alert"
-              className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+              className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-peligro"
             >
               {error}
             </p>
@@ -300,7 +300,7 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
                   type="button"
                   disabled={ocupado}
                   onClick={terminar}
-                  className="h-11 flex-1 rounded-lg bg-primario text-sm font-bold text-fondo transition hover:brightness-110 disabled:opacity-60"
+                  className="h-11 flex-1 rounded-lg bg-primario text-sm font-bold text-tinta transition hover:brightness-110 disabled:opacity-60"
                 >
                   {ocupado ? "Guardando..." : "Terminar"}
                 </button>
@@ -323,7 +323,7 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
                   type="button"
                   disabled={ocupado}
                   onClick={descartar}
-                  className="h-11 flex-1 rounded-lg bg-red-500 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+                  className="h-11 flex-1 rounded-lg bg-red-500 text-sm font-bold text-texto transition hover:brightness-110 disabled:opacity-60"
                 >
                   {ocupado ? "Descartando..." : "Descartar"}
                 </button>
@@ -343,7 +343,7 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
                 type="button"
                 disabled={series === 0}
                 onClick={() => setConfirmar("terminar")}
-                className="h-12 w-full rounded-lg bg-primario text-sm font-bold text-fondo shadow-lg shadow-primario/20 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                className="h-12 w-full rounded-lg bg-primario text-sm font-bold text-tinta shadow-lg shadow-primario/20 transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
               >
                 Terminar entrenamiento
               </button>
@@ -353,7 +353,7 @@ export default function SesionActiva({ inicial, catalogo, historial, onTerminado
               <button
                 type="button"
                 onClick={() => setConfirmar("descartar")}
-                className="h-11 w-full rounded-lg text-sm font-semibold text-red-400 transition hover:bg-red-500/10"
+                className="h-11 w-full rounded-lg text-sm font-semibold text-peligro transition hover:bg-red-500/10"
               >
                 Descartar entrenamiento
               </button>

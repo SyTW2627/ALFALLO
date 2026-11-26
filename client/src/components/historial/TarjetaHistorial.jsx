@@ -102,7 +102,7 @@ export default function TarjetaHistorial({ entrenamiento: w, abierto, sinConexio
           {w.notas && <p className="mt-4 rounded-lg border border-borde bg-fondo p-3 text-sm text-suave">{w.notas}</p>}
 
           {error && (
-            <p role="alert" className="mt-3 text-xs text-red-400">
+            <p role="alert" className="mt-3 text-xs text-peligro">
               {error}
             </p>
           )}
@@ -128,7 +128,7 @@ export default function TarjetaHistorial({ entrenamiento: w, abierto, sinConexio
                   type="button"
                   disabled={borrando}
                   onClick={eliminar}
-                  className="font-bold text-red-400 hover:underline disabled:opacity-60"
+                  className="font-bold text-peligro hover:underline disabled:opacity-60"
                 >
                   {borrando ? "Eliminando..." : "Sí, eliminar"}
                 </button>
@@ -136,7 +136,7 @@ export default function TarjetaHistorial({ entrenamiento: w, abierto, sinConexio
                   type="button"
                   disabled={borrando}
                   onClick={() => setConfirmar(false)}
-                  className="font-semibold text-suave hover:text-white"
+                  className="font-semibold text-suave hover:text-texto"
                 >
                   No
                 </button>
@@ -146,7 +146,7 @@ export default function TarjetaHistorial({ entrenamiento: w, abierto, sinConexio
                 type="button"
                 onClick={() => setConfirmar(true)}
                 disabled={sinConexion}
-                className="h-11 rounded-lg px-4 text-sm font-semibold text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-11 rounded-lg px-4 text-sm font-semibold text-peligro transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Eliminar
               </button>

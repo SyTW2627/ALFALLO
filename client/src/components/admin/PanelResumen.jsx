@@ -13,7 +13,7 @@ function Tarjeta({ titulo, valor, detalle, tono, onClick }) {
   const contenido = (
     <>
       <p className="text-xs text-suave">{titulo}</p>
-      <p className={`mt-2 text-3xl font-extrabold tabular-nums ${tono === "alerta" ? "text-red-300" : ""}`}>{valor}</p>
+      <p className={`mt-2 text-3xl font-extrabold tabular-nums ${tono === "alerta" ? "text-peligro" : ""}`}>{valor}</p>
       {detalle && <p className="mt-1 text-xs text-suave">{detalle}</p>}
     </>
   );

@@ -5,7 +5,7 @@ import { Document, Schema, Types, model } from "mongoose";
 // Para saber cuáles ha leído cada usuario no se guarda nada aquí: el usuario tiene
 // `notificationsSeenAt` y son "nuevas" las publicadas después de esa fecha.
 // `publicarEn` permite programarlas: hasta esa fecha no las ve nadie más que los administradores.
-export const NOTIFICATION_TYPES = ["aviso", "hito", "reto", "kudos", "comentario", "seguidor", "progreso"] as const;
+export const NOTIFICATION_TYPES = ["aviso", "hito", "reto", "kudos", "comentario", "seguidor", "progreso", "versus"] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
 export interface INotification extends Document {

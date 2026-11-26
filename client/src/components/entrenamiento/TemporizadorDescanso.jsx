@@ -36,7 +36,7 @@ export default function TemporizadorDescanso({ fin: finInicial, total: totalInic
     <div
       role="timer"
       aria-live="polite"
-      className="fixed inset-x-4 bottom-20 z-40 mx-auto max-w-md overflow-hidden rounded-2xl border border-borde bg-elevada shadow-2xl shadow-black/60 md:bottom-6 md:left-56"
+      className="fixed inset-x-4 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-md overflow-hidden rounded-2xl border border-borde bg-elevada shadow-2xl shadow-sombra/40 md:bottom-6 md:left-24 lg:left-68"
     >
       <div className="h-1 bg-borde">
         <div
@@ -59,7 +59,7 @@ export default function TemporizadorDescanso({ fin: finInicial, total: totalInic
               type="button"
               onClick={() => ajustar(-15)}
               aria-label="Restar 15 segundos"
-              className="h-10 rounded-lg border border-borde px-3 text-xs font-bold text-suave transition hover:text-white"
+              className="h-10 rounded-lg border border-borde px-3 text-xs font-bold text-suave transition hover:text-texto"
             >
               −15
             </button>
@@ -67,7 +67,7 @@ export default function TemporizadorDescanso({ fin: finInicial, total: totalInic
               type="button"
               onClick={() => ajustar(15)}
               aria-label="Sumar 15 segundos"
-              className="h-10 rounded-lg border border-borde px-3 text-xs font-bold text-suave transition hover:text-white"
+              className="h-10 rounded-lg border border-borde px-3 text-xs font-bold text-suave transition hover:text-texto"
             >
               +15
             </button>
@@ -76,7 +76,7 @@ export default function TemporizadorDescanso({ fin: finInicial, total: totalInic
         <button
           type="button"
           onClick={onCerrar}
-          className="h-10 rounded-lg bg-primario px-4 text-xs font-bold text-fondo transition hover:brightness-110"
+          className="h-10 rounded-lg bg-primario px-4 text-xs font-bold text-tinta transition hover:brightness-110"
         >
           {terminado ? "Cerrar" : "Saltar"}
         </button>

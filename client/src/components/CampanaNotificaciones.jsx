@@ -19,11 +19,12 @@ function haceCuanto(fecha) {
 const ICONOS = {
   hito: { color: "text-acento bg-acento/15", path: "M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" },
   reto: { color: "text-primario bg-primario/15", path: "M12 2 15 8.5l7 .9-5.1 4.8 1.3 7L12 17.8 5.8 21.2l1.3-7L2 9.4l7-.9L12 2Z" },
-  aviso: { color: "text-white bg-elevada", path: "M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14" },
+  aviso: { color: "text-texto bg-elevada", path: "M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14" },
   // Personales
   kudos: { color: "text-primario bg-primario/15", path: "M12 2c1 3 4 4.5 4 8a4 4 0 0 1-8 0c0-1.5.5-2.5 1.5-3.5C9.5 9 11 9 12 2ZM6 14a6 6 0 0 0 12 0" },
-  comentario: { color: "text-white bg-elevada", path: "M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" },
+  comentario: { color: "text-texto bg-elevada", path: "M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" },
   seguidor: { color: "text-acento bg-acento/15", path: "M15 19a6 6 0 0 0-12 0M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6" },
+  versus: { color: "text-acento bg-acento/15", path: "M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M14.5 6.5 18 3h3v3l-3.5 3.5M5 14l4 4M7 17l-3 3M3 19l2 2" },
   progreso: { color: "text-primario bg-primario/15", path: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" },
 };
 
@@ -130,14 +131,14 @@ export default function CampanaNotificaciones() {
         aria-label={etiqueta}
         aria-expanded={abierto}
         aria-haspopup="dialog"
-        className="relative grid h-10 w-10 place-items-center rounded-full border border-borde bg-superficie text-suave transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
+        className="relative grid h-10 w-10 place-items-center rounded-full border border-borde bg-superficie text-suave transition hover:text-texto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primario"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
           <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
         </svg>
         {noLeidas > 0 && (
-          <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-primario px-1 text-[10px] font-bold text-fondo">
+          <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-primario px-1 text-[10px] font-bold text-tinta">
             {noLeidas > 9 ? "9+" : noLeidas}
           </span>
         )}
@@ -147,7 +148,7 @@ export default function CampanaNotificaciones() {
         <div
           role="dialog"
           aria-label="Notificaciones"
-          className="absolute right-0 top-12 z-40 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-borde bg-superficie shadow-2xl shadow-black/60"
+          className="absolute right-0 top-12 z-40 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-borde bg-superficie shadow-2xl shadow-sombra/60"
         >
           <p className="border-b border-borde px-4 py-3 text-sm font-bold">Notificaciones</p>
           {notificaciones.length ? (

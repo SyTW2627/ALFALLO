@@ -153,7 +153,7 @@ function FormularioHito({ opciones, inicial, onGuardado, onCancelar, alPerderAdm
           {guardando ? "Guardando..." : editando ? "Guardar cambios" : "Crear hito"}
         </BotonPrimario>
         {onCancelar && (
-          <button type="button" onClick={onCancelar} className="h-11 rounded-lg px-4 text-sm font-semibold text-suave hover:text-white">
+          <button type="button" onClick={onCancelar} className="h-11 rounded-lg px-4 text-sm font-semibold text-suave hover:text-texto">
             Cancelar
           </button>
         )}
@@ -255,7 +255,7 @@ export default function GestionHitos({ opciones, alPerderAdmin }) {
                   </div>
                   <p className="mt-1 text-sm text-suave">{h.descripcion}</p>
                   <p className="mt-2 text-xs text-suave">
-                    {m?.label ?? h.metrica}: <strong className="text-white">{formatearValorHito(m?.unidad ?? "", h.objetivo)}</strong>
+                    {m?.label ?? h.metrica}: <strong className="text-texto">{formatearValorHito(m?.unidad ?? "", h.objetivo)}</strong>
                     {" · "}
                     Conseguido por {h.conseguidoPor} {h.conseguidoPor === 1 ? "usuario" : "usuarios"}
                   </p>
