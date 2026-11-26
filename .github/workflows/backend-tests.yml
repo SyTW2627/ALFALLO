@@ -50,6 +50,7 @@ jobs:
           PORT=3001
           MONGODB_URL=mongodb://127.0.0.1:27017/alfallo-test
           JWT_SECRET=ci-secret-solo-para-tests
+          ADMIN_PASSWORD=ci-admin-solo-para-tests
           EOF
 
       - name: Ejecutar los tests

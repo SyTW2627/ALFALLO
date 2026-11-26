@@ -29,7 +29,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: |
             package-lock.json
@@ -50,6 +50,7 @@ jobs:
           PORT=3000
           MONGODB_URL=mongodb://127.0.0.1:27017/alfallo-e2e
           JWT_SECRET=ci-secret-solo-para-tests
+          ADMIN_PASSWORD=ci-admin-solo-para-tests
           EOF
           echo "PUBLIC_API_URL=http://localhost:3000/api" > client/.env
 
@@ -81,7 +82,7 @@ jobs:
 
       - name: Log de la API (si algo falla)
         if: failure()
-        run: cat api.log
+        run: cat api.log 2>/dev/null || echo "La API no llegó a arrancar"
 
       - name: Guardar el informe de Playwright
         uses: actions/upload-artifact@v4
